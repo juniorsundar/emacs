@@ -115,7 +115,37 @@
   (start/leader-keys
     "t" '(:ignore t :wk "Toggle")
     "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-    "t l" '(display-line-numbers-mode :wk "Toggle line numbers")))
+    "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+
+  (start/leader-keys
+    "o" '(:ignore t :which-key "Org")
+    "o t" '(:ignore t :which-key "TODO States")
+    "o t t" '(org-todo :which-key "Set TODO")
+    "o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+    "o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+    "o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+    "o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+    "o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+
+  (start/leader-keys
+    "o a" '(:ignore t :wk "Org Agenda")
+    "o a c" '(org-capture :wk "Capture")
+    "o a a" '(org-agenda :wk "Agenda")
+
+    "o n" '(:ignore t :wk "Org Roam")
+    "o n l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+    "o n f" '(org-roam-node-find :wk "Find Node")
+    "o n i" '(org-roam-node-insert :wk "Insert Node")
+    "o n c" '(org-roam-capture :wk "Capture")
+    "o n g" '(org-roam-graph :wk "Graph"))
+
+  (start/leader-keys
+    "o n d" '(:ignore t :wk "Org Roam Dailies")
+    "o n d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+    "o n d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+    "o n d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+    "o n d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+    "o n d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
 
 (use-package emacs
   :custom
@@ -135,7 +165,7 @@
   ;;(recentf-mode t) ;; Enable recent file mode
 
   ;;(global-visual-line-mode t)           ;; Enable truncated lines
-  ;;(display-line-numbers-type 'relative) ;; Relative line numbers
+  (display-line-numbers-type 'relative) ;; Relative line numbers
   (global-display-line-numbers-mode t)  ;; Display line numbers
 
   (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
@@ -164,14 +194,18 @@
           nil nil t)
   )
 
-(use-package gruvbox-theme
-  :config
-  (load-theme 'gruvbox-dark-medium t)) ;; We need to add t to trust this package
+;; (use-package gruvbox-theme
+;;   :config
+;;   (load-theme 'gruvbox-dark-medium t)) ;; We need to add t to trust this package
+(use-package catppuccin-theme)
+(load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
+(setq catppuccin-flavor 'frappe)
+(catppuccin-reload)
 
-(add-to-list 'default-frame-alist '(alpha-background . 90)) ;; For all new frames henceforth
+(add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-                    ;; :font "JetBrains Mono" ;; Set your favorite type of font or download JetBrains Mono
+                    :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font or download JetBrains Mono
                     :height 120
                     :weight 'medium)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
@@ -202,7 +236,7 @@
   :custom
   (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-  (projectile-project-search-path '("~/projects/" "~/work/" ("~/github" . 1)))) ;; . 1 means only search the first subdirectory level for projects
+  (projectile-project-search-path '("~/projects/" "~/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
 ;;(use-package eglot
@@ -225,19 +259,75 @@
   :hook (prog-mode . yas-minor-mode))
 
 (use-package org
-  :ensure nil
-  :custom
-  (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
+      :ensure t
+      :hook
+      (org-mode . org-indent-mode) ;; Indent text
+      (org-mode . visual-line-mode)
+      :custom
+      (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
+      (org-return-follows-link t))
 
-  :hook
-  (org-mode . org-indent-mode) ;; Indent text
-  ;; The following prevents <> from auto-pairing when electric-pair-mode is on.
-  ;; Otherwise, org-tempo is broken when you try to <s TAB...
-  ;;(org-mode . (lambda ()
-  ;;              (setq-local electric-pair-inhibit-predicate
-  ;;                          `(lambda (c)
-  ;;                             (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
-  )
+    (setq org-directory "~/org/")
+
+    (defun my/org-agenda-files-recursive (directory)
+      "Recursively find all .org files in DIRECTORY."
+      (let ((org-file-list '()))
+        (dolist (file (directory-files-recursively directory "\\.org$"))
+          (setq org-file-list (append org-file-list (list file))))
+        org-file-list))
+    (setq org-agenda-files (my/org-agenda-files-recursive "~/org/"))
+
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+    (setq org-todo-keyword-faces
+          '(
+;;            ("TODO" . org-warning)
+            ("DOING" . "yellow")
+            ("HOLD" . "magenta")
+;;            ("DONE" . "green")
+            ("CANCELLED" . "red")
+            ("MAYBE" . "orange")))
+
+    (setq org-default-notes-file (concat org-directory "/inbox.org"))
+    (setq org-capture-templates
+          '(("t" "Blank Todo [inbox]" entry
+             (file+headline "~/org/inbox.org" "Tasks")
+             "* TODO %i%?")
+            ("w" "Work Todo [work]" entry
+             (file+headline "~/org/work.org" "Work")
+             "* TODO %i%?")
+            ("p" "Persoal Todo [personal]" entry
+             (file+headline "~/org/personal.org" "Personal")
+             "* TODO %i%?")
+            )
+          )
+
+;;   (use-package org-roam
+    ;;     :ensure t
+    ;;     :init
+    ;;     (setq org-roam-v2-ack t)
+    ;;     :custom
+    ;;     (org-roam-directory (file-truename "~/org/org-roam/"))
+    ;;     (org-roam-completion-everywhere t)
+    ;;     :config
+    ;;     (org-roam-db-autosync-mode))
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/org/org-roam/"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
 
 (use-package toc-org
   :commands toc-org-enable
