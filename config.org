@@ -1,5 +1,5 @@
 #+Title: Emacs Kickstarter
-#+Author: MiniApollo
+#+Author: Miniapollo
 #+Description: A starting point for Gnu Emacs with good defaults and packages that most people may want to use.
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 #+Startup: showeverything
@@ -31,6 +31,7 @@
   - [[#using-the-file][Using the file]]
 - [[#other-packages][Other Packages]]
   - [[#nerd-icons][Nerd Icons]]
+  - [[#ligatures][Ligatures]]
   - [[#git][Git]]
   - [[#corfu][Corfu]]
   - [[#cape][Cape]]
@@ -570,6 +571,80 @@ While nerd-icons supports both GUI and TUI.
 
     (use-package nerd-icons-ibuffer
       :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+#+end_src
+
+** Ligatures
+
+#+begin_src emacs-lisp 
+    (use-package ligature
+      :config
+      ;; Enable the "www" ligature in every possible major mode
+      (ligature-set-ligatures 't '("www"))
+      ;; Enable traditional ligature support in eww-mode, if the
+      ;; `variable-pitch' face supports it
+      (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+      ;; Enable all Cascadia and Fira Code ligatures in programming modes
+      (ligature-set-ligatures 'prog-mode
+                              '(;; == === ==== => =| =>>=>=|=>==>> ==< =/=//=// =~
+                                ;; =:= =!=
+                                ("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
+                                ;; ;; ;;;
+                                (";" (rx (+ ";")))
+                                ;; && &&&
+                                ("&" (rx (+ "&")))
+                                ;; !! !!! !. !: !!. != !== !~
+                                ("!" (rx (+ (or "=" "!" "\." ":" "~"))))
+                                ;; ?? ??? ?:  ?=  ?.
+                                ("?" (rx (or ":" "=" "\." (+ "?"))))
+                                ;; %% %%%
+                                ("%" (rx (+ "%")))
+                                ;; |> ||> |||> ||||> |] |} || ||| |-> ||-||
+                                ;; |->>-||-<<-| |- |== ||=||
+                                ;; |==>>==<<==<=>==//==/=!==:===>
+                                ("|" (rx (+ (or ">" "<" "|" "/" ":" "!" "}" "\]"
+                                                "-" "=" ))))
+                                ;; \\ \\\ \/
+                                ("\\" (rx (or "/" (+ "\\"))))
+                                ;; ++ +++ ++++ +>
+                                ("+" (rx (or ">" (+ "+"))))
+                                ;; :: ::: :::: :> :< := :// ::=
+                                (":" (rx (or ">" "<" "=" "//" ":=" (+ ":"))))
+                                ;; // /// //// /\ /* /> /===:===!=//===>>==>==/
+                                ("/" (rx (+ (or ">"  "<" "|" "/" "\\" "\*" ":" "!"
+                                                "="))))
+                                ;; .. ... .... .= .- .? ..= ..<
+                                ("\." (rx (or "=" "-" "\?" "\.=" "\.<" (+ "\."))))
+                                ;; -- --- ---- -~ -> ->> -| -|->-->>->--<<-|
+                                ("-" (rx (+ (or ">" "<" "|" "~" "-"))))
+                                ;; *> */ *)  ** *** ****
+                                ("*" (rx (or ">" "/" ")" (+ "*"))))
+                                ;; www wwww
+                                ("w" (rx (+ "w")))
+                                ;; <> <!-- <|> <: <~ <~> <~~ <+ <* <$ </  <+> <*>
+                                ;; <$> </> <|  <||  <||| <|||| <- <-| <-<<-|-> <->>
+                                ;; <<-> <= <=> <<==<<==>=|=>==/==//=!==:=>
+                                ;; << <<< <<<<
+                                ("<" (rx (+ (or "\+" "\*" "\$" "<" ">" ":" "~"  "!"
+                                                "-"  "/" "|" "="))))
+                                ;; >: >- >>- >--|-> >>-|-> >= >== >>== >=|=:=>>
+                                ;; >> >>> >>>>
+                                (">" (rx (+ (or ">" "<" "|" "/" ":" "=" "-"))))
+                                ;; #: #= #! #( #? #[ #{ #_ #_( ## ### #####
+                                ("#" (rx (or ":" "=" "!" "(" "\?" "\[" "{" "_(" "_"
+                                             (+ "#"))))
+                                ;; ~~ ~~~ ~=  ~-  ~@ ~> ~~>
+                                ("~" (rx (or ">" "=" "-" "@" "~>" (+ "~"))))
+                                ;; __ ___ ____ _|_ __|____|_
+                                ("_" (rx (+ (or "_" "|"))))
+                                ;; Fira code: 0xFF 0x12
+                                ("0" (rx (and "x" (+ (in "A-F" "a-f" "0-9")))))
+                                ;; Fira code:
+                                "Fl"  "Tl"  "fi"  "fj"  "fl"  "ft"
+                                ;; The few not covered by the regexps.
+                                "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^="))
+      ;; Enables ligature checks globally in all buffers. You can also do it
+      ;; per mode with `ligature-mode'.
+      (global-ligature-mode t))
 #+end_src
 
 ** Git
