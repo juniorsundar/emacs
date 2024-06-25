@@ -132,20 +132,20 @@
     "o a c" '(org-capture :wk "Capture")
     "o a a" '(org-agenda :wk "Agenda")
 
-    "o n" '(:ignore t :wk "Org Roam")
-    "o n l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-    "o n f" '(org-roam-node-find :wk "Find Node")
-    "o n i" '(org-roam-node-insert :wk "Insert Node")
-    "o n c" '(org-roam-capture :wk "Capture")
-    "o n g" '(org-roam-graph :wk "Graph"))
+    "o r" '(:ignore t :wk "Org Roam")
+    "o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+    "o r f" '(org-roam-node-find :wk "Find Node")
+    "o r i" '(org-roam-node-insert :wk "Insert Node")
+    "o r c" '(org-roam-capture :wk "Capture")
+    "o r g" '(org-roam-graph :wk "Graph"))
 
   (start/leader-keys
-    "o n d" '(:ignore t :wk "Org Roam Dailies")
-    "o n d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-    "o n d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-    "o n d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-    "o n d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-    "o n d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
+    "o d" '(:ignore t :wk "Org Roam Dailies")
+    "o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+    "o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+    "o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+    "o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+    "o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
 
 (use-package emacs
   :custom
@@ -315,13 +315,6 @@
   :ensure t
   :custom
   (org-roam-directory (file-truename "~/org/org-roam/"))
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
-         ;; Dailies
-         ("C-c n j" . org-roam-dailies-capture-today))
   :config
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
