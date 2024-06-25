@@ -60,3 +60,13 @@ site-lisp/package/
 /bookmarks
 /custom-vars.el
 /custom.el
+auto-save-list/*
+eln-cache/*
+elpa/*
+lisp/*
+snippets/*
+transient/*
+custom-vars.el
+history
+org-roam.db
+projectile-bookmarks.eld
