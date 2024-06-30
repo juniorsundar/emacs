@@ -206,13 +206,13 @@
 
 (set-face-attribute 'default nil
                     :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font or download JetBrains Mono
-                    :height 120
+                    :height 110
                     :weight 'medium)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;; are not right unless I also add this method of setting the default font.
 
-;;(add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
+(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
 
 (use-package emacs
@@ -259,58 +259,58 @@
   :hook (prog-mode . yas-minor-mode))
 
 (use-package org
-      :ensure t
-      :hook
-      (org-mode . org-indent-mode) ;; Indent text
-      (org-mode . visual-line-mode)
-      :custom
-      (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
-      (org-return-follows-link t))
+  :ensure t
+  :hook
+  (org-mode . org-indent-mode) ;; Indent text
+  (org-mode . visual-line-mode)
+  :custom
+  (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
+  (org-return-follows-link t))
 
-    (setq org-directory "~/org/")
+(setq org-directory "~/org/")
 
-    (defun my/org-agenda-files-recursive (directory)
-      "Recursively find all .org files in DIRECTORY."
-      (let ((org-file-list '()))
-        (dolist (file (directory-files-recursively directory "\\.org$"))
-          (setq org-file-list (append org-file-list (list file))))
-        org-file-list))
-    (setq org-agenda-files (my/org-agenda-files-recursive "~/org/"))
+(defun my/org-agenda-files-recursive (directory)
+  "Recursively find all .org files in DIRECTORY."
+  (let ((org-file-list '()))
+    (dolist (file (directory-files-recursively directory "\\.org$"))
+      (setq org-file-list (append org-file-list (list file))))
+    org-file-list))
+(setq org-agenda-files (my/org-agenda-files-recursive "~/org/"))
 
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
-    (setq org-todo-keyword-faces
-          '(
-;;            ("TODO" . org-warning)
-            ("DOING" . "yellow")
-            ("HOLD" . "magenta")
-;;            ("DONE" . "green")
-            ("CANCELLED" . "red")
-            ("MAYBE" . "orange")))
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+(setq org-todo-keyword-faces
+      '(
+        ;;            ("TODO" . org-warning)
+        ("DOING" . "yellow")
+        ("HOLD" . "magenta")
+        ;;            ("DONE" . "green")
+        ("CANCELLED" . "red")
+        ("MAYBE" . "orange")))
 
-    (setq org-default-notes-file (concat org-directory "/inbox.org"))
-    (setq org-capture-templates
-          '(("t" "Blank Todo [inbox]" entry
-             (file+headline "~/org/inbox.org" "Tasks")
-             "* TODO %i%?")
-            ("w" "Work Todo [work]" entry
-             (file+headline "~/org/work.org" "Work")
-             "* TODO %i%?")
-            ("p" "Persoal Todo [personal]" entry
-             (file+headline "~/org/personal.org" "Personal")
-             "* TODO %i%?")
-            )
-          )
+(setq org-default-notes-file (concat org-directory "/inbox.org"))
+(setq org-capture-templates
+      '(("t" "Blank Todo [inbox]" entry
+         (file+headline "~/org/inbox.org" "Tasks")
+         "* TODO %i%?")
+        ("w" "Work Todo [work]" entry
+         (file+headline "~/org/work.org" "Work")
+         "* TODO %i%?")
+        ("p" "Persoal Todo [personal]" entry
+         (file+headline "~/org/personal.org" "Personal")
+         "* TODO %i%?")
+        )
+      )
 
 ;;   (use-package org-roam
-    ;;     :ensure t
-    ;;     :init
-    ;;     (setq org-roam-v2-ack t)
-    ;;     :custom
-    ;;     (org-roam-directory (file-truename "~/org/org-roam/"))
-    ;;     (org-roam-completion-everywhere t)
-    ;;     :config
-    ;;     (org-roam-db-autosync-mode))
+;;     :ensure t
+;;     :init
+;;     (setq org-roam-v2-ack t)
+;;     :custom
+;;     (org-roam-directory (file-truename "~/org/org-roam/"))
+;;     (org-roam-completion-everywhere t)
+;;     :config
+;;     (org-roam-db-autosync-mode))
 (use-package org-roam
   :ensure t
   :custom

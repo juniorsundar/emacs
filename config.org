@@ -57,22 +57,30 @@
 
 * Important to load first
 ** Startup Performance
-Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
+Make startup faster by reducing the frequency of garbage
+collection. This will be set back when startup finishes.
 #+begin_src emacs-lisp
     ;; The default is 800 kilobytes. Measured in bytes.
     (setq gc-cons-threshold (* 50 1000 1000))
 #+end_src
 
 ** Auto-tangle Configuration file
-Auto-Tangle Org configuration file for better startup times.
-If you want to use this don't forget to add this to the top of the org document (#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes)
+Auto-Tangle Org configuration file for better startup times.  If you
+want to use this don't forget to add this to the top of the org
+document (#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp
+yes)
 
-*Remember*, if this code can't be loaded (errors before this code), the init.el file won't update on change!
-To fix this, you need to find this file (C-x C-f), fix the error and press C-c C-v t to tangle it manually.
+*Remember*, if this code can't be loaded (errors before this code),
+the init.el file won't update on change!  To fix this, you need to
+find this file (C-x C-f), fix the error and press C-c C-v t to tangle
+it manually.
 
-This snippet adds a hook to org-mode buffers so that start/org-babel-tangle-config gets executed each time such a buffer gets saved.
-This function checks to see if the file being saved is the Emacs.org file you’re looking at right now, and if so,
-automatically exports the configuration here to the associated output files.
+This snippet adds a hook to org-mode buffers so that
+start/org-babel-tangle-config gets executed each time such a buffer
+gets saved.  This function checks to see if the file being saved is
+the Emacs.org file you’re looking at right now, and if so,
+automatically exports the configuration here to the associated output
+files.
 #+begin_src emacs-lisp
     (defun start/org-babel-tangle-config ()
       "Automatically tangle our Emacs.org config file when we save it. Credit to Emacs From Scratch for this one!"
@@ -86,16 +94,19 @@ automatically exports the configuration here to the associated output files.
 #+end_src
 
 ** Use Package
-We use the default package manager package.el with use-package. Alternative package managers (straight.el, elpaca, etc.) are useful if you want to
-install packages from git repositories, if you want a specific, not very popular package that is not available on elpa or melpa,
-or you want UI (elpaca) and other things.
+We use the default package manager package.el with
+use-package. Alternative package managers (straight.el, elpaca, etc.)
+are useful if you want to install packages from git repositories, if
+you want a specific, not very popular package that is not available on
+elpa or melpa, or you want UI (elpaca) and other things.
 
-If you are interested in these other package managers, check out their git repositories or search for more package managers.
-In my experience Package.el is not slow and gets the job done.
+If you are interested in these other package managers, check out their
+git repositories or search for more package managers.  In my
+experience Package.el is not slow and gets the job done.
 
 To update/upgrade packages, use the package-upgrade-all command.
-Check out the use-package [[https://www.gnu.org/software/emacs/manual/use-package.html][documentation]] to see how to use it.
-With Emacs 29 use-package is now built-in.
+Check out the use-package [[https://www.gnu.org/software/emacs/manual/use-package.html][documentation]] to see how to use it. With
+Emacs 29 use-package is now built-in.
 #+begin_src emacs-lisp
     (require 'use-package-ensure) ;; Load use-package-always-ensure
     (setq use-package-always-ensure t) ;; Always ensures that a package is installed
@@ -106,14 +117,15 @@ With Emacs 29 use-package is now built-in.
 #+end_src
 
 ** Evil Mode
-An extensible vi/vim layer for Emacs. Because…let’s face it. The Vim keybindings are just plain better.
-Notes:
+An extensible vi/vim layer for Emacs. Because…let’s face it. The Vim
+keybindings are just plain better. Notes:
 - You can toggle evil mode with C-z.
 - To paste without copy (yank) select the text and use P (shift-p).
 
 If you don't want to use evil-mode don't forget to remove:
 - Messages buffer fix in Good default section (:ghook)
-- And also change general.el keybindings and setup (general-evil-setup, :states, etc.)
+- And also change general.el keybindings and setup
+  (general-evil-setup, :states, etc.)
 #+begin_src emacs-lisp
     (use-package evil
       :init ;; Execute code Before a package is loaded
@@ -140,9 +152,10 @@ If you don't want to use evil-mode don't forget to remove:
 #+end_src
 
 ** General Keybindings
-A keybinding framework to set keybindings easily.
-The Leader key is what you will press when you want to access your keybindings (SPC + . Find file).
-To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC to replace n to skip).
+A keybinding framework to set keybindings easily. The Leader key is
+what you will press when you want to access your keybindings (SPC + . Find file).
+To search and replace, use query-replace-regexp to
+replace one by one C-M-% (SPC to replace n to skip).
 #+begin_src emacs-lisp
     (use-package general
       :config
@@ -294,8 +307,8 @@ To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC
 
 * Appearance
 ** Set Theme
-Set gruvbox theme, if you want some themes try out doom-themes.
-Use consult-theme to easily try out themes (*Epilepsy* Warning).
+Set gruvbox theme, if you want some themes try out doom-themes. Use
+consult-theme to easily try out themes (*Epilepsy* Warning).
 #+begin_src emacs-lisp
     ;; (use-package gruvbox-theme
     ;;   :config
@@ -317,18 +330,19 @@ With Emacs version 29, true transparency has been added.
 #+begin_src emacs-lisp
     (set-face-attribute 'default nil
                         :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font or download JetBrains Mono
-                        :height 120
+                        :height 110
                         :weight 'medium)
     ;; This sets the default font on all graphical frames created after restarting Emacs.
     ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
     ;; are not right unless I also add this method of setting the default font.
 
-    ;;(add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
+    (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono")) ;; Set your favorite font
     (setq-default line-spacing 0.12)
 #+end_src
 
 *** Zooming In/Out
-You can use the bindings C-+ C-- for zooming in/out. You can also use CTRL plus the mouse wheel for zooming in/out.
+You can use the bindings C-+ C-- for zooming in/out. You can also use
+CTRL plus the mouse wheel for zooming in/out.
 #+begin_src emacs-lisp
     (use-package emacs
       :bind
@@ -365,22 +379,31 @@ Project interaction library for Emacs.
 #+end_src
 
 ** Eglot
-Language Server Protocol Support for Emacs. The built-in is now Eglot (with emacs 29).
+Language Server Protocol Support for Emacs. The built-in is now Eglot
+(with emacs 29).
 
-Eglot is fast and minimal, but requires manual setup for LSP servers (downloading).
-For more [[https://www.gnu.org/software/emacs/manual/html_mono/eglot.html][information how to use.]] One alternative to Eglot is Lsp-mode, check out the [[https://github.com/MiniApollo/kickstart.emacs/wiki][project wiki]] page for more information.
+Eglot is fast and minimal, but requires manual setup for LSP servers
+(downloading).  For more [[https://www.gnu.org/software/emacs/manual/html_mono/eglot.html][information how to use.]] One alternative to
+Eglot is Lsp-mode, check out the [[https://github.com/MiniApollo/kickstart.emacs/wiki][project wiki]] page for more
+information.
 
-Eglot is easy to set up, but the only difficult part is downloading and setting up the lsp servers.
-After that just add a hook with eglot-ensure to automatically start eglot for a given file type. And you are done.
+Eglot is easy to set up, but the only difficult part is downloading
+and setting up the lsp servers.  After that just add a hook with
+eglot-ensure to automatically start eglot for a given file type. And
+you are done.
 
-As an example to use C, C++ you need to install clangd(or ccls) and uncomment the following lines. Now the language server will start automatically when opening any c,c++ file.
+As an example to use C, C++ you need to install clangd(or ccls) and
+uncomment the following lines. Now the language server will start
+automatically when opening any c,c++ file.
 
-A harder example is Lua. Download the lua-language-server from their git repository, make the lua-language-server file executable at lua-language-server/bin.
-Uncomment the following lines and change the path to the language server executable. Now the language server will work.
-Or add the lua-language-server executable to your path.
+A harder example is Lua. Download the lua-language-server from their
+git repository, make the lua-language-server file executable at
+lua-language-server/bin.  Uncomment the following lines and change the
+path to the language server executable. Now the language server will
+work.  Or add the lua-language-server executable to your path.
 
-If you can use a package manager just install the lsp server and add a hook.
-Use visual block to uncomment easily in Org documents (C-v).
+If you can use a package manager just install the lsp server and add a
+hook.  Use visual block to uncomment easily in Org documents (C-v).
 #+begin_src emacs-lisp
     ;;(use-package eglot
     ;;  :ensure nil ;; Don't install eglot because it's now built-in
@@ -400,74 +423,79 @@ Use visual block to uncomment easily in Org documents (C-v).
 #+end_src
 
 ** Yasnippet
-A template system for Emacs. And yasnippet-snippets is a snippet collection package.
-To use it write out the full keyword (or use autocompletion) and press Tab.
+A template system for Emacs. And yasnippet-snippets is a snippet
+collection package.  To use it write out the full keyword (or use
+autocompletion) and press Tab.
 #+begin_src emacs-lisp
     (use-package yasnippet-snippets
       :hook (prog-mode . yas-minor-mode))
 #+end_src
 
 ** Language modes
-It's not required for every language like C,C++,C#,Java,Javascript etc. to install language mode packages,
-but for more specific languages it is necessary for syntax highlighting.
-If you want to use TreeSitter, check out this [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][website]] or try out [[https://github.com/renzmann/treesit-auto][Treesit-auto]].
-Currently it's tedious to use Treesitter, because emacs has not yet fully migrated to it.
+It's not required for every language like C,C++,C#,Java,Javascript
+etc. to install language mode packages, but for more specific
+languages it is necessary for syntax highlighting.  If you want to use
+TreeSitter, check out this [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][website]] or try out [[https://github.com/renzmann/treesit-auto][Treesit-auto]].  Currently
+it's tedious to use Treesitter, because emacs has not yet fully
+migrated to it.
 *** Lua mode
-Example, how to setup a language mode (if you don't want it, feel free to delete it).
-Use SPC-tab to uncomment the lines.
+Example, how to setup a language mode (if you don't want it, feel free
+to delete it).  Use SPC-tab to uncomment the lines.
 # #+begin_src emacs-lisp
 #     (use-package lua-mode
 #       :mode "\\.lua\\'") ;; Only start in a lua file
 # #+end_src
 
 *** Org Mode
-Org mode is one of the things that emacs is loved for.
-Once you've used it for a bit, you'll understand why people love it. Even reading about it can be inspiring!
-For example, this document is effectively the source code and descriptions bound into the one document, much like the literate programming ideas that Donald Knuth made famous.
+Org mode is one of the things that emacs is loved for.  Once you've
+used it for a bit, you'll understand why people love it. Even reading
+about it can be inspiring!  For example, this document is effectively
+the source code and descriptions bound into the one document, much
+like the literate programming ideas that Donald Knuth made famous.
 #+begin_src emacs-lisp
-        (use-package org
-          :ensure t
-          :hook
-          (org-mode . org-indent-mode) ;; Indent text
-          (org-mode . visual-line-mode)
-          :custom
-          (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
-          (org-return-follows-link t))
+    (use-package org
+      :ensure t
+      :hook
+      (org-mode . org-indent-mode) ;; Indent text
+      (org-mode . visual-line-mode)
+      :custom
+      (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
+      (org-return-follows-link t))
 
-        (setq org-directory "~/org/")
+    (setq org-directory "~/org/")
 
-        (defun my/org-agenda-files-recursive (directory)
-          "Recursively find all .org files in DIRECTORY."
-          (let ((org-file-list '()))
-            (dolist (file (directory-files-recursively directory "\\.org$"))
-              (setq org-file-list (append org-file-list (list file))))
-            org-file-list))
-        (setq org-agenda-files (my/org-agenda-files-recursive "~/org/"))
+    (defun my/org-agenda-files-recursive (directory)
+      "Recursively find all .org files in DIRECTORY."
+      (let ((org-file-list '()))
+        (dolist (file (directory-files-recursively directory "\\.org$"))
+          (setq org-file-list (append org-file-list (list file))))
+        org-file-list))
+    (setq org-agenda-files (my/org-agenda-files-recursive "~/org/"))
 
-        (setq org-todo-keywords
-              '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
-        (setq org-todo-keyword-faces
-              '(
-    ;;            ("TODO" . org-warning)
-                ("DOING" . "yellow")
-                ("HOLD" . "magenta")
-    ;;            ("DONE" . "green")
-                ("CANCELLED" . "red")
-                ("MAYBE" . "orange")))
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+    (setq org-todo-keyword-faces
+          '(
+            ;;            ("TODO" . org-warning)
+            ("DOING" . "yellow")
+            ("HOLD" . "magenta")
+            ;;            ("DONE" . "green")
+            ("CANCELLED" . "red")
+            ("MAYBE" . "orange")))
 
-        (setq org-default-notes-file (concat org-directory "/inbox.org"))
-        (setq org-capture-templates
-              '(("t" "Blank Todo [inbox]" entry
-                 (file+headline "~/org/inbox.org" "Tasks")
-                 "* TODO %i%?")
-                ("w" "Work Todo [work]" entry
-                 (file+headline "~/org/work.org" "Work")
-                 "* TODO %i%?")
-                ("p" "Persoal Todo [personal]" entry
-                 (file+headline "~/org/personal.org" "Personal")
-                 "* TODO %i%?")
-                )
-              )
+    (setq org-default-notes-file (concat org-directory "/inbox.org"))
+    (setq org-capture-templates
+          '(("t" "Blank Todo [inbox]" entry
+             (file+headline "~/org/inbox.org" "Tasks")
+             "* TODO %i%?")
+            ("w" "Work Todo [work]" entry
+             (file+headline "~/org/work.org" "Work")
+             "* TODO %i%?")
+            ("p" "Persoal Todo [personal]" entry
+             (file+headline "~/org/personal.org" "Personal")
+             "* TODO %i%?")
+            )
+          )
 #+end_src
 
 **** Org Roam
@@ -482,16 +510,16 @@ For example, this document is effectively the source code and descriptions bound
     ;;     (org-roam-completion-everywhere t)
     ;;     :config
     ;;     (org-roam-db-autosync-mode))
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory (file-truename "~/org/org-roam/"))
-  :config
-  ;; If you're using a vertical completion framework, you might want a more informative completion interface
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
-  ;; If using org-roam-protocol
-  (require 'org-roam-protocol))
+    (use-package org-roam
+      :ensure t
+      :custom
+      (org-roam-directory (file-truename "~/org/org-roam/"))
+      :config
+      ;; If you're using a vertical completion framework, you might want a more informative completion interface
+      (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+      (org-roam-db-autosync-mode)
+      ;; If using org-roam-protocol
+      (require 'org-roam-protocol))
 #+end_src
 
 **** Table of Contents
@@ -502,7 +530,8 @@ For example, this document is effectively the source code and descriptions bound
 #+end_src
 
 **** Org Superstar
-Prettify headings and plain lists in Org mode. Modern version of org-bullets.
+Prettify headings and plain lists in Org mode. Modern version of
+org-bullets.
 #+begin_src emacs-lisp
     (use-package org-superstar
       :after org
@@ -510,8 +539,9 @@ Prettify headings and plain lists in Org mode. Modern version of org-bullets.
 #+end_src
 
 **** Source Code Block Tag Expansion
-Org-tempo is not a separate package but a module within org that can be enabled.
-Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
+Org-tempo is not a separate package but a module within org that can
+be enabled.  Org-tempo allows for '<s' followed by TAB to expand to a
+begin_src tag.
 #+begin_src emacs-lisp
     (use-package org-tempo
       :ensure nil
@@ -520,9 +550,10 @@ Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
 
 ** Terminal
 *** Eat
-Eat(Emulate A Terminal) is a terminal emulator within Emacs.
-It's more portable and less overhead for users over like vterm or eshell.
-We setup eat with eshell, if you want to use bash, zsh etc., check out their git [[https://codeberg.org/akib/emacs-eat][repository]] how to do it.
+Eat(Emulate A Terminal) is a terminal emulator within Emacs. It's
+more portable and less overhead for users over like vterm or eshell.
+We setup eat with eshell, if you want to use bash, zsh etc., check out
+their git [[https://codeberg.org/akib/emacs-eat][repository]] how to do it.
 #+begin_src emacs-lisp
     (use-package eat
       :hook ('eshell-load-hook #'eat-eshell-mode))
@@ -530,9 +561,10 @@ We setup eat with eshell, if you want to use bash, zsh etc., check out their git
 
 * Multi File Example
 ** Adding the lisp directory to load-path
-Adds the lisp directory to emacs's load path to search for elisp files.
-This is necessary, because emacs does not search the entire user-emacs-directory.
-The directory name can be anything, just add it to the load-path.
+Adds the lisp directory to emacs's load path to search for elisp
+files. This is necessary, because emacs does not search the entire
+user-emacs-directory. The directory name can be anything, just add it
+to the load-path.
 #+begin_src emacs-lisp
     ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 #+end_src
@@ -541,7 +573,9 @@ The directory name can be anything, just add it to the load-path.
 To use the elisp files we need to load it.
 Notes:
 - Don't forget the file and the provide name needs to be the same.
-- When naming elisp files, functions, it is recommended to use a group name (e.g init-, start- or any custom name), so it does not get mixed up with other names, functions.
+- When naming elisp files, functions, it is recommended to use a group
+  name (e.g init-, start- or any custom name), so it does not get
+  mixed up with other names, functions.
 #+begin_src emacs-lisp
     ;; (require 'start-multiFileExample)
 #+end_src
@@ -555,13 +589,13 @@ And now we can use everything from that file.
 * Other Packages
 All the package setups that don't need much tweaking.
 ** Nerd Icons
-For icons and more helpful UI.
-This is an icon set that can be used with dired, ibuffer and other Emacs programs.
+For icons and more helpful UI. This is an icon set that can be used
+with dired, ibuffer and other Emacs programs.
 
 Don't forget to use nerd-icons-install-fonts.
 
-We use Nerd icons because it has more, better icons and all-the-icons only supports GUI.
-While nerd-icons supports both GUI and TUI.
+We use Nerd icons because it has more, better icons and all-the-icons
+only supports GUI.  While nerd-icons supports both GUI and TUI.
 #+begin_src emacs-lisp
     (use-package nerd-icons
       :if (display-graphic-p))
@@ -656,7 +690,9 @@ Complete text-based user interface to Git.
 #+end_src
 
 *** Diff-hl
-Highlights uncommitted changes on the left side of the window (area also known as the "gutter"), allows you to jump between and revert them selectively.
+Highlights uncommitted changes on the left side of the window (area
+also known as the "gutter"), allows you to jump between and revert
+them selectively.
 #+begin_src emacs-lisp
     (use-package diff-hl
       :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
@@ -667,7 +703,10 @@ Highlights uncommitted changes on the left side of the window (area also known a
 
 ** Corfu
 Enhances in-buffer completion with a small completion popup.
-Corfu is a small package, which relies on the Emacs completion facilities and concentrates on providing a polished completion.
+
+Corfu is a small package, which relies on the Emacs completion
+facilities and concentrates on providing a polished completion.
+
 For more configuration options check out their [[https://github.com/minad/corfu][git repository]].
 Notes:
 - To enter Orderless field separator, use M-SPC.
@@ -704,10 +743,15 @@ Notes:
 #+end_src
 
 ** Cape
-Provides Completion At Point Extensions which can be used in combination with Corfu, Company or the default completion UI.
+Provides Completion At Point Extensions which can be used in
+combination with Corfu, Company or the default completion UI.
+
 Notes:
-- The functions that are added later will be the first in the completion list.
-- Take care when adding Capfs (Completion-at-point-functions) to the list since each of the Capfs adds a small runtime cost.
+- The functions that are added later will be the first in the
+  completion list.
+- Take care when adding Capfs (Completion-at-point-functions) to the
+  list since each of the Capfs adds a small runtime cost.
+
 Read the [[https://github.com/minad/cape#configuration][configuration section]] in Cape's readme for more information.
 #+begin_src emacs-lisp
     (use-package cape
@@ -736,7 +780,10 @@ Read the [[https://github.com/minad/cape#configuration][configuration section]] 
 #+end_src
 
 ** Orderless
-Completion style that divides the pattern into space-separated components, and matches candidates that match all of the components in any order.
+Completion style that divides the pattern into space-separated
+components, and matches candidates that match all of the components in
+any order.
+
 Recomended for packages like vertico, corfu.
 #+begin_src emacs-lisp
     (use-package orderless
@@ -746,13 +793,19 @@ Recomended for packages like vertico, corfu.
 #+end_src
 
 ** Vertico and Marginalia
-- Vertico: Provides a performant and minimalistic vertical completion UI based on the default completion system.
+- Vertico: Provides a performant and minimalistic vertical completion
+  UI based on the default completion system.
 - Savehist: Saves completion history.
-- Marginalia: Adds extra metadata for completions in the margins (like descriptions).
-- Nerd-icons-completion: Adds icons to completion candidates using the built in completion metadata functions.
+- Marginalia: Adds extra metadata for completions in the margins (like
+  descriptions).
+- Nerd-icons-completion: Adds icons to completion candidates using the
+  built in completion metadata functions.
 
-We use this packages, because they use emacs native functions. Unlike Ivy or Helm.
-One alternative is ivy and counsel, check out the [[https://github.com/MiniApollo/kickstart.emacs/wiki][project wiki]] for more inforomation.
+We use this packages, because they use emacs native functions. Unlike
+Ivy or Helm.
+
+One alternative is ivy and counsel, check out the [[https://github.com/MiniApollo/kickstart.emacs/wiki][project wiki]] for
+more inforomation.
 #+begin_src emacs-lisp
     (use-package vertico
       :init
@@ -830,8 +883,11 @@ Check out their [[https://github.com/minad/consult][git repository]] for more aw
 #+end_src
 
 ** Diminish
-This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.
-With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
+This package implements hiding or abbreviation of the modeline
+displays (lighters) of minor-modes.
+
+With this package installed, you can add ‘:diminish’ to any
+use-package block to hide that particular mode in the modeline.
 #+begin_src emacs-lisp
     (use-package diminish)
 #+end_src
