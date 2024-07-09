@@ -275,20 +275,26 @@
     (dolist (file (directory-files-recursively directory "\\.org$"))
       (setq org-file-list (append org-file-list (list file))))
     org-file-list))
-(setq org-agenda-files (my/org-agenda-files-recursive "~/org/"))
+
+(setq org-agenda-files (my/org-agenda-files-recursive "~/org/org-roam/"))
+
+(setq org-agenda-prefix-format
+      '((agenda . " %i %?-12t% s")  ; remove file name
+        (todo . " %i ")
+        (tags . " %i ")
+        (search . " %i ")))
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+
 (setq org-todo-keyword-faces
-      '(
-        ;;            ("TODO" . org-warning)
-        ("DOING" . "yellow")
+      '(("DOING" . "yellow")
         ("HOLD" . "magenta")
-        ;;            ("DONE" . "green")
         ("CANCELLED" . "red")
         ("MAYBE" . "orange")))
 
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
+
 (setq org-capture-templates
       '(("t" "Blank Todo [inbox]" entry
          (file+headline "~/org/inbox.org" "Tasks")
@@ -296,11 +302,9 @@
         ("w" "Work Todo [work]" entry
          (file+headline "~/org/work.org" "Work")
          "* TODO %i%?")
-        ("p" "Persoal Todo [personal]" entry
+        ("p" "Personal Todo [personal]" entry
          (file+headline "~/org/personal.org" "Personal")
-         "* TODO %i%?")
-        )
-      )
+         "* TODO %i%?")))
 
 ;;   (use-package org-roam
 ;;     :ensure t
