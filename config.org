@@ -3,7 +3,7 @@
 #+Description: A starting point for Gnu Emacs with good defaults and packages that most people may want to use.
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 #+Startup: showeverything
-#+Options: toc:2
+#+Options: toc:3
 
 * Table Of Contents :toc:
 - [[#introduction][Introduction]]
