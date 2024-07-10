@@ -433,7 +433,23 @@
   :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
          (magit-pre-refresh  . diff-hl-magit-pre-refresh)
          (magit-post-refresh . diff-hl-magit-post-refresh))
-  :init (global-diff-hl-mode))
+  :init
+  (global-diff-hl-mode)
+  :config
+  ;; Customize the appearance of the diff highlights
+  (custom-set-faces
+   '(diff-hl-insert ((t (:background "#A6E22E" :foreground "#A6E22E" :underline t :height 1.2 :dotted-line t))))
+   '(diff-hl-delete ((t (:background "#F92672" :foreground "#F92672" :underline t :height 1.2 :dotted-line t))))
+   '(diff-hl-change ((t (:background "#FD971F" :foreground "#FD971F" :underline t :height 1.2 :dotted-line t)))))
+  ;; Adjust the thickness of the highlights
+  (setq diff-hl-fringe-bmp-function
+        (lambda (type _pos)
+          (define-fringe-bitmap
+            (intern (format "diff-hl-bmp-%s" type))
+            (vector #b11111111))))
+  ;; Enable the fringe bitmaps
+  (diff-hl-flydiff-mode 1)
+  (diff-hl-margin-mode 1))
 
 (use-package corfu
   ;; Optional customizations
