@@ -205,14 +205,14 @@
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-                    :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font or download JetBrains Mono
+                    :font "Fira Code" ;; Set your favorite type of font or download JetBrains Mono
                     :height 110
                     :weight 'medium)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;; are not right unless I also add this method of setting the default font.
 
-(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono")) ;; Set your favorite font
+(add-to-list 'default-frame-alist '(font . "Fira Code")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
 
 (use-package emacs
@@ -364,7 +364,7 @@
   ;; `variable-pitch' face supports it
   (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
   ;; Enable all Cascadia and Fira Code ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode
+  (ligature-set-ligatures 't
                           '(;; == === ==== => =| =>>=>=|=>==>> ==< =/=//=// =~
                             ;; =:= =!=
                             ("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
