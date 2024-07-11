@@ -205,14 +205,14 @@
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-                    :font "Fira Code" ;; Set your favorite type of font or download JetBrains Mono
+                    :font "VictorMono NFM" ;; Set your favorite type of font or download JetBrains Mono
                     :height 110
-                    :weight 'medium)
+                    :weight 'regular)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;; are not right unless I also add this method of setting the default font.
 
-(add-to-list 'default-frame-alist '(font . "Fira Code")) ;; Set your favorite font
+(add-to-list 'default-frame-alist '(font . "VictorMono NFM")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
 
 (use-package emacs
@@ -267,8 +267,10 @@
   (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
   (org-return-follows-link t))
 
+;; Set Org directory
 (setq org-directory "~/org/")
 
+;; Recursive function to find all .org files in a directory
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (let ((org-file-list '()))
@@ -278,12 +280,14 @@
 
 (setq org-agenda-files (my/org-agenda-files-recursive "~/org/org-roam/"))
 
+;; Customize agenda prefix format
 (setq org-agenda-prefix-format
       '((agenda . " %i %?-12t% s")  ; remove file name
         (todo . " %i ")
         (tags . " %i ")
         (search . " %i ")))
 
+;; Define TODO keywords and their faces
 (setq org-todo-keywords
       '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
 
@@ -293,8 +297,10 @@
         ("CANCELLED" . "red")
         ("MAYBE" . "orange")))
 
+;; Set default notes file
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
 
+;; Define capture templates
 (setq org-capture-templates
       '(("t" "Blank Todo [inbox]" entry
          (file+headline "~/org/inbox.org" "Tasks")
@@ -305,6 +311,18 @@
         ("p" "Personal Todo [personal]" entry
          (file+headline "~/org/personal.org" "Personal")
          "* TODO %i%?")))
+
+;; Conceal emphasis markers for bold and italic text
+(setq org-hide-emphasis-markers t)
+
+;; Customize the appearance of inline code
+(custom-set-faces
+ '(org-code ((t (:background "#45475a" :foreground "#c6d0f5" :family "monospace" :slant italic)))))
+
+(custom-set-faces
+ '(org-emphasis ((t (:inherit default :foreground nil :background nil))))
+ '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
+ '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
 
 ;;   (use-package org-roam
 ;;     :ensure t
@@ -434,22 +452,7 @@
          (magit-pre-refresh  . diff-hl-magit-pre-refresh)
          (magit-post-refresh . diff-hl-magit-post-refresh))
   :init
-  (global-diff-hl-mode)
-  :config
-  ;; Customize the appearance of the diff highlights
-  (custom-set-faces
-   '(diff-hl-insert ((t (:background "#A6E22E" :foreground "#A6E22E" :underline t :height 1.2 :dotted-line t))))
-   '(diff-hl-delete ((t (:background "#F92672" :foreground "#F92672" :underline t :height 1.2 :dotted-line t))))
-   '(diff-hl-change ((t (:background "#FD971F" :foreground "#FD971F" :underline t :height 1.2 :dotted-line t)))))
-  ;; Adjust the thickness of the highlights
-  (setq diff-hl-fringe-bmp-function
-        (lambda (type _pos)
-          (define-fringe-bitmap
-            (intern (format "diff-hl-bmp-%s" type))
-            (vector #b11111111))))
-  ;; Enable the fringe bitmaps
-  (diff-hl-flydiff-mode 1)
-  (diff-hl-margin-mode 1))
+  (global-diff-hl-mode))
 
 (use-package corfu
   ;; Optional customizations
