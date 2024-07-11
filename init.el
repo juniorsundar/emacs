@@ -204,16 +204,36 @@
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
-(set-face-attribute 'default nil
-                    :font "VictorMono NFM" ;; Set your favorite type of font or download JetBrains Mono
-                    :height 110
-                    :weight 'regular)
-;; This sets the default font on all graphical frames created after restarting Emacs.
-;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-;; are not right unless I also add this method of setting the default font.
+;;       (set-face-attribute 'default nil
+;;                           :font "VictorMono NFM" ;; Set your favorite type of font or download JetBrains Mono
+;;                           :height 110
+;;                           :weight 'regular)
+;;       ;; This sets the default font on all graphical frames created after restarting Emacs.
+;;       ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
+;;       ;; are not right unless I also add this method of setting the default font.
+;;
+;;       (add-to-list 'default-frame-alist '(font . "VictorMono NFM")) ;; Set your favorite font
+;;       (setq-default line-spacing 0.12)
 
-(add-to-list 'default-frame-alist '(font . "VictorMono NFM")) ;; Set your favorite font
-(setq-default line-spacing 0.12)
+    (set-face-attribute 'default nil
+                        :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
+                        :height 110
+                        :weight 'regular)
+
+    ;; Set default font for new frames
+    (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
+
+    ;; Set line spacing
+    (setq-default line-spacing 0.12)
+
+    ;; Set fonts for specific faces
+    (set-face-attribute 'italic nil
+                        :font "Fira Code Italic" ;; Adjust as necessary
+                        :weight 'regular)
+
+    (set-face-attribute 'bold nil
+                        :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
+                        :weight 'bold)
 
 (use-package emacs
   :bind
