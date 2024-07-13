@@ -353,48 +353,44 @@
  '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
  '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
 
-;; Define custom faces for the blocks and their content
-(defface my-note-face
-  '((t (:background "#a6d189" :foreground "#1e1e2e" :weight bold)))
-  "Face for notes.")
+(defface org-block-note
+  '((t (:background "#F9E2AF" :foreground "#000000")))
+  "Face for Note blocks in Org mode.")
 
-(defface my-important-face
-  '((t (:background "#ea6962" :foreground "#1e1e2e" :weight bold)))
-  "Face for important notes.")
+(defface org-block-warn
+  '((t (:background "#F38BA8" :foreground "#000000")))
+  "Face for Warn blocks in Org mode.")
 
-(defface my-warning-face
-  '((t (:background "#e5c890" :foreground "#1e1e2e" :weight bold)))
-  "Face for warnings.")
+(defface org-block-important
+  '((t (:background "#A6E3A1" :foreground "#000000")))
+  "Face for Important blocks in Org mode.")
 
-;; Function to apply custom faces to org blocks and their content
-(defun apply-custom-org-faces ()
-  "Apply custom faces for specific Org blocks."
+(defun my/org-add-custom-block-faces ()
   (font-lock-add-keywords nil
-                          '(("^[ \t]*#\\+BEGIN_NOTE" 0 'my-note-face t)
-                            ("^[ \t]*#\\+END_NOTE" 0 'my-note-face t)
-                            ("^[ \t]*#\\+BEGIN_IMPORTANT" 0 'my-important-face t)
-                            ("^[ \t]*#\\+END_IMPORTANT" 0 'my-important-face t)
-                            ("^[ \t]*#\\+BEGIN_WARNING" 0 'my-warning-face t)
-                            ("^[ \t]*#\\+END_WARNING" 0 'my-warning-face t))
-                          'append)
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward "^[ \t]*#\\+BEGIN_\\(NOTE\\|IMPORTANT\\|WARNING\\)" nil t)
-      (let* ((tag (match-string 1))
-             (start (line-beginning-position))
-             (end (progn (re-search-forward (format "^[ \t]*#\\+END_%s" tag)) (line-end-position)))
-             (face (pcase tag
-                     ("NOTE" 'my-note-face)
-                     ("IMPORTANT" 'my-important-face)
-                     ("WARNING" 'my-warning-face))))
-        ;; Apply face to the entire block content
-        (put-text-property start end 'face face)))))
+                          '(("\\(#\\+begin_note\\|#\\+end_note\\)" 1 'org-block-note prepend)
+                            ("\\(#\\+begin_warn\\|#\\+end_warn\\)" 1 'org-block-warn prepend)
+                            ("\\(#\\+begin_important\\|#\\+end_important\\)" 1 'org-block-important prepend)
+                            ("\\(#\\+begin_note\\)[ \t]*\\(.*\\)"
+                             (1 'org-block-note prepend)
+                             (2 'org-block-note prepend))
+                            ("\\(#\\+begin_warn\\)[ \t]*\\(.*\\)"
+                             (1 'org-block-warn prepend)
+                             (2 'org-block-warn prepend))
+                            ("\\(#\\+begin_important\\)[ \t]*\\(.*\\)"
+                             (1 'org-block-important prepend)
+                             (2 'org-block-important prepend)))
+                          t)
+  (font-lock-add-keywords nil
+                          '(("\\(#\\+begin_note\\)\\(.\\|\n\\)*?\\(#\\+end_note\\)"
+                             (0 'org-block-note prepend))
+                            ("\\(#\\+begin_warn\\)\\(.\\|\n\\)*?\\(#\\+end_warn\\)"
+                             (0 'org-block-warn prepend))
+                            ("\\(#\\+begin_important\\)\\(.\\|\n\\)*?\\(#\\+end_important\\)"
+                             (0 'org-block-important prepend)))
+                          t)
+  (font-lock-flush))
 
-;; Add the function to org-mode-hook
-(add-hook 'org-mode-hook 'apply-custom-org-faces)
-
-;; Ensure the changes take effect
-(font-lock-mode 1)
+(add-hook 'org-mode-hook 'my/org-add-custom-block-faces)
 
 ;;   (use-package org-roam
 ;;     :ensure t
