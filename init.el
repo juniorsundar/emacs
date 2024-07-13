@@ -392,15 +392,6 @@
 
 (add-hook 'org-mode-hook 'my/org-add-custom-block-faces)
 
-;;   (use-package org-roam
-;;     :ensure t
-;;     :init
-;;     (setq org-roam-v2-ack t)
-;;     :custom
-;;     (org-roam-directory (file-truename "~/org/org-roam/"))
-;;     (org-roam-completion-everywhere t)
-;;     :config
-;;     (org-roam-db-autosync-mode))
 (use-package org-roam
   :ensure t
   :custom
