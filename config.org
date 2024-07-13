@@ -620,8 +620,8 @@ We use Nerd icons because it has more, better icons and all-the-icons only suppo
       :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
 
-** Ligatures
 
+** Ligatures
 #+begin_src emacs-lisp 
     (use-package ligature
       :config
