@@ -204,36 +204,36 @@
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
-;;       (set-face-attribute 'default nil
-;;                           :font "VictorMono NFM" ;; Set your favorite type of font or download JetBrains Mono
-;;                           :height 110
-;;                           :weight 'regular)
-;;       ;; This sets the default font on all graphical frames created after restarting Emacs.
+(set-face-attribute 'default nil
+                          :font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
+                          :height 120
+                          :weight 'regular)
+      ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;;       ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;;       ;; are not right unless I also add this method of setting the default font.
 ;;
-;;       (add-to-list 'default-frame-alist '(font . "VictorMono NFM")) ;; Set your favorite font
-;;       (setq-default line-spacing 0.12)
+      (add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
+      (setq-default line-spacing 0.12)
 
-    (set-face-attribute 'default nil
-                        :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
-                        :height 110
-                        :weight 'regular)
+    ;; (set-face-attribute 'default nil
+    ;;                     :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
+    ;;                     :height 110
+    ;;                     :weight 'regular)
 
-    ;; Set default font for new frames
-    (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
+    ;; ;; Set default font for new frames
+    ;; (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
 
-    ;; Set line spacing
-    (setq-default line-spacing 0.12)
+    ;; ;; Set line spacing
+    ;; (setq-default line-spacing 0.12)
 
-    ;; Set fonts for specific faces
-    (set-face-attribute 'italic nil
-                        :font "Fira Code Italic" ;; Adjust as necessary
-                        :weight 'regular)
+    ;; ;; Set fonts for specific faces
+    ;; (set-face-attribute 'italic nil
+    ;;                     :font "Fira Code Italic" ;; Adjust as necessary
+    ;;                     :weight 'regular)
 
-    (set-face-attribute 'bold nil
-                        :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
-                        :weight 'bold)
+    ;; (set-face-attribute 'bold nil
+    ;;                     :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
+    ;;                     :weight 'bold)
 
 (use-package emacs
   :bind
@@ -297,7 +297,7 @@
 (add-hook 'org-mode-hook 'display-inline-images)
 
 ;; Set Org directory
-(setq org-directory "~/org/")
+(setq org-directory "~/Dropbox/neorg/org/")
 
 ;; Recursive function to find all .org files in a directory
 (defun my/org-agenda-files-recursive (directory)
@@ -307,7 +307,7 @@
       (setq org-file-list (append org-file-list (list file))))
     org-file-list))
 
-(setq org-agenda-files (my/org-agenda-files-recursive "~/org/org-roam/"))
+(setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/org-roam/"))
 
 ;; Customize agenda prefix format
 (setq org-agenda-prefix-format
@@ -332,13 +332,13 @@
 ;; Define capture templates
 (setq org-capture-templates
       '(("t" "Blank Todo [inbox]" entry
-         (file+headline "~/org/inbox.org" "Tasks")
+         (file+headline "~/Dropbox/neorg/org/inbox.org" "Tasks")
          "* TODO %i%?")
         ("w" "Work Todo [work]" entry
-         (file+headline "~/org/work.org" "Work")
+         (file+headline "~/Dropbox/neorg/org/work.org" "Work")
          "* TODO %i%?")
         ("p" "Personal Todo [personal]" entry
-         (file+headline "~/org/personal.org" "Personal")
+         (file+headline "~/Dropbox/neorg/org/personal.org" "Personal")
          "* TODO %i%?")))
 
 ;; Conceal emphasis markers for bold and italic text
@@ -395,7 +395,7 @@
 (use-package org-roam
   :ensure t
   :custom
-  (org-roam-directory (file-truename "~/org/org-roam/"))
+  (org-roam-directory (file-truename "~/Dropbox/neorg/org/org-roam/"))
   :config
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
