@@ -13,19 +13,19 @@
 (defun start/org-babel-tangle-config ()
   "Automatically tangle our Emacs.org config file when we save it. Credit to Emacs From Scratch for this one!"
   (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name user-emacs-directory))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
+					  (expand-file-name user-emacs-directory))
+	;; Dynamic scoping to the rescue
+	(let ((org-confirm-babel-evaluate nil))
+	  (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'start/org-babel-tangle-config)))
 
 (require 'use-package-ensure) ;; Load use-package-always-ensure
 (setq use-package-always-ensure t) ;; Always ensures that a package is installed
 (setq package-archives '(("melpa" . "https://melpa.org/packages/") ;; Sets default package repositories
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
+						 ("org" . "https://orgmode.org/elpa/")
+						 ("elpa" . "https://elpa.gnu.org/packages/")
+						 ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
 
 (use-package evil
   :init ;; Execute code Before a package is loaded
@@ -40,17 +40,16 @@
   (org-return-follows-link t)   ;; Sets RETURN key in org-mode to follow links
   ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
   :bind (:map evil-motion-state-map
-              ("SPC" . nil)
-              ("RET" . nil)
-              ("TAB" . nil)))
+			  ("SPC" . nil)
+			  ("RET" . nil)
+			  ("TAB" . nil)))
 
 (use-package evil-snipe
   :after evil
   :config
   (evil-snipe-mode +1)
   (evil-snipe-override-mode 1)
-  (setq evil-snipe-scope 'visible)
-  )
+  (setq evil-snipe-scope 'visible))
 
 (use-package evil-surround
   :after evil
@@ -69,97 +68,97 @@
   (general-evil-setup)
   ;; Set up 'SPC' as the leader key
   (general-create-definer start/leader-keys
-    :states '(normal insert visual motion emacs)
-    :keymaps 'override
-    :prefix "SPC"           ;; Set leader key
-    :global-prefix "C-SPC") ;; Set global leader key
+	:states '(normal insert visual motion emacs)
+	:keymaps 'override
+	:prefix "SPC"           ;; Set leader key
+	:global-prefix "C-SPC") ;; Set global leader key
 
   (start/leader-keys
-   "." '(find-file :wk "Find file")
-   "TAB" '(comment-line :wk "Comment lines")
-   "p" '(projectile-command-map :wk "Projectile command map"))
+	"." '(find-file :wk "Find file")
+	"TAB" '(comment-line :wk "Comment lines")
+	"p" '(projectile-command-map :wk "Projectile command map"))
 
   (start/leader-keys
-   "f" '(:ignore t :wk "Find")
-   "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
-   "f r" '(consult-recent-file :wk "Recent files")
-   "f f" '(consult-fd :wk "Fd search for files")
-   "f g" '(consult-ripgrep :wk "Ripgrep search in files")
-   "f l" '(consult-line :wk "Find line")
-   "f i" '(consult-imenu :wk "Imenu buffer locations"))
+	"f" '(:ignore t :wk "Find")
+	"f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
+	"f r" '(consult-recent-file :wk "Recent files")
+	"f f" '(consult-fd :wk "Fd search for files")
+	"f t" '(consult-ripgrep :wk "Ripgrep search in files")
+	"f l" '(consult-line :wk "Find line")
+	"f i" '(consult-imenu :wk "Imenu buffer locations"))
 
   (start/leader-keys
-   "b" '(:ignore t :wk "Buffer Bookmarks")
-   "b b" '(consult-buffer :wk "Switch buffer")
-   "b k" '(kill-this-buffer :wk "Kill this buffer")
-   "b i" '(ibuffer :wk "Ibuffer")
-   "b n" '(next-buffer :wk "Next buffer")
-   "b p" '(previous-buffer :wk "Previous buffer")
-   "b r" '(revert-buffer :wk "Reload buffer")
-   "b j" '(consult-bookmark :wk "Bookmark jump"))
+	"b" '(:ignore t :wk "Buffer Bookmarks")
+	"b b" '(consult-buffer :wk "Switch buffer")
+	"b k" '(kill-this-buffer :wk "Kill this buffer")
+	"b i" '(ibuffer :wk "Ibuffer")
+	"b n" '(next-buffer :wk "Next buffer")
+	"b p" '(previous-buffer :wk "Previous buffer")
+	"b r" '(revert-buffer :wk "Reload buffer")
+	"b j" '(consult-bookmark :wk "Bookmark jump"))
 
   (start/leader-keys
-   "d" '(:ignore t :wk "Dired")
-   "d v" '(dired :wk "Open dired")
-   "d j" '(dired-jump :wk "Dired jump to current"))
+	"d" '(:ignore t :wk "Dired")
+	"d v" '(dired :wk "Open dired")
+	"d j" '(dired-jump :wk "Dired jump to current"))
 
   (start/leader-keys
-   "e" '(:ignore t :wk "Eglot Evaluate")
-   "e e" '(eglot-reconnect :wk "Eglot Reconnect")
-   "e f" '(eglot-format :wk "Eglot Format")
-   "e l" '(consult-flymake :wk "Consult Flymake")
-   "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
-   "e r" '(eval-region :wk "Evaluate elisp in region"))
+	"e" '(:ignore t :wk "Eglot Evaluate")
+	"e e" '(eglot-reconnect :wk "Eglot Reconnect")
+	"e f" '(eglot-format :wk "Eglot Format")
+	"e l" '(consult-flymake :wk "Consult Flymake")
+	"e b" '(eval-buffer :wk "Evaluate elisp in buffer")
+	"e r" '(eval-region :wk "Evaluate elisp in region"))
 
   (start/leader-keys
-   "g" '(:ignore t :wk "Git")
-   "g g" '(magit-status :wk "Magit status"))
+	"g" '(:ignore t :wk "Git")
+	"g g" '(magit-status :wk "Magit status"))
 
   (start/leader-keys
-   "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-   "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-   "h r" '((lambda () (interactive)
-             (load-file "~/.config/emacs/init.el"))
-           :wk "Reload Emacs config"))
+	"h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
+	"h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+	"h r" '((lambda () (interactive)
+			  (load-file "~/.config/emacs/init.el"))
+			:wk "Reload Emacs config"))
 
   (start/leader-keys
-   "s" '(:ignore t :wk "Show")
-   "s e" '(eat :wk "Eat terminal"))
+	"s" '(:ignore t :wk "Show")
+	"s e" '(eat :wk "Eat terminal"))
 
   (start/leader-keys
-   "t" '(:ignore t :wk "Toggle")
-   "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-   "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+	"t" '(:ignore t :wk "Toggle")
+	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
 
   (start/leader-keys
-   "o" '(:ignore t :which-key "Org")
-   "o t" '(:ignore t :which-key "TODO States")
-   "o t t" '(org-todo :which-key "Set TODO")
-   "o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-   "o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-   "o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-   "o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-   "o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+	"o" '(:ignore t :which-key "Org")
+	"o t" '(:ignore t :which-key "TODO States")
+	"o t t" '(org-todo :which-key "Set TODO")
+	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
 
   (start/leader-keys
-   "o a" '(:ignore t :wk "Org Agenda")
-   "o a c" '(org-capture :wk "Capture")
-   "o a a" '(org-agenda :wk "Agenda")
+	"o a" '(:ignore t :wk "Org Agenda")
+	"o a c" '(org-capture :wk "Capture")
+	"o a a" '(org-agenda :wk "Agenda")
 
-   "o r" '(:ignore t :wk "Org Roam")
-   "o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-   "o r f" '(org-roam-node-find :wk "Find Node")
-   "o r i" '(org-roam-node-insert :wk "Insert Node")
-   "o r c" '(org-roam-capture :wk "Capture")
-   "o r g" '(org-roam-graph :wk "Graph"))
+	"o r" '(:ignore t :wk "Org Roam")
+	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+	"o r f" '(org-roam-node-find :wk "Find Node")
+	"o r i" '(org-roam-node-insert :wk "Insert Node")
+	"o r c" '(org-roam-capture :wk "Capture")
+	"o r g" '(org-roam-graph :wk "Graph"))
 
   (start/leader-keys
-   "o d" '(:ignore t :wk "Org Roam Dailies")
-   "o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-   "o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-   "o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-   "o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-   "o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
+	"o d" '(:ignore t :wk "Org Roam Dailies")
+	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
 
 (use-package emacs
   :custom
@@ -175,8 +174,8 @@
   (blink-cursor-mode nil)     ;; Don't blink cursor
   (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
 
-  ;;(dired-kill-when-opening-new-dired-buffer t) ;; Dired don't create new buffer
-  ;;(recentf-mode t) ;; Enable recent file mode
+  (dired-kill-when-opening-new-dired-buffer t) ;; Dired don't create new buffer
+  (recentf-mode t) ;; Enable recent file mode
 
   ;;(global-visual-line-mode t)           ;; Enable truncated lines
   (display-line-numbers-type 'relative) ;; Relative line numbers
@@ -197,20 +196,24 @@
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
   :bind (
-         ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-         )
+		 ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+		 )
   ;; Fix general.el leader key not working instantly in messages buffer with evil mode
   :ghook ('after-init-hook
-          (lambda (&rest _)
-            (when-let ((messages-buffer (get-buffer "*Messages*")))
-              (with-current-buffer messages-buffer
-                (evil-normalize-keymaps))))
-          nil nil t)
+		  (lambda (&rest _)
+			(when-let ((messages-buffer (get-buffer "*Messages*")))
+			  (with-current-buffer messages-buffer
+				(evil-normalize-keymaps))))
+		  nil nil t)
   )
 
-;; (use-package gruvbox-theme
-;;   :config
-;;   (load-theme 'gruvbox-dark-medium t)) ;; We need to add t to trust this package
+(add-to-list 'exec-path "/usr/local/bin/go/bin")	
+(add-to-list 'exec-path "/usr/local/bin")	
+(add-to-list 'exec-path "~/.local/bin")	
+(add-to-list 'exec-path "/usr/bin")	
+(add-to-list 'exec-path "~/anaconda3/bin")	
+(add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
+
 (use-package catppuccin-theme)
 (load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
 (setq catppuccin-flavor 'frappe)
@@ -219,9 +222,9 @@
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-                    :font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
-                    :height 120
-                    :weight 'regular)
+					:font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
+					:height 120
+					:weight 'regular)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;;       ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;;       ;; are not right unless I also add this method of setting the default font.
@@ -273,29 +276,53 @@
   (projectile-project-search-path '("~/projects/" "~/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
-;;(use-package eglot
-;;  :ensure nil ;; Don't install eglot because it's now built-in
-;;  :hook ((c-mode c++-mode ;; Autostart lsp servers for a given mode
-;;                 lua-mode) ;; Lua-mode needs to be installed
-;;         . eglot-ensure)
-;;  :custom
-;;  ;; Good default
-;;  (eglot-events-buffer-size 0) ;; No event buffers (Lsp server logs)
-;;  (eglot-autoshutdown t);; Shutdown unused servers.
-;;  (eglot-report-progress nil) ;; Disable lsp server logs (Don't show lsp messages at the bottom, java)
-;;  ;; Manual lsp servers
-;;  :config
-;;  (add-to-list 'eglot-server-programs
-;;               `(lua-mode . ("PATH_TO_THE_LSP_FOLDER/bin/lua-language-server" "-lsp"))) ;; Adds our lua lsp server to eglot's server list
-;;  )
+(use-package lsp-mode
+  :ensure t
+  :hook ((go-mode . lsp-deferred) ;; sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
+		 (python-mode . lsp-deferred)
+		 )
+  :commands (lsp lsp-deferred)
+  :custom
+  (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.5)
+  (lsp-completion-provider :none)
+  (defun corfu-lsp-setup ()
+	(setq-local completion-styles '(orderless)
+				completion-category-defaults nil))
+  (add-hook 'lsp-completion-mode-hook #'corfu-lsp-setup)
+  (lsp-log-io t) ; Enable if you need to debug LSP communication
+  (lsp-enable-snippet t)
+  (lsp-enable-symbol-highlighting t))
+;; (use-package lsp-ui :commands lsp-ui-mode)
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
 
+(use-package lua-mode
+  :mode "\\.lua\\'") ;; Only start in a lua file
+
+(use-package go-mode
+  :ensure t
+  :config
+  (setq lsp-gopls-staticcheck t)
+  (add-hook 'before-save-hook #'lsp-organize-imports)
+  (add-hook 'before-save-hook #'lsp-format-buffer)
+  (setq lsp-gopls-server-path (executable-find "~/go/bin/gopls"))
+  (setq lsp-gopls-staticcheck t)
+  (setq gofmt-command "goimports")
+  (setq lsp-gopls-staticcheck t)
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (with-eval-after-load 'lsp-mode
+	(lsp-register-custom-settings
+	 '(("gopls.completeUnimported" t t)
+	   ("gopls.staticcheck" t t)
+	   ("gopls.usePlaceholders" t t)))
+	(add-hook 'go-mode-hook #'lsp-deferred)))
+
 (use-package org
   :ensure t
   :hook
-  (org-mode . org-indent-mode) ;; Indent text
+  ;; (org-mode . org-indent-mode) ;; Indent text
   (org-mode . visual-line-mode)
   :custom
   (org-return-follows-link t))
@@ -316,43 +343,43 @@
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (let ((org-file-list '()))
-    (dolist (file (directory-files-recursively directory "\\.org$"))
-      (setq org-file-list (append org-file-list (list file))))
-    org-file-list))
+	(dolist (file (directory-files-recursively directory "\\.org$"))
+	  (setq org-file-list (append org-file-list (list file))))
+	org-file-list))
 
 (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/org-roam/"))
 
 ;; Customize agenda prefix format
 (setq org-agenda-prefix-format
-      '((agenda . " %i %?-12t% s")  ; remove file name
-        (todo . " %i ")
-        (tags . " %i ")
-        (search . " %i ")))
+	  '((agenda . " %i %?-12t% s")  ; remove file name
+		(todo . " %i ")
+		(tags . " %i ")
+		(search . " %i ")))
 
 ;; Define TODO keywords and their faces
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+	  '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
 
 (setq org-todo-keyword-faces
-      '(("DOING" . "yellow")
-        ("HOLD" . "magenta")
-        ("CANCELLED" . "red")
-        ("MAYBE" . "orange")))
+	  '(("DOING" . "yellow")
+		("HOLD" . "magenta")
+		("CANCELLED" . "red")
+		("MAYBE" . "orange")))
 
 ;; Set default notes file
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
 
 ;; Define capture templates
 (setq org-capture-templates
-      '(("t" "Blank Todo [inbox]" entry
-         (file+headline "~/Dropbox/neorg/org/inbox.org" "Tasks")
-         "* TODO %i%?")
-        ("w" "Work Todo [work]" entry
-         (file+headline "~/Dropbox/neorg/org/work.org" "Work")
-         "* TODO %i%?")
-        ("p" "Personal Todo [personal]" entry
-         (file+headline "~/Dropbox/neorg/org/personal.org" "Personal")
-         "* TODO %i%?")))
+	  '(("t" "Blank Todo [inbox]" entry
+		 (file+headline "~/Dropbox/neorg/org/inbox.org" "Tasks")
+		 "* TODO %i%?")
+		("w" "Work Todo [work]" entry
+		 (file+headline "~/Dropbox/neorg/org/work.org" "Work")
+		 "* TODO %i%?")
+		("p" "Personal Todo [personal]" entry
+		 (file+headline "~/Dropbox/neorg/org/personal.org" "Personal")
+		 "* TODO %i%?")))
 
 ;; Conceal emphasis markers for bold and italic text
 (setq org-hide-emphasis-markers t)
@@ -380,27 +407,27 @@
 
 (defun my/org-add-custom-block-faces ()
   (font-lock-add-keywords nil
-                          '(("\\(#\\+begin_note\\|#\\+end_note\\)" 1 'org-block-note prepend)
-                            ("\\(#\\+begin_warn\\|#\\+end_warn\\)" 1 'org-block-warn prepend)
-                            ("\\(#\\+begin_important\\|#\\+end_important\\)" 1 'org-block-important prepend)
-                            ("\\(#\\+begin_note\\)[ \t]*\\(.*\\)"
-                             (1 'org-block-note prepend)
-                             (2 'org-block-note prepend))
-                            ("\\(#\\+begin_warn\\)[ \t]*\\(.*\\)"
-                             (1 'org-block-warn prepend)
-                             (2 'org-block-warn prepend))
-                            ("\\(#\\+begin_important\\)[ \t]*\\(.*\\)"
-                             (1 'org-block-important prepend)
-                             (2 'org-block-important prepend)))
-                          t)
+						  '(("\\(#\\+begin_note\\|#\\+end_note\\)" 1 'org-block-note prepend)
+							("\\(#\\+begin_warn\\|#\\+end_warn\\)" 1 'org-block-warn prepend)
+							("\\(#\\+begin_important\\|#\\+end_important\\)" 1 'org-block-important prepend)
+							("\\(#\\+begin_note\\)[ \t]*\\(.*\\)"
+							 (1 'org-block-note prepend)
+							 (2 'org-block-note prepend))
+							("\\(#\\+begin_warn\\)[ \t]*\\(.*\\)"
+							 (1 'org-block-warn prepend)
+							 (2 'org-block-warn prepend))
+							("\\(#\\+begin_important\\)[ \t]*\\(.*\\)"
+							 (1 'org-block-important prepend)
+							 (2 'org-block-important prepend)))
+						  t)
   (font-lock-add-keywords nil
-                          '(("\\(#\\+begin_note\\)\\(.\\|\n\\)*?\\(#\\+end_note\\)"
-                             (0 'org-block-note prepend))
-                            ("\\(#\\+begin_warn\\)\\(.\\|\n\\)*?\\(#\\+end_warn\\)"
-                             (0 'org-block-warn prepend))
-                            ("\\(#\\+begin_important\\)\\(.\\|\n\\)*?\\(#\\+end_important\\)"
-                             (0 'org-block-important prepend)))
-                          t)
+						  '(("\\(#\\+begin_note\\)\\(.\\|\n\\)*?\\(#\\+end_note\\)"
+							 (0 'org-block-note prepend))
+							("\\(#\\+begin_warn\\)\\(.\\|\n\\)*?\\(#\\+end_warn\\)"
+							 (0 'org-block-warn prepend))
+							("\\(#\\+begin_important\\)\\(.\\|\n\\)*?\\(#\\+end_important\\)"
+							 (0 'org-block-important prepend)))
+						  t)
   (font-lock-flush))
 
 (add-hook 'org-mode-hook 'my/org-add-custom-block-faces)
@@ -455,63 +482,63 @@
   (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
   ;; Enable all Cascadia and Fira Code ligatures in programming modes
   (ligature-set-ligatures 't
-                          '(;; == === ==== => =| =>>=>=|=>==>> ==< =/=//=// =~
-                            ;; =:= =!=
-                            ("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
-                            ;; ;; ;;;
-                            (";" (rx (+ ";")))
-                            ;; && &&&
-                            ("&" (rx (+ "&")))
-                            ;; !! !!! !. !: !!. != !== !~
-                            ("!" (rx (+ (or "=" "!" "\." ":" "~"))))
-                            ;; ?? ??? ?:  ?=  ?.
-                            ("?" (rx (or ":" "=" "\." (+ "?"))))
-                            ;; %% %%%
-                            ("%" (rx (+ "%")))
-                            ;; |> ||> |||> ||||> |] |} || ||| |-> ||-||
-                            ;; |->>-||-<<-| |- |== ||=||
-                            ;; |==>>==<<==<=>==//==/=!==:===>
-                            ("|" (rx (+ (or ">" "<" "|" "/" ":" "!" "}" "\]"
-                                            "-" "=" ))))
-                            ;; \\ \\\ \/
-                            ("\\" (rx (or "/" (+ "\\"))))
-                            ;; ++ +++ ++++ +>
-                            ("+" (rx (or ">" (+ "+"))))
-                            ;; :: ::: :::: :> :< := :// ::=
-                            (":" (rx (or ">" "<" "=" "//" ":=" (+ ":"))))
-                            ;; // /// //// /\ /* /> /===:===!=//===>>==>==/
-                            ("/" (rx (+ (or ">"  "<" "|" "/" "\\" "\*" ":" "!"
-                                            "="))))
-                            ;; .. ... .... .= .- .? ..= ..<
-                            ("\." (rx (or "=" "-" "\?" "\.=" "\.<" (+ "\."))))
-                            ;; -- --- ---- -~ -> ->> -| -|->-->>->--<<-|
-                            ("-" (rx (+ (or ">" "<" "|" "~" "-"))))
-                            ;; *> */ *)  ** *** ****
-                            ("*" (rx (or ">" "/" ")" (+ "*"))))
-                            ;; www wwww
-                            ("w" (rx (+ "w")))
-                            ;; <> <!-- <|> <: <~ <~> <~~ <+ <* <$ </  <+> <*>
-                            ;; <$> </> <|  <||  <||| <|||| <- <-| <-<<-|-> <->>
-                            ;; <<-> <= <=> <<==<<==>=|=>==/==//=!==:=>
-                            ;; << <<< <<<<
-                            ("<" (rx (+ (or "\+" "\*" "\$" "<" ">" ":" "~"  "!"
-                                            "-"  "/" "|" "="))))
-                            ;; >: >- >>- >--|-> >>-|-> >= >== >>== >=|=:=>>
-                            ;; >> >>> >>>>
-                            (">" (rx (+ (or ">" "<" "|" "/" ":" "=" "-"))))
-                            ;; #: #= #! #( #? #[ #{ #_ #_( ## ### #####
-                            ("#" (rx (or ":" "=" "!" "(" "\?" "\[" "{" "_(" "_"
-                                         (+ "#"))))
-                            ;; ~~ ~~~ ~=  ~-  ~@ ~> ~~>
-                            ("~" (rx (or ">" "=" "-" "@" "~>" (+ "~"))))
-                            ;; __ ___ ____ _|_ __|____|_
-                            ("_" (rx (+ (or "_" "|"))))
-                            ;; Fira code: 0xFF 0x12
-                            ("0" (rx (and "x" (+ (in "A-F" "a-f" "0-9")))))
-                            ;; Fira code:
-                            "Fl"  "Tl"  "fi"  "fj"  "fl"  "ft"
-                            ;; The few not covered by the regexps.
-                            "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^="))
+						  '(;; == === ==== => =| =>>=>=|=>==>> ==< =/=//=// =~
+							;; =:= =!=
+							("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
+							;; ;; ;;;
+							(";" (rx (+ ";")))
+							;; && &&&
+							("&" (rx (+ "&")))
+							;; !! !!! !. !: !!. != !== !~
+							("!" (rx (+ (or "=" "!" "\." ":" "~"))))
+							;; ?? ??? ?:  ?=  ?.
+							("?" (rx (or ":" "=" "\." (+ "?"))))
+							;; %% %%%
+							("%" (rx (+ "%")))
+							;; |> ||> |||> ||||> |] |} || ||| |-> ||-||
+							;; |->>-||-<<-| |- |== ||=||
+							;; |==>>==<<==<=>==//==/=!==:===>
+							("|" (rx (+ (or ">" "<" "|" "/" ":" "!" "}" "\]"
+											"-" "=" ))))
+							;; \\ \\\ \/
+							("\\" (rx (or "/" (+ "\\"))))
+							;; ++ +++ ++++ +>
+							("+" (rx (or ">" (+ "+"))))
+							;; :: ::: :::: :> :< := :// ::=
+							(":" (rx (or ">" "<" "=" "//" ":=" (+ ":"))))
+							;; // /// //// /\ /* /> /===:===!=//===>>==>==/
+							("/" (rx (+ (or ">"  "<" "|" "/" "\\" "\*" ":" "!"
+											"="))))
+							;; .. ... .... .= .- .? ..= ..<
+							("\." (rx (or "=" "-" "\?" "\.=" "\.<" (+ "\."))))
+							;; -- --- ---- -~ -> ->> -| -|->-->>->--<<-|
+							("-" (rx (+ (or ">" "<" "|" "~" "-"))))
+							;; *> */ *)  ** *** ****
+							("*" (rx (or ">" "/" ")" (+ "*"))))
+							;; www wwww
+							("w" (rx (+ "w")))
+							;; <> <!-- <|> <: <~ <~> <~~ <+ <* <$ </  <+> <*>
+							;; <$> </> <|  <||  <||| <|||| <- <-| <-<<-|-> <->>
+							;; <<-> <= <=> <<==<<==>=|=>==/==//=!==:=>
+							;; << <<< <<<<
+							("<" (rx (+ (or "\+" "\*" "\$" "<" ">" ":" "~"  "!"
+											"-"  "/" "|" "="))))
+							;; >: >- >>- >--|-> >>-|-> >= >== >>== >=|=:=>>
+							;; >> >>> >>>>
+							(">" (rx (+ (or ">" "<" "|" "/" ":" "=" "-"))))
+							;; #: #= #! #( #? #[ #{ #_ #_( ## ### #####
+							("#" (rx (or ":" "=" "!" "(" "\?" "\[" "{" "_(" "_"
+										 (+ "#"))))
+							;; ~~ ~~~ ~=  ~-  ~@ ~> ~~>
+							("~" (rx (or ">" "=" "-" "@" "~>" (+ "~"))))
+							;; __ ___ ____ _|_ __|____|_
+							("_" (rx (+ (or "_" "|"))))
+							;; Fira code: 0xFF 0x12
+							("0" (rx (and "x" (+ (in "A-F" "a-f" "0-9")))))
+							;; Fira code:
+							"Fl"  "Tl"  "fi"  "fj"  "fl"  "ft"
+							;; The few not covered by the regexps.
+							"{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^="))
   ;; Enables ligature checks globally in all buffers. You can also do it
   ;; per mode with `ligature-mode'.
   (global-ligature-mode t))
@@ -521,8 +548,8 @@
 
 (use-package diff-hl
   :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
-         (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-         (magit-post-refresh . diff-hl-magit-post-refresh))
+		 (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+		 (magit-post-refresh . diff-hl-magit-post-refresh))
   :init
   (global-diff-hl-mode))
 
@@ -612,7 +639,7 @@
   ;; preview for `consult-register', `consult-register-load',
   ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+		register-preview-function #'consult-register-format)
 
   ;; Optionally tweak the register preview window.
   ;; This adds thin lines, sorting and hides the mode line of the window.
@@ -620,7 +647,7 @@
 
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+		xref-show-definitions-function #'consult-xref)
   :config
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
@@ -641,16 +668,16 @@
 
   ;; By default `consult-project-function' uses `project-root' from project.el.
   ;; Optionally configure a different project root function.
-       ;;;; 1. project.el (the default)
+	   ;;;; 1. project.el (the default)
   ;; (setq consult-project-function #'consult--default-project--function)
-       ;;;; 2. vc.el (vc-root-dir)
+	   ;;;; 2. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-       ;;;; 3. locate-dominating-file
+	   ;;;; 3. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-       ;;;; 4. projectile.el (projectile-project-root)
+	   ;;;; 4. projectile.el (projectile-project-root)
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-function (lambda (_) (projectile-project-root)))
-       ;;;; 5. No project support
+	   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
   )
 
