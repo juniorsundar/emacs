@@ -43,6 +43,20 @@
               ("SPC" . nil)
               ("RET" . nil)
               ("TAB" . nil)))
+
+(use-package evil-snipe
+  :after evil
+  :config
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode 1)
+  (setq evil-snipe-scope 'visible)
+  )
+
+(use-package evil-surround
+  :after evil
+  :config
+  (global-evil-surround-mode 1))
+
 (use-package evil-collection
   :after evil
   :config
@@ -61,91 +75,91 @@
     :global-prefix "C-SPC") ;; Set global leader key
 
   (start/leader-keys
-    "." '(find-file :wk "Find file")
-    "TAB" '(comment-line :wk "Comment lines")
-    "p" '(projectile-command-map :wk "Projectile command map"))
+   "." '(find-file :wk "Find file")
+   "TAB" '(comment-line :wk "Comment lines")
+   "p" '(projectile-command-map :wk "Projectile command map"))
 
   (start/leader-keys
-    "f" '(:ignore t :wk "Find")
-    "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
-    "f r" '(consult-recent-file :wk "Recent files")
-    "f f" '(consult-fd :wk "Fd search for files")
-    "f g" '(consult-ripgrep :wk "Ripgrep search in files")
-    "f l" '(consult-line :wk "Find line")
-    "f i" '(consult-imenu :wk "Imenu buffer locations"))
+   "f" '(:ignore t :wk "Find")
+   "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
+   "f r" '(consult-recent-file :wk "Recent files")
+   "f f" '(consult-fd :wk "Fd search for files")
+   "f g" '(consult-ripgrep :wk "Ripgrep search in files")
+   "f l" '(consult-line :wk "Find line")
+   "f i" '(consult-imenu :wk "Imenu buffer locations"))
 
   (start/leader-keys
-    "b" '(:ignore t :wk "Buffer Bookmarks")
-    "b b" '(consult-buffer :wk "Switch buffer")
-    "b k" '(kill-this-buffer :wk "Kill this buffer")
-    "b i" '(ibuffer :wk "Ibuffer")
-    "b n" '(next-buffer :wk "Next buffer")
-    "b p" '(previous-buffer :wk "Previous buffer")
-    "b r" '(revert-buffer :wk "Reload buffer")
-    "b j" '(consult-bookmark :wk "Bookmark jump"))
+   "b" '(:ignore t :wk "Buffer Bookmarks")
+   "b b" '(consult-buffer :wk "Switch buffer")
+   "b k" '(kill-this-buffer :wk "Kill this buffer")
+   "b i" '(ibuffer :wk "Ibuffer")
+   "b n" '(next-buffer :wk "Next buffer")
+   "b p" '(previous-buffer :wk "Previous buffer")
+   "b r" '(revert-buffer :wk "Reload buffer")
+   "b j" '(consult-bookmark :wk "Bookmark jump"))
 
   (start/leader-keys
-    "d" '(:ignore t :wk "Dired")
-    "d v" '(dired :wk "Open dired")
-    "d j" '(dired-jump :wk "Dired jump to current"))
+   "d" '(:ignore t :wk "Dired")
+   "d v" '(dired :wk "Open dired")
+   "d j" '(dired-jump :wk "Dired jump to current"))
 
   (start/leader-keys
-    "e" '(:ignore t :wk "Eglot Evaluate")
-    "e e" '(eglot-reconnect :wk "Eglot Reconnect")
-    "e f" '(eglot-format :wk "Eglot Format")
-    "e l" '(consult-flymake :wk "Consult Flymake")
-    "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
-    "e r" '(eval-region :wk "Evaluate elisp in region"))
+   "e" '(:ignore t :wk "Eglot Evaluate")
+   "e e" '(eglot-reconnect :wk "Eglot Reconnect")
+   "e f" '(eglot-format :wk "Eglot Format")
+   "e l" '(consult-flymake :wk "Consult Flymake")
+   "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
+   "e r" '(eval-region :wk "Evaluate elisp in region"))
 
   (start/leader-keys
-    "g" '(:ignore t :wk "Git")
-    "g g" '(magit-status :wk "Magit status"))
+   "g" '(:ignore t :wk "Git")
+   "g g" '(magit-status :wk "Magit status"))
 
   (start/leader-keys
-    "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-    "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-    "h r" '((lambda () (interactive)
-              (load-file "~/.config/emacs/init.el"))
-            :wk "Reload Emacs config"))
+   "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
+   "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+   "h r" '((lambda () (interactive)
+             (load-file "~/.config/emacs/init.el"))
+           :wk "Reload Emacs config"))
 
   (start/leader-keys
-    "s" '(:ignore t :wk "Show")
-    "s e" '(eat :wk "Eat terminal"))
+   "s" '(:ignore t :wk "Show")
+   "s e" '(eat :wk "Eat terminal"))
 
   (start/leader-keys
-    "t" '(:ignore t :wk "Toggle")
-    "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-    "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+   "t" '(:ignore t :wk "Toggle")
+   "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+   "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
 
   (start/leader-keys
-    "o" '(:ignore t :which-key "Org")
-    "o t" '(:ignore t :which-key "TODO States")
-    "o t t" '(org-todo :which-key "Set TODO")
-    "o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-    "o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-    "o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-    "o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-    "o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+   "o" '(:ignore t :which-key "Org")
+   "o t" '(:ignore t :which-key "TODO States")
+   "o t t" '(org-todo :which-key "Set TODO")
+   "o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+   "o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+   "o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+   "o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+   "o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
 
   (start/leader-keys
-    "o a" '(:ignore t :wk "Org Agenda")
-    "o a c" '(org-capture :wk "Capture")
-    "o a a" '(org-agenda :wk "Agenda")
+   "o a" '(:ignore t :wk "Org Agenda")
+   "o a c" '(org-capture :wk "Capture")
+   "o a a" '(org-agenda :wk "Agenda")
 
-    "o r" '(:ignore t :wk "Org Roam")
-    "o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-    "o r f" '(org-roam-node-find :wk "Find Node")
-    "o r i" '(org-roam-node-insert :wk "Insert Node")
-    "o r c" '(org-roam-capture :wk "Capture")
-    "o r g" '(org-roam-graph :wk "Graph"))
+   "o r" '(:ignore t :wk "Org Roam")
+   "o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+   "o r f" '(org-roam-node-find :wk "Find Node")
+   "o r i" '(org-roam-node-insert :wk "Insert Node")
+   "o r c" '(org-roam-capture :wk "Capture")
+   "o r g" '(org-roam-graph :wk "Graph"))
 
   (start/leader-keys
-    "o d" '(:ignore t :wk "Org Roam Dailies")
-    "o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-    "o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-    "o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-    "o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-    "o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
+   "o d" '(:ignore t :wk "Org Roam Dailies")
+   "o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+   "o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+   "o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+   "o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+   "o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
 
 (use-package emacs
   :custom
@@ -205,35 +219,35 @@
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-                          :font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
-                          :height 120
-                          :weight 'regular)
-      ;; This sets the default font on all graphical frames created after restarting Emacs.
+                    :font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
+                    :height 120
+                    :weight 'regular)
+;; This sets the default font on all graphical frames created after restarting Emacs.
 ;;       ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;;       ;; are not right unless I also add this method of setting the default font.
 ;;
-      (add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
-      (setq-default line-spacing 0.12)
+(add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
+(setq-default line-spacing 0.12)
 
-    ;; (set-face-attribute 'default nil
-    ;;                     :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
-    ;;                     :height 110
-    ;;                     :weight 'regular)
+;; (set-face-attribute 'default nil
+;;                     :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
+;;                     :height 110
+;;                     :weight 'regular)
 
-    ;; ;; Set default font for new frames
-    ;; (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
+;; ;; Set default font for new frames
+;; (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
 
-    ;; ;; Set line spacing
-    ;; (setq-default line-spacing 0.12)
+;; ;; Set line spacing
+;; (setq-default line-spacing 0.12)
 
-    ;; ;; Set fonts for specific faces
-    ;; (set-face-attribute 'italic nil
-    ;;                     :font "Fira Code Italic" ;; Adjust as necessary
-    ;;                     :weight 'regular)
+;; ;; Set fonts for specific faces
+;; (set-face-attribute 'italic nil
+;;                     :font "Fira Code Italic" ;; Adjust as necessary
+;;                     :weight 'regular)
 
-    ;; (set-face-attribute 'bold nil
-    ;;                     :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
-    ;;                     :weight 'bold)
+;; (set-face-attribute 'bold nil
+;;                     :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
+;;                     :weight 'bold)
 
 (use-package emacs
   :bind
@@ -284,7 +298,6 @@
   (org-mode . org-indent-mode) ;; Indent text
   (org-mode . visual-line-mode)
   :custom
-  (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
   (org-return-follows-link t))
 
 ;; Ensure inline images are displayed when opening an Org file
@@ -628,16 +641,16 @@
 
   ;; By default `consult-project-function' uses `project-root' from project.el.
   ;; Optionally configure a different project root function.
-   ;;;; 1. project.el (the default)
+       ;;;; 1. project.el (the default)
   ;; (setq consult-project-function #'consult--default-project--function)
-   ;;;; 2. vc.el (vc-root-dir)
+       ;;;; 2. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-   ;;;; 3. locate-dominating-file
+       ;;;; 3. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-   ;;;; 4. projectile.el (projectile-project-root)
+       ;;;; 4. projectile.el (projectile-project-root)
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-function (lambda (_) (projectile-project-root)))
-   ;;;; 5. No project support
+       ;;;; 5. No project support
   ;; (setq consult-project-function nil)
   )
 
