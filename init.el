@@ -208,6 +208,7 @@
   )
 
 (add-to-list 'exec-path "/usr/local/bin/go/bin")	
+(add-to-list 'exec-path "/usr/local/go/bin")	
 (add-to-list 'exec-path "/usr/local/bin")	
 (add-to-list 'exec-path "~/.local/bin")	
 (add-to-list 'exec-path "/usr/bin")	
@@ -276,24 +277,33 @@
   (projectile-project-search-path '("~/projects/" "~/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
-(use-package lsp-mode
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :hook ((go-mode . lsp-deferred) ;; sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
+;; 		 (python-mode . lsp-deferred)
+;; 		 )
+;;   :commands (lsp lsp-deferred)
+;;   :custom
+;;   (lsp-eldoc-render-all t)
+;;   (lsp-idle-delay 0.5)
+;;   (lsp-completion-provider :none)
+;;   (defun corfu-lsp-setup ()
+;; 	(setq-local completion-styles '(orderless)
+;; 				completion-category-defaults nil))
+;;   (add-hook 'lsp-completion-mode-hook #'corfu-lsp-setup)
+;;   (lsp-log-io t) ; Enable if you need to debug LSP communication
+;;   (lsp-enable-snippet t)
+;;   (lsp-enable-symbol-highlighting t))
+;; ;; (use-package lsp-ui :commands lsp-ui-mode)
+(use-package eglot
   :ensure t
-  :hook ((go-mode . lsp-deferred) ;; sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
-		 (python-mode . lsp-deferred)
-		 )
-  :commands (lsp lsp-deferred)
-  :custom
-  (lsp-eldoc-render-all t)
-  (lsp-idle-delay 0.5)
-  (lsp-completion-provider :none)
-  (defun corfu-lsp-setup ()
-	(setq-local completion-styles '(orderless)
-				completion-category-defaults nil))
-  (add-hook 'lsp-completion-mode-hook #'corfu-lsp-setup)
-  (lsp-log-io t) ; Enable if you need to debug LSP communication
-  (lsp-enable-snippet t)
-  (lsp-enable-symbol-highlighting t))
-;; (use-package lsp-ui :commands lsp-ui-mode)
+  :config
+  (add-to-list 'eglot-server-programs '(go-mode . ("~/go/bin/gopls")))
+  (add-to-list 'eglot-server-programs '(python-mode . ("pyls")))
+  :hook
+  ((go-mode . eglot-ensure)
+   (python-mode . eglot-ensure))
+  )
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
@@ -302,22 +312,24 @@
   :mode "\\.lua\\'") ;; Only start in a lua file
 
 (use-package go-mode
-  :ensure t
-  :config
-  (setq lsp-gopls-staticcheck t)
-  (add-hook 'before-save-hook #'lsp-organize-imports)
-  (add-hook 'before-save-hook #'lsp-format-buffer)
-  (setq lsp-gopls-server-path (executable-find "~/go/bin/gopls"))
-  (setq lsp-gopls-staticcheck t)
-  (setq gofmt-command "goimports")
-  (setq lsp-gopls-staticcheck t)
-  (add-hook 'before-save-hook 'gofmt-before-save)
-  (with-eval-after-load 'lsp-mode
-	(lsp-register-custom-settings
-	 '(("gopls.completeUnimported" t t)
-	   ("gopls.staticcheck" t t)
-	   ("gopls.usePlaceholders" t t)))
-	(add-hook 'go-mode-hook #'lsp-deferred)))
+  :mode "\\.go\\'"
+
+  ;; 	:config
+  ;; 	(setq lsp-gopls-staticcheck t)
+  ;; 	(add-hook 'before-save-hook #'lsp-organize-imports)
+  ;; 	(add-hook 'before-save-hook #'lsp-format-buffer)
+  ;; 	(setq lsp-gopls-server-path (executable-find "~/go/bin/gopls"))
+  ;; 	(setq lsp-gopls-staticcheck t)
+  ;; 	(setq gofmt-command "goimports")
+  ;; 	(setq lsp-gopls-staticcheck t)
+  ;; 	(add-hook 'before-save-hook 'gofmt-before-save)
+  ;; 	(with-eval-after-load 'lsp-mode
+  ;; 	  (lsp-register-custom-settings
+  ;; 	   '(("gopls.completeUnimported" t t)
+  ;; 		 ("gopls.staticcheck" t t)
+  ;; 		 ("gopls.usePlaceholders" t t)))
+  ;; 	  (add-hook 'go-mode-hook #'lsp-deferred))
+  )
 
 (use-package org
   :ensure t
