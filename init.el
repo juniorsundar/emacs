@@ -215,15 +215,26 @@
 (add-to-list 'exec-path "~/anaconda3/bin")	
 (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
 
-(use-package catppuccin-theme)
-(load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
-(setq catppuccin-flavor 'frappe)
-(catppuccin-reload)
+(defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
+	"Directory containing my configuration files.")
+
+  ;; Function to load a configuration file
+  (defun load-config-file (file)
+	"Load a configuration FILE from my config directory."
+	(load (expand-file-name file my-config-dir)))
+
+  ;; Load individual configuration files
+  (load-config-file "cyberdream-theme.el")
+ ;; (use-package cyberdream-theme
+;;  :ensure t)
+ (load-theme 'cyberdream :no-confirm) ;; We need to add t to trust this package
+ (setq cyberdream-flavor 'mocha)
+ (cyberdream-reload)
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-					:font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
+					:font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
 					:height 120
 					:weight 'regular)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
@@ -299,7 +310,7 @@
   :ensure t
   :config
   (add-to-list 'eglot-server-programs '(go-mode . ("~/go/bin/gopls")))
-  (add-to-list 'eglot-server-programs '(python-mode . ("pyls")))
+  (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
   :hook
   ((go-mode . eglot-ensure)
    (python-mode . eglot-ensure))
@@ -396,9 +407,9 @@
 ;; Conceal emphasis markers for bold and italic text
 (setq org-hide-emphasis-markers t)
 
-;; Customize the appearance of inline code
+;; Customize the appearance of inline code #45475a #c6d0f5
 (custom-set-faces
- '(org-code ((t (:background "#45475a" :foreground "#c6d0f5" :family "monospace" :slant italic)))))
+ '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "monospace")))))
 
 (custom-set-faces
  '(org-emphasis ((t (:inherit default :foreground nil :background nil))))

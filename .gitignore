@@ -63,7 +63,6 @@ site-lisp/package/
 auto-save-list/*
 eln-cache/*
 elpa/*
-lisp/*
 snippets/*
 transient/*
 custom-vars.el
