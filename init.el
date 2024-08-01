@@ -215,26 +215,31 @@
 (add-to-list 'exec-path "~/anaconda3/bin")	
 (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
 
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
 (defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
-	"Directory containing my configuration files.")
+  "Directory containing my configuration files.")
 
-  ;; Function to load a configuration file
-  (defun load-config-file (file)
-	"Load a configuration FILE from my config directory."
-	(load (expand-file-name file my-config-dir)))
+;; Function to load a configuration file
+(defun load-config-file (file)
+  "Load a configuration FILE from my config directory."
+  (load (expand-file-name file my-config-dir)))
 
-  ;; Load individual configuration files
-  (load-config-file "cyberdream-theme.el")
- ;; (use-package cyberdream-theme
+;; Load individual configuration files
+(load-config-file "cyberdream-theme.el")
+;; (use-package cyberdream-theme
 ;;  :ensure t)
- (load-theme 'cyberdream :no-confirm) ;; We need to add t to trust this package
- (setq cyberdream-flavor 'mocha)
- (cyberdream-reload)
+(load-theme 'cyberdream :no-confirm) ;; We need to add t to trust this package
+(setq cyberdream-flavor 'mocha)
+(cyberdream-reload)
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
-					:font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
+					:font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
 					:height 120
 					:weight 'regular)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
@@ -243,26 +248,6 @@
 ;;
 (add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
-
-;; (set-face-attribute 'default nil
-;;                     :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
-;;                     :height 110
-;;                     :weight 'regular)
-
-;; ;; Set default font for new frames
-;; (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
-
-;; ;; Set line spacing
-;; (setq-default line-spacing 0.12)
-
-;; ;; Set fonts for specific faces
-;; (set-face-attribute 'italic nil
-;;                     :font "Fira Code Italic" ;; Adjust as necessary
-;;                     :weight 'regular)
-
-;; (set-face-attribute 'bold nil
-;;                     :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
-;;                     :weight 'bold)
 
 (use-package emacs
   :bind
@@ -409,12 +394,12 @@
 
 ;; Customize the appearance of inline code #45475a #c6d0f5
 (custom-set-faces
- '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "monospace")))))
+ '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "Fira Code")))))
 
-(custom-set-faces
- '(org-emphasis ((t (:inherit default :foreground nil :background nil))))
- '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
- '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
+;; (custom-set-faces
+;;  '(org-emphasis ((t (:slant italic :foreground nil :background nil))))
+;;  '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
+;;  '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
 
 (defface org-block-note
   '((t (:background "#F9E2AF" :foreground "#000000")))
