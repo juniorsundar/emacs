@@ -15,6 +15,7 @@
   - [[#general-keybindings][General Keybindings]]
   - [[#good-defaults][Good Defaults]]
 - [[#appearance][Appearance]]
+  - [[#dashboard][Dashboard]]
   - [[#set-theme][Set Theme]]
   - [[#transparency][Transparency]]
   - [[#fonts][Fonts]]
@@ -57,18 +58,30 @@
 
 * Important to load first
 ** Startup Performance
-Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
+Make startup faster by reducing the frequency of garbage
+collection. This will be set back when startup finishes.
 #+begin_src emacs-lisp
   ;; The default is 800 kilobytes. Measured in bytes.
   (setq gc-cons-threshold (* 50 1000 1000))
 #+end_src
 
 ** Auto-tangle Configuration file
-Auto-Tangle Org configuration file for better startup times. If you want to use this don't forget to add this to the top of the org document (#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes)
+Auto-Tangle Org configuration file for better startup times. If you
+want to use this don't forget to add this to the top of the org
+document (#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp
+yes)
 
-*Remember*, if this code can't be loaded (errors before this code), the init.el file won't update on change!  To fix this, you need to find this file (C-x C-f), fix the error and press C-c C-v t to tangle it manually.
+*Remember*, if this code can't be loaded (errors before this code), the
+init.el file won't update on change!  To fix this, you need to find
+this file (C-x C-f), fix the error and press C-c C-v t to tangle it
+manually.
 
-This snippet adds a hook to org-mode buffers so that start/org-babel-tangle-config gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you’re looking at right now, and if so, automatically exports the configuration here to the associated output files.
+This snippet adds a hook to org-mode buffers so that
+start/org-babel-tangle-config gets executed each time such a buffer
+gets saved.  This function checks to see if the file being saved is
+the Emacs.org file you’re looking at right now, and if so,
+automatically exports the configuration here to the associated output
+files.
 #+begin_src emacs-lisp
   (defun start/org-babel-tangle-config ()
 	"Automatically tangle our Emacs.org config file when we save it. Credit to Emacs From Scratch for this one!"
@@ -82,11 +95,19 @@ This snippet adds a hook to org-mode buffers so that start/org-babel-tangle-conf
 #+end_src
 
 ** Use Package
-We use the default package manager package.el with use-package. Alternative package managers (straight.el, elpaca, etc.) are useful if you want to install packages from git repositories, if you want a specific, not very popular package that is not available on elpa or melpa, or you want UI (elpaca) and other things.
+We use the default package manager package.el with
+use-package. Alternative package managers (straight.el, elpaca, etc.)
+are useful if you want to install packages from git repositories, if
+you want a specific, not very popular package that is not available on
+elpa or melpa, or you want UI (elpaca) and other things.
 
-If you are interested in these other package managers, check out their git repositories or search for more package managers. In my experience Package.el is not slow and gets the job done.
+If you are interested in these other package managers, check out their
+git repositories or search for more package managers. In my experience
+Package.el is not slow and gets the job done.
 
-To update/upgrade packages, use the package-upgrade-all command. Check out the use-package [[https://www.gnu.org/software/emacs/manual/use-package.html][documentation]] to see how to use it. With Emacs 29 use-package is now built-in.
+To update/upgrade packages, use the package-upgrade-all command. Check
+out the use-package [[https://www.gnu.org/software/emacs/manual/use-package.html][documentation]] to see how to use it. With Emacs 29
+use-package is now built-in.
 #+begin_src emacs-lisp
   (require 'use-package-ensure) ;; Load use-package-always-ensure
   (setq use-package-always-ensure t) ;; Always ensures that a package is installed
@@ -136,7 +157,10 @@ To update/upgrade packages, use the package-upgrade-all command. Check out the u
 #+end_src
 
 ** General Keybindings
-A keybinding framework to set keybindings easily. The Leader key is what you will press when you want to access your keybindings (SPC + . Find file). To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC to replace n to skip).
+A keybinding framework to set keybindings easily. The Leader key is
+what you will press when you want to access your keybindings (SPC +
+. Find file). To search and replace, use query-replace-regexp to
+replace one by one C-M-% (SPC to replace n to skip).
 #+begin_src emacs-lisp
   (use-package general
 	:config
@@ -295,21 +319,29 @@ A keybinding framework to set keybindings easily. The Leader key is what you wil
 #+end_src
 
 * Appearance
-** Set Theme
-Set gruvbox theme, if you want some themes try out doom-themes. Use consult-theme to easily try out themes ( *epilepsy* Warning).
+** Dashboard
 #+begin_src emacs-lisp
-   (defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
-	 "Directory containing my configuration files.")
+  (use-package dashboard
+	:ensure t
+	:config
+	(dashboard-setup-startup-hook))
+#+end_src
+** Set Theme
+Set gruvbox theme, if you want some themes try out doom-themes. Use
+consult-theme to easily try out themes ( *epilepsy* Warning).
+#+begin_src emacs-lisp
+  (defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
+	"Directory containing my configuration files.")
 
-   ;; Function to load a configuration file
-   (defun load-config-file (file)
-	 "Load a configuration FILE from my config directory."
-	 (load (expand-file-name file my-config-dir)))
+  ;; Function to load a configuration file
+  (defun load-config-file (file)
+	"Load a configuration FILE from my config directory."
+	(load (expand-file-name file my-config-dir)))
 
-   ;; Load individual configuration files
-   (load-config-file "cyberdream-theme.el")
+  ;; Load individual configuration files
+  (load-config-file "cyberdream-theme.el")
   ;; (use-package cyberdream-theme
- ;;  :ensure t)
+  ;;  :ensure t)
   (load-theme 'cyberdream :no-confirm) ;; We need to add t to trust this package
   (setq cyberdream-flavor 'mocha)
   (cyberdream-reload)
@@ -325,7 +357,7 @@ With version 29, true transparency has been added.
 *** Setting fonts
 #+begin_src emacs-lisp
   (set-face-attribute 'default nil
-					  :font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
+					  :font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
 					  :height 120
 					  :weight 'regular)
   ;; This sets the default font on all graphical frames created after restarting Emacs.
@@ -334,30 +366,11 @@ With version 29, true transparency has been added.
   ;;
   (add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
   (setq-default line-spacing 0.12)
-
-  ;; (set-face-attribute 'default nil
-  ;;                     :font "FiraCode Nerd Font Mono" ;; Set your favorite type of font
-  ;;                     :height 110
-  ;;                     :weight 'regular)
-
-  ;; ;; Set default font for new frames
-  ;; (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono"))
-
-  ;; ;; Set line spacing
-  ;; (setq-default line-spacing 0.12)
-
-  ;; ;; Set fonts for specific faces
-  ;; (set-face-attribute 'italic nil
-  ;;                     :font "Fira Code Italic" ;; Adjust as necessary
-  ;;                     :weight 'regular)
-
-  ;; (set-face-attribute 'bold nil
-  ;;                     :font "FiraCode Nerd Font Mono Bold" ;; Adjust as necessary
-  ;;                     :weight 'bold)
 #+end_src
 
 *** Zooming In/Out
-You can use the bindings C-+ C-- for zooming in/out. You can also use CTRL plus the mouse wheel for zooming in/out.
+You can use the bindings C-+ C-- for zooming in/out. You can also use
+CTRL plus the mouse wheel for zooming in/out.
 #+begin_src emacs-lisp
   (use-package emacs
 	:bind
@@ -539,12 +552,12 @@ like the literate programming ideas that Donald Knuth made famous.
 
   ;; Customize the appearance of inline code #45475a #c6d0f5
   (custom-set-faces
-   '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "monospace")))))
+   '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "Fira Code")))))
 
-  (custom-set-faces
-   '(org-emphasis ((t (:inherit default :foreground nil :background nil))))
-   '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
-   '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
+  ;; (custom-set-faces
+  ;;  '(org-emphasis ((t (:slant italic :foreground nil :background nil))))
+  ;;  '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
+  ;;  '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
 
   (defface org-block-note
 	'((t (:background "#F9E2AF" :foreground "#000000")))
