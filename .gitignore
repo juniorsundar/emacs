@@ -68,3 +68,4 @@ transient/*
 custom-vars.el
 history
 projectile-bookmarks.eld
+org-roam.db

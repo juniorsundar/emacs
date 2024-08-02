@@ -1,9 +1,9 @@
 #+Title: Emacs Kickstarter
-#+Author: Miniapollo
+#+Author: Miniapollo -> Junior Sundar
 #+Description: A starting point for Gnu Emacs with good defaults and packages that most people may want to use.
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 #+Startup: showeverything
-#+Options: toc:3
+#+Options: toc:5
 
 * Table Of Contents :toc:
 - [[#introduction][Introduction]]
@@ -55,7 +55,6 @@
 
   ;; You can delete this when you're done. It's your config now. :)
 #+end_src
-
 * Important to load first
 ** Startup Performance
 Make startup faster by reducing the frequency of garbage
@@ -64,7 +63,6 @@ collection. This will be set back when startup finishes.
   ;; The default is 800 kilobytes. Measured in bytes.
   (setq gc-cons-threshold (* 50 1000 1000))
 #+end_src
-
 ** Auto-tangle Configuration file
 Auto-Tangle Org configuration file for better startup times. If you
 want to use this don't forget to add this to the top of the org
@@ -93,7 +91,6 @@ files.
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'start/org-babel-tangle-config)))
 #+end_src
-
 ** Use Package
 We use the default package manager package.el with
 use-package. Alternative package managers (straight.el, elpaca, etc.)
@@ -116,7 +113,6 @@ use-package is now built-in.
 						   ("elpa" . "https://elpa.gnu.org/packages/")
 						   ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
 #+end_src
-
 ** Evil Mode
 #+begin_src emacs-lisp
   (use-package evil
@@ -155,7 +151,6 @@ use-package is now built-in.
 	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult))
 	(evil-collection-init))
 #+end_src
-
 ** General Keybindings
 A keybinding framework to set keybindings easily. The Leader key is
 what you will press when you want to access your keybindings (SPC +
@@ -259,7 +254,6 @@ replace one by one C-M-% (SPC to replace n to skip).
 	  "o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
 	  "o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
 #+end_src
-
 ** Good Defaults
 #+begin_src emacs-lisp
   (use-package emacs
@@ -317,7 +311,6 @@ replace one by one C-M-% (SPC to replace n to skip).
   (add-to-list 'exec-path "~/anaconda3/bin")	
   (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
 #+end_src
-
 * Appearance
 ** Dashboard
 #+begin_src emacs-lisp
@@ -346,28 +339,40 @@ consult-theme to easily try out themes ( *epilepsy* Warning).
   (setq cyberdream-flavor 'mocha)
   (cyberdream-reload)
 #+end_src
-
 ** Transparency
 With version 29, true transparency has been added.
 #+begin_src emacs-lisp
   (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 #+end_src
-
 ** Fonts
 *** Setting fonts
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil
-					  :font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
-					  :height 120
-					  :weight 'regular)
-  ;; This sets the default font on all graphical frames created after restarting Emacs.
-  ;;       ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-  ;;       ;; are not right unless I also add this method of setting the default font.
-  ;;
-  (add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
-  (setq-default line-spacing 0.12)
+  ;; Set Fira Code as the default font
+  (set-face-attribute 'default nil :font "Fira Code-14")
+  (set-face-attribute 'italic nil
+					  :font "Fira Code Italic"
+					  :slant 'italic
+					  :underline nil
+					  :weight 'normal
+					  :height 140)
+  (set-face-attribute 'variable-pitch nil :font "Fira Sans-14") ;; Adjust the height as needed
+  ;; Set Nerd Font for symbols
+  (let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 18)))
+	(set-fontset-font t 'unicode font-spec nil 'prepend)
+	(set-fontset-font t '(#x1F000 . #x1F02F) font-spec)  ;; Mahjong Tiles
+	(set-fontset-font t '(#x1F0A0 . #x1F0FF) font-spec)  ;; Playing Cards
+	(set-fontset-font t '(#x1F300 . #x1F5FF) font-spec)  ;; Misc Symbols and Pictographs
+	(set-fontset-font t '(#x1F600 . #x1F64F) font-spec)  ;; Emoticons
+	(set-fontset-font t '(#x1F680 . #x1F6FF) font-spec)  ;; Transport and Map
+	(set-fontset-font t '(#x1F700 . #x1F77F) font-spec)  ;; Alchemical Symbols
+	(set-fontset-font t '(#x1F780 . #x1F7FF) font-spec)  ;; Geometric Shapes Extended
+	(set-fontset-font t '(#x1F800 . #x1F8FF) font-spec)  ;; Supplemental Arrows-C
+	(set-fontset-font t '(#x1F900 . #x1F9FF) font-spec)  ;; Supplemental Symbols and Pictographs
+	(set-fontset-font t '(#x1FA00 . #x1FA6F) font-spec)  ;; Chess Symbols
+	(set-fontset-font t '(#x1FA70 . #x1FAFF) font-spec)  ;; Symbols and Pictographs Extended-A
+	(set-fontset-font t '(#x2600 . #x26FF) font-spec)    ;; Miscellaneous Symbols
+	(set-fontset-font t '(#x2700 . #x27BF) font-spec))  ;; Dingbats
 #+end_src
-
 *** Zooming In/Out
 You can use the bindings C-+ C-- for zooming in/out. You can also use
 CTRL plus the mouse wheel for zooming in/out.
@@ -379,7 +384,6 @@ CTRL plus the mouse wheel for zooming in/out.
 	("<C-wheel-up>" . text-scale-increase)
 	("<C-wheel-down>" . text-scale-decrease))
 #+end_src
-
 ** Modeline
 Replace the default modeline with a prettier more useful.
 #+begin_src emacs-lisp
@@ -391,7 +395,6 @@ Replace the default modeline with a prettier more useful.
 	(doom-modeline-persp-name t)  ;; Adds perspective name to modeline
 	(doom-modeline-persp-icon t)) ;; Adds folder icon next to persp name
 #+end_src
-
 * Development
 ** Projectile
 Project interaction library for Emacs.
@@ -405,7 +408,6 @@ Project interaction library for Emacs.
 	(projectile-project-search-path '("~/projects/" "~/work/"))) ;; . 1 means only search the first subdirectory level for projects
   ;; Use Bookmarks for smaller, not standard projects
 #+end_src
-
 ** LSP-Mode
 #+begin_src emacs-lisp
   ;; (use-package lsp-mode
@@ -436,7 +438,6 @@ Project interaction library for Emacs.
 	 (python-mode . eglot-ensure))
 	)
 #+end_src
-
 ** Yasnippet
 A template system for Emacs. And yasnippet-snippets is a snippet
 collection package. To use it write out the full keyword (or use
@@ -445,7 +446,6 @@ autocompletion) and press Tab.
   (use-package yasnippet-snippets
 	:hook (prog-mode . yas-minor-mode))
 #+end_src
-
 ** Language modes
 It's not required for every language like C,C++,C#,Java,Javascript
 etc. to install language mode packages, but for more specific
@@ -477,7 +477,6 @@ migrated to it.
 	;; 	  (add-hook 'go-mode-hook #'lsp-deferred))
 	)
 #+end_src
-
 *** Org Mode
 Org mode is one of the things that emacs is loved for. Once you've
 used it for a bit, you'll understand why people love it. Even reading
@@ -552,12 +551,13 @@ like the literate programming ideas that Donald Knuth made famous.
 
   ;; Customize the appearance of inline code #45475a #c6d0f5
   (custom-set-faces
-   '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "Fira Code")))))
+   '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "JetBrainsMono NFM")))))
 
-  ;; (custom-set-faces
-  ;;  '(org-emphasis ((t (:slant italic :foreground nil :background nil))))
-  ;;  '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
-  ;;  '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
+  (custom-set-faces
+   '(org-emphasis ((t (:underline nil :foreground nil :background nil))))
+   '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
+   '(org-italic ((t (:slant italic :underline nil :foreground "#c6d0f5" :background nil))))
+   '(org-underline ((t (:underline t :foreground nil :background nil)))))
 
   (defface org-block-note
 	'((t (:background "#F9E2AF" :foreground "#000000")))
@@ -598,7 +598,6 @@ like the literate programming ideas that Donald Knuth made famous.
 
   (add-hook 'org-mode-hook 'my/org-add-custom-block-faces)
 #+end_src
-
 **** Org Roam
 #+begin_src emacs-lisp
   (use-package org-roam
@@ -612,14 +611,12 @@ like the literate programming ideas that Donald Knuth made famous.
 	;; If using org-roam-protocol
 	(require 'org-roam-protocol))
 #+end_src
-
 **** Table of Contents
 #+begin_src emacs-lisp
   (use-package toc-org
 	:commands toc-org-enable
 	:hook (org-mode . toc-org-mode))
 #+end_src
-
 **** Org Superstar
 Prettify headings and plain lists in Org mode. Modern version of
 org-bullets.
@@ -628,7 +625,6 @@ org-bullets.
 	:after org
 	:hook (org-mode . org-superstar-mode))
 #+end_src
-
 **** Source Code Block Tag Expansion
 Org-tempo is not a separate package but a module within org that can
 be enabled. Org-tempo allows for '<s' followed by TAB to expand to a
@@ -638,7 +634,6 @@ begin_src tag.
 	:ensure nil
 	:after org)
 #+end_src
-
 ** Terminal
 *** Eat
 Eat(Emulate A Terminal) is a terminal emulator within Emacs. It's more
@@ -649,7 +644,6 @@ their git [[https://codeberg.org/akib/emacs-eat][repository]] how to do it.
   (use-package eat
 	:hook ('eshell-load-hook #'eat-eshell-mode))
 #+end_src
-
 * Multi File Example
 ** Adding the lisp directory to load-path
 Adds the lisp directory to emacs's load path to search for elisp
@@ -659,29 +653,30 @@ to the load-path.
 #+begin_src emacs-lisp
   ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 #+end_src
-
 ** Sourcing the files
 To use the elisp files we need to load it. Notes:
 - Don't forget the file and the provide name needs to be the same.
-- When naming elisp files, functions, it is recommended to use a group name (e.g init-, start- or any custom name), so it does not get mixed up with other names, functions.
+- When naming elisp files, functions, it is recommended to use a group
+  name (e.g init-, start- or any custom name), so it does not get
+  mixed up with other names, functions.
 #+begin_src emacs-lisp
   ;; (require 'start-multiFileExample)
 #+end_src
-
 ** Using the file
 And now we can use everything from that file.
 #+begin_src emacs-lisp
   ;; (start/hello)
 #+end_src
-
 * Other Packages
 All the package setups that don't need much tweaking.
 ** Nerd Icons
-For icons and more helpful UI. This is an icon set that can be used with dired, ibuffer and other Emacs programs.
+For icons and more helpful UI. This is an icon set that can be used
+with dired, ibuffer and other Emacs programs.
 
 Don't forget to use nerd-icons-install-fonts.
 
-We use Nerd icons because it has more, better icons and all-the-icons only supports GUI.  While nerd-icons supports both GUI and TUI.
+We use Nerd icons because it has more, better icons and all-the-icons
+only supports GUI.  While nerd-icons supports both GUI and TUI.
 #+begin_src emacs-lisp
   (use-package nerd-icons
 	:if (display-graphic-p))
@@ -692,7 +687,6 @@ We use Nerd icons because it has more, better icons and all-the-icons only suppo
   (use-package nerd-icons-ibuffer
 	:hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
-
 ** Ligatures
 #+begin_src emacs-lisp 
   (use-package ligature
@@ -773,9 +767,10 @@ Complete text-based user interface to Git.
   (use-package magit
 	:commands magit-status)
 #+end_src
-
 *** Diff-hl
-Highlights uncommitted changes on the left side of the window (area also known as the "gutter"), allows you to jump between and revert them selectively.
+Highlights uncommitted changes on the left side of the window (area
+also known as the "gutter"), allows you to jump between and revert
+them selectively.
 #+begin_src emacs-lisp
   (use-package diff-hl
 	:hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
@@ -784,11 +779,11 @@ Highlights uncommitted changes on the left side of the window (area also known a
 	:init
 	(global-diff-hl-mode))
 #+end_src
-
 ** Corfu
 Enhances in-buffer completion with a small completion popup.
 
-Corfu is a small package, which relies on the Emacs completion facilities and concentrates on providing a polished completion.
+Corfu is a small package, which relies on the Emacs completion
+facilities and concentrates on providing a polished completion.
 
 For more configuration options check out their [[https://github.com/minad/corfu][git repository]]. Notes:
 - To enter Orderless field separator, use M-SPC.
@@ -823,13 +818,15 @@ For more configuration options check out their [[https://github.com/minad/corfu]
 	:after corfu
 	:init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 #+end_src
-
 ** Cape
-Provides Completion At Point Extensions which can be used in combination with Corfu, Company or the default completion UI.
+Provides Completion At Point Extensions which can be used in
+combination with Corfu, Company or the default completion UI.
 
 Notes:
-- The functions that are added later will be the first in the completion list.
-- Take care when adding Capfs (Completion-at-point-functions) to the list since each of the Capfs adds a small runtime cost.
+- The functions that are added later will be the first in the
+  completion list.
+- Take care when adding Capfs (Completion-at-point-functions) to the
+  list since each of the Capfs adds a small runtime cost.
 
 Read the [[https://github.com/minad/cape#configuration][configuration section]] in Cape's readme for more information.
 #+begin_src emacs-lisp
@@ -857,7 +854,6 @@ Read the [[https://github.com/minad/cape#configuration][configuration section]] 
 	;;(add-to-list 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
 	)
 #+end_src
-
 ** Orderless
 Completion style that divides the pattern into space-separated components, and matches candidates that match all of the components in any order.
 
@@ -868,16 +864,20 @@ Recomended for packages like vertico, corfu.
 	(completion-styles '(orderless basic))
 	(completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
-
 ** Vertico and Marginalia
-- Vertico: Provides a performant and minimalistic vertical completion UI based on the default completion system.
+- Vertico: Provides a performant and minimalistic vertical completion
+  UI based on the default completion system.
 - Savehist: Saves completion history.
-- Marginalia: Adds extra metadata for completions in the margins (like descriptions).
-- Nerd-icons-completion: Adds icons to completion candidates using the built in completion metadata functions.
+- Marginalia: Adds extra metadata for completions in the margins (like
+  descriptions).
+- Nerd-icons-completion: Adds icons to completion candidates using the
+  built in completion metadata functions.
 
-We use this packages, because they use emacs native functions. Unlike Ivy or Helm.
+We use this packages, because they use emacs native functions. Unlike
+Ivy or Helm.
 
-One alternative is ivy and counsel, check out the [[https://github.com/MiniApollo/kickstart.emacs/wiki][project wiki]] for more inforomation.
+One alternative is ivy and counsel, check out the [[https://github.com/MiniApollo/kickstart.emacs/wiki][project wiki]] for
+more inforomation.
 #+begin_src emacs-lisp
   (use-package vertico
 	:init
@@ -897,7 +897,6 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
 	:hook
 	('marginalia-mode-hook . 'nerd-icons-completion-marginalia-setup))
 #+end_src
-
 ** Consult
 Provides search and navigation commands based on the Emacs completion
 function. Check out their [[https://github.com/minad/consult][git repository]] for more awesome functions.
@@ -953,7 +952,6 @@ function. Check out their [[https://github.com/minad/consult][git repository]] f
 	;; (setq consult-project-function nil)
 	)
 #+end_src
-
 ** Diminish
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.
 
@@ -961,14 +959,12 @@ With this package installed, you can add ‘:diminish’ to any use-package bloc
 #+begin_src emacs-lisp
   (use-package diminish)
 #+end_src
-
 ** Rainbow Delimiters
 Adds colors to brackets.
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
 	:hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
-
 ** Which-Key
 Which-key is a helper utility for keychords (which key to press).
 #+begin_src emacs-lisp
@@ -986,9 +982,10 @@ Which-key is a helper utility for keychords (which key to press).
 	(which-key-max-description-length 25)
 	(which-key-allow-imprecise-window-fit nil)) ;; Fixes which-key window slipping out in Emacs Daemon
 #+end_src
-
 * Runtime Performance
-Dial the GC threshold back down so that garbage collection happens more frequently but in less time. We also increase Read Process Output Max so emacs can read more data.
+Dial the GC threshold back down so that garbage collection happens
+more frequently but in less time. We also increase Read Process Output
+Max so emacs can read more data.
 #+begin_src emacs-lisp
   ;; Make gc pauses faster by decreasing the threshold.
   (setq gc-cons-threshold (* 2 1000 1000))

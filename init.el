@@ -238,16 +238,31 @@
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
-(set-face-attribute 'default nil
-					:font "JetBrainsMono NFM" ;; Set your favorite type of font or download JetBrains Mono
-					:height 120
-					:weight 'regular)
-;; This sets the default font on all graphical frames created after restarting Emacs.
-;;       ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-;;       ;; are not right unless I also add this method of setting the default font.
-;;
-(add-to-list 'default-frame-alist '(font . "JetBrainsMono NFM")) ;; Set your favorite font
-(setq-default line-spacing 0.12)
+;; Set Fira Code as the default font
+(set-face-attribute 'default nil :font "Fira Code-14")
+(set-face-attribute 'italic nil
+					:font "Fira Code Italic"
+					:slant 'italic
+					:underline nil
+					:weight 'normal
+					:height 140)
+(set-face-attribute 'variable-pitch nil :font "Fira Sans-14") ;; Adjust the height as needed
+;; Set Nerd Font for symbols
+(let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 18)))
+  (set-fontset-font t 'unicode font-spec nil 'prepend)
+  (set-fontset-font t '(#x1F000 . #x1F02F) font-spec)  ;; Mahjong Tiles
+  (set-fontset-font t '(#x1F0A0 . #x1F0FF) font-spec)  ;; Playing Cards
+  (set-fontset-font t '(#x1F300 . #x1F5FF) font-spec)  ;; Misc Symbols and Pictographs
+  (set-fontset-font t '(#x1F600 . #x1F64F) font-spec)  ;; Emoticons
+  (set-fontset-font t '(#x1F680 . #x1F6FF) font-spec)  ;; Transport and Map
+  (set-fontset-font t '(#x1F700 . #x1F77F) font-spec)  ;; Alchemical Symbols
+  (set-fontset-font t '(#x1F780 . #x1F7FF) font-spec)  ;; Geometric Shapes Extended
+  (set-fontset-font t '(#x1F800 . #x1F8FF) font-spec)  ;; Supplemental Arrows-C
+  (set-fontset-font t '(#x1F900 . #x1F9FF) font-spec)  ;; Supplemental Symbols and Pictographs
+  (set-fontset-font t '(#x1FA00 . #x1FA6F) font-spec)  ;; Chess Symbols
+  (set-fontset-font t '(#x1FA70 . #x1FAFF) font-spec)  ;; Symbols and Pictographs Extended-A
+  (set-fontset-font t '(#x2600 . #x26FF) font-spec)    ;; Miscellaneous Symbols
+  (set-fontset-font t '(#x2700 . #x27BF) font-spec))  ;; Dingbats
 
 (use-package emacs
   :bind
@@ -394,12 +409,13 @@
 
 ;; Customize the appearance of inline code #45475a #c6d0f5
 (custom-set-faces
- '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "Fira Code")))))
+ '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "JetBrainsMono NFM")))))
 
-;; (custom-set-faces
-;;  '(org-emphasis ((t (:slant italic :foreground nil :background nil))))
-;;  '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
-;;  '(org-italic ((t (:slant italic :foreground "#c6d0f5" :background nil)))))
+(custom-set-faces
+ '(org-emphasis ((t (:underline nil :foreground nil :background nil))))
+ '(org-bold ((t (:weight bold :foreground "#f2cdcd" :background nil))))
+ '(org-italic ((t (:slant italic :underline nil :foreground "#c6d0f5" :background nil))))
+ '(org-underline ((t (:underline t :foreground nil :background nil)))))
 
 (defface org-block-note
   '((t (:background "#F9E2AF" :foreground "#000000")))
