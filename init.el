@@ -239,14 +239,35 @@
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
 ;; Set Fira Code as the default font
-(set-face-attribute 'default nil :font "Fira Code-14")
+(set-face-attribute 'default nil :font "Fira Code-13")
 (set-face-attribute 'italic nil
-					:font "Fira Code Italic"
-					:slant 'italic
-					:underline nil
-					:weight 'normal
-					:height 140)
-(set-face-attribute 'variable-pitch nil :font "Fira Sans-14") ;; Adjust the height as needed
+  					:font "Fira Code Italic"
+  					:slant 'italic
+  					:underline nil
+  					:weight 'normal
+  					:height 130)
+(set-face-attribute 'variable-pitch nil :font "Fira Sans-13") ;; Adjust the height as needed
+
+;; Define the font size variables
+(defvar efs/default-font-size 120
+  "The default font size in 1/10 pt for fixed-pitch faces.")
+(defvar efs/default-variable-font-size 120
+  "The default font size in 1/10 pt for variable-pitch faces.")
+
+(defun efs/set-font-faces ()
+  (message "Setting faces!")
+  (set-face-attribute 'default nil :font "Fira Code" :height efs/default-font-size)
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height efs/default-font-size)
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Fira Sans" :height efs/default-variable-font-size :weight 'regular))
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (with-selected-frame frame
+                  (efs/set-font-faces))))
+  (efs/set-font-faces))
 ;; Set Nerd Font for symbols
 (let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 18)))
   (set-fontset-font t 'unicode font-spec nil 'prepend)
@@ -692,16 +713,16 @@
 
   ;; By default `consult-project-function' uses `project-root' from project.el.
   ;; Optionally configure a different project root function.
-	   ;;;; 1. project.el (the default)
+		 ;;;; 1. project.el (the default)
   ;; (setq consult-project-function #'consult--default-project--function)
-	   ;;;; 2. vc.el (vc-root-dir)
+		 ;;;; 2. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-	   ;;;; 3. locate-dominating-file
+		 ;;;; 3. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-	   ;;;; 4. projectile.el (projectile-project-root)
+		 ;;;; 4. projectile.el (projectile-project-root)
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-function (lambda (_) (projectile-project-root)))
-	   ;;;; 5. No project support
+		 ;;;; 5. No project support
   ;; (setq consult-project-function nil)
   )
 
