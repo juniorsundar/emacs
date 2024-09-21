@@ -44,13 +44,6 @@
 			  ("RET" . nil)
 			  ("TAB" . nil)))
 
-(use-package evil-snipe
-  :after evil
-  :config
-  (evil-snipe-mode +1)
-  (evil-snipe-override-mode 1)
-  (setq evil-snipe-scope 'visible))
-
 (use-package evil-surround
   :after evil
   :config
@@ -63,102 +56,102 @@
   (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult))
   (evil-collection-init))
 
-(use-package general
-  :config
-  (general-evil-setup)
-  ;; Set up 'SPC' as the leader key
-  (general-create-definer start/leader-keys
-	:states '(normal insert visual motion emacs)
-	:keymaps 'override
-	:prefix "SPC"           ;; Set leader key
-	:global-prefix "C-SPC") ;; Set global leader key
-
-  (start/leader-keys
-	"." '(find-file :wk "Find file")
-	"TAB" '(comment-line :wk "Comment lines")
-	"p" '(projectile-command-map :wk "Projectile command map"))
-
-  (start/leader-keys
-	"f" '(:ignore t :wk "Find")
-	"f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
-	"f r" '(consult-recent-file :wk "Recent files")
-	"f f" '(consult-fd :wk "Fd search for files")
-	"f t" '(consult-ripgrep :wk "Ripgrep search in files")
-	"f l" '(consult-line :wk "Find line")
-	"f i" '(consult-imenu :wk "Imenu buffer locations"))
-
-  (start/leader-keys
-	"b" '(:ignore t :wk "Buffer Bookmarks")
-	"b b" '(consult-buffer :wk "Switch buffer")
-	"b k" '(kill-this-buffer :wk "Kill this buffer")
-	"b i" '(ibuffer :wk "Ibuffer")
-	"b n" '(next-buffer :wk "Next buffer")
-	"b p" '(previous-buffer :wk "Previous buffer")
-	"b r" '(revert-buffer :wk "Reload buffer")
-	"b j" '(consult-bookmark :wk "Bookmark jump"))
-
-  (start/leader-keys
-	"d" '(:ignore t :wk "Dired")
-	"d v" '(dired :wk "Open dired")
-	"d j" '(dired-jump :wk "Dired jump to current"))
-
-  (start/leader-keys
-	"e" '(:ignore t :wk "Eglot Evaluate")
-	"e e" '(eglot-reconnect :wk "Eglot Reconnect")
-	"e f" '(eglot-format :wk "Eglot Format")
-	"e l" '(consult-flymake :wk "Consult Flymake")
-	"e b" '(eval-buffer :wk "Evaluate elisp in buffer")
-	"e r" '(eval-region :wk "Evaluate elisp in region"))
-
-  (start/leader-keys
-	"g" '(:ignore t :wk "Git")
-	"g g" '(magit-status :wk "Magit status"))
-
-  (start/leader-keys
-	"h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-	"h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-	"h r" '((lambda () (interactive)
-			  (load-file "~/.config/emacs/init.el"))
-			:wk "Reload Emacs config"))
-
-  (start/leader-keys
-	"s" '(:ignore t :wk "Show")
-	"s e" '(eat :wk "Eat terminal"))
-
-  (start/leader-keys
-	"t" '(:ignore t :wk "Toggle")
-	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
-
-  (start/leader-keys
-	"o" '(:ignore t :which-key "Org")
-	"o t" '(:ignore t :which-key "TODO States")
-	"o t t" '(org-todo :which-key "Set TODO")
-	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
-
-  (start/leader-keys
-	"o a" '(:ignore t :wk "Org Agenda")
-	"o a c" '(org-capture :wk "Capture")
-	"o a a" '(org-agenda :wk "Agenda")
-
-	"o r" '(:ignore t :wk "Org Roam")
-	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-	"o r f" '(org-roam-node-find :wk "Find Node")
-	"o r i" '(org-roam-node-insert :wk "Insert Node")
-	"o r c" '(org-roam-capture :wk "Capture")
-	"o r g" '(org-roam-graph :wk "Graph"))
-
-  (start/leader-keys
-	"o d" '(:ignore t :wk "Org Roam Dailies")
-	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
+										;(use-package general
+										;  :config
+										;  (general-evil-setup)
+										;  ;; Set up 'SPC' as the leader key
+										;  (general-create-definer start/leader-keys
+										;	:states '(normal insert visual motion emacs)
+										;	:keymaps 'override
+										;	:prefix "SPC"           ;; Set leader key
+										;	:global-prefix "C-SPC") ;; Set global leader key
+										;
+										;  (start/leader-keys
+										;	"." '(find-file :wk "Find file")
+										;	"TAB" '(comment-line :wk "Comment lines")
+										;	"p" '(projectile-command-map :wk "Projectile command map"))
+										;
+										;  (start/leader-keys
+										;	"f" '(:ignore t :wk "Find")
+										;	"f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
+										;	"f r" '(consult-recent-file :wk "Recent files")
+										;	"f f" '(consult-fd :wk "Fd search for files")
+										;	"f t" '(consult-ripgrep :wk "Ripgrep search in files")
+										;	"f l" '(consult-line :wk "Find line")
+										;	"f i" '(consult-imenu :wk "Imenu buffer locations"))
+										;
+										;  (start/leader-keys
+										;	"b" '(:ignore t :wk "Buffer Bookmarks")
+										;	"b b" '(consult-buffer :wk "Switch buffer")
+										;	"b k" '(kill-this-buffer :wk "Kill this buffer")
+										;	"b i" '(ibuffer :wk "Ibuffer")
+										;	"b n" '(next-buffer :wk "Next buffer")
+										;	"b p" '(previous-buffer :wk "Previous buffer")
+										;	"b r" '(revert-buffer :wk "Reload buffer")
+										;	"b j" '(consult-bookmark :wk "Bookmark jump"))
+										;
+										;  (start/leader-keys
+										;	"d" '(:ignore t :wk "Dired")
+										;	"d v" '(dired :wk "Open dired")
+										;	"d j" '(dired-jump :wk "Dired jump to current"))
+										;
+										;  (start/leader-keys
+										;	"e" '(:ignore t :wk "Eglot Evaluate")
+										;	"e e" '(eglot-reconnect :wk "Eglot Reconnect")
+										;	"e f" '(eglot-format :wk "Eglot Format")
+										;	"e l" '(consult-flymake :wk "Consult Flymake")
+										;	"e b" '(eval-buffer :wk "Evaluate elisp in buffer")
+										;	"e r" '(eval-region :wk "Evaluate elisp in region"))
+										;
+										;  (start/leader-keys
+										;	"g" '(:ignore t :wk "Git")
+										;	"g g" '(magit-status :wk "Magit status"))
+										;
+										;  (start/leader-keys
+										;	"h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
+										;	"h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+										;	"h r" '((lambda () (interactive)
+										;			  (load-file "~/.config/emacs/init.el"))
+										;			:wk "Reload Emacs config"))
+										;
+										;  (start/leader-keys
+										;	"s" '(:ignore t :wk "Show")
+										;	"s e" '(eat :wk "Eat terminal"))
+										;
+										;  (start/leader-keys
+										;	"t" '(:ignore t :wk "Toggle")
+										;	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+										;	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+										;
+										;  (start/leader-keys
+										;	"o" '(:ignore t :which-key "Org")
+										;	"o t" '(:ignore t :which-key "TODO States")
+										;	"o t t" '(org-todo :which-key "Set TODO")
+										;	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+										;	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+										;	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+										;	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+										;	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+										;
+										;  (start/leader-keys
+										;	"o a" '(:ignore t :wk "Org Agenda")
+										;	"o a c" '(org-capture :wk "Capture")
+										;	"o a a" '(org-agenda :wk "Agenda")
+										;
+										;	"o r" '(:ignore t :wk "Org Roam")
+										;	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+										;	"o r f" '(org-roam-node-find :wk "Find Node")
+										;	"o r i" '(org-roam-node-insert :wk "Insert Node")
+										;	"o r c" '(org-roam-capture :wk "Capture")
+										;	"o r g" '(org-roam-graph :wk "Graph"))
+										;
+										;  (start/leader-keys
+										;	"o d" '(:ignore t :wk "Org Roam Dailies")
+										;	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+										;	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+										;	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+										;	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+										;	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday")))
 
 (use-package emacs
   :custom
@@ -195,79 +188,43 @@
   ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
-  :bind (
-		 ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-		 )
+  :bind
+  ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+  ("C-+" . text-scale-increase)
+  ("C--" . text-scale-decrease)
+  ("<C-wheel-up>" . text-scale-increase)
+  ("<C-wheel-down>" . text-scale-decrease)
   ;; Fix general.el leader key not working instantly in messages buffer with evil mode
-  :ghook ('after-init-hook
-		  (lambda (&rest _)
-			(when-let ((messages-buffer (get-buffer "*Messages*")))
-			  (with-current-buffer messages-buffer
-				(evil-normalize-keymaps))))
-		  nil nil t)
   )
 
 (add-to-list 'exec-path "/usr/local/bin/go/bin")	
 (add-to-list 'exec-path "/usr/local/go/bin")	
 (add-to-list 'exec-path "/usr/local/bin")	
 (add-to-list 'exec-path "~/.local/bin")	
+(add-to-list 'exec-path "~/go/bin")	
 (add-to-list 'exec-path "/usr/bin")	
 (add-to-list 'exec-path "~/anaconda3/bin")	
 (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
 
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook))
+										;(use-package dashboard
+										;  :ensure t
+										;  :config
+										;  (dashboard-setup-startup-hook))
 
 (defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
   "Directory containing my configuration files.")
 
 ;; Function to load a configuration file
 (defun load-config-file (file)
-  "Load a configuration FILE from my config directory."
   (load (expand-file-name file my-config-dir)))
 
-;; Load individual configuration files
 (load-config-file "cyberdream-theme.el")
-;; (use-package cyberdream-theme
-;;  :ensure t)
 (load-theme 'cyberdream :no-confirm) ;; We need to add t to trust this package
 (setq cyberdream-flavor 'mocha)
 (cyberdream-reload)
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
-;; Set Fira Code as the default font
-(set-face-attribute 'default nil :font "Fira Code-13")
-(set-face-attribute 'italic nil
-  					:font "Fira Code Italic"
-  					:slant 'italic
-  					:underline nil
-  					:weight 'normal
-  					:height 130)
-(set-face-attribute 'variable-pitch nil :font "Fira Sans-13") ;; Adjust the height as needed
-
-;; Define the font size variables
-(defvar efs/default-font-size 120
-  "The default font size in 1/10 pt for fixed-pitch faces.")
-(defvar efs/default-variable-font-size 120
-  "The default font size in 1/10 pt for variable-pitch faces.")
-
-(defun efs/set-font-faces ()
-  (message "Setting faces!")
-  (set-face-attribute 'default nil :font "Fira Code" :height efs/default-font-size)
-  ;; Set the fixed pitch face
-  (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height efs/default-font-size)
-  ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil :font "Fira Sans" :height efs/default-variable-font-size :weight 'regular))
-
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (with-selected-frame frame
-                  (efs/set-font-faces))))
-  (efs/set-font-faces))
 ;; Set Nerd Font for symbols
 (let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 18)))
   (set-fontset-font t 'unicode font-spec nil 'prepend)
@@ -284,13 +241,6 @@
   (set-fontset-font t '(#x1FA70 . #x1FAFF) font-spec)  ;; Symbols and Pictographs Extended-A
   (set-fontset-font t '(#x2600 . #x26FF) font-spec)    ;; Miscellaneous Symbols
   (set-fontset-font t '(#x2700 . #x27BF) font-spec))  ;; Dingbats
-
-(use-package emacs
-  :bind
-  ("C-+" . text-scale-increase)
-  ("C--" . text-scale-decrease)
-  ("<C-wheel-up>" . text-scale-increase)
-  ("<C-wheel-down>" . text-scale-decrease))
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
@@ -309,59 +259,32 @@
   (projectile-project-search-path '("~/projects/" "~/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
-;; (use-package lsp-mode
-;;   :ensure t
-;;   :hook ((go-mode . lsp-deferred) ;; sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
-;; 		 (python-mode . lsp-deferred)
-;; 		 )
-;;   :commands (lsp lsp-deferred)
-;;   :custom
-;;   (lsp-eldoc-render-all t)
-;;   (lsp-idle-delay 0.5)
-;;   (lsp-completion-provider :none)
-;;   (defun corfu-lsp-setup ()
-;; 	(setq-local completion-styles '(orderless)
-;; 				completion-category-defaults nil))
-;;   (add-hook 'lsp-completion-mode-hook #'corfu-lsp-setup)
-;;   (lsp-log-io t) ; Enable if you need to debug LSP communication
-;;   (lsp-enable-snippet t)
-;;   (lsp-enable-symbol-highlighting t))
-;; ;; (use-package lsp-ui :commands lsp-ui-mode)
-(use-package eglot
-  :ensure t
-  :config
-  (add-to-list 'eglot-server-programs '(go-mode . ("~/go/bin/gopls")))
-  (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
-  :hook
-  ((go-mode . eglot-ensure)
-   (python-mode . eglot-ensure))
-  )
+(use-package lsp-mode
+  :init
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-l")
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+         (go-mode . lsp)
+         ;; if you want which-key integration
+         (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp)
+
+(use-package lsp-ui 
+  :init
+  (setq lsp-ui-doc-show-with-cursor t)
+  :commands lsp-ui-mode
+)
+
+(add-hook 'go-mode-hook #'lsp-deferred)
+;; Set up before-save hooks to format buffer and add/delete imports.
+;; Make sure you don't have other gofmt/goimports hooks enabled.
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
-
-(use-package lua-mode
-  :mode "\\.lua\\'") ;; Only start in a lua file
-
-(use-package go-mode
-  :mode "\\.go\\'"
-
-  ;; 	:config
-  ;; 	(setq lsp-gopls-staticcheck t)
-  ;; 	(add-hook 'before-save-hook #'lsp-organize-imports)
-  ;; 	(add-hook 'before-save-hook #'lsp-format-buffer)
-  ;; 	(setq lsp-gopls-server-path (executable-find "~/go/bin/gopls"))
-  ;; 	(setq lsp-gopls-staticcheck t)
-  ;; 	(setq gofmt-command "goimports")
-  ;; 	(setq lsp-gopls-staticcheck t)
-  ;; 	(add-hook 'before-save-hook 'gofmt-before-save)
-  ;; 	(with-eval-after-load 'lsp-mode
-  ;; 	  (lsp-register-custom-settings
-  ;; 	   '(("gopls.completeUnimported" t t)
-  ;; 		 ("gopls.staticcheck" t t)
-  ;; 		 ("gopls.usePlaceholders" t t)))
-  ;; 	  (add-hook 'go-mode-hook #'lsp-deferred))
-  )
 
 (use-package org
   :ensure t
@@ -503,21 +426,6 @@
 (use-package eat
   :hook ('eshell-load-hook #'eat-eshell-mode))
 
-;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
-;; (require 'start-multiFileExample)
-
-;; (start/hello)
-
-(use-package nerd-icons
-  :if (display-graphic-p))
-
-(use-package nerd-icons-dired
-  :hook (dired-mode . (lambda () (nerd-icons-dired-mode t))))
-
-(use-package nerd-icons-ibuffer
-  :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
-
 (use-package ligature
   :config
   ;; Enable the "www" ligature in every possible major mode
@@ -624,10 +532,6 @@
   :init
   (global-corfu-mode))
 
-(use-package nerd-icons-corfu
-  :after corfu
-  :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-
 (use-package cape
   :after corfu
   :init
@@ -667,13 +571,6 @@
   :after vertico
   :init
   (marginalia-mode))
-
-(use-package nerd-icons-completion
-  :after marginalia
-  :config
-  (nerd-icons-completion-mode)
-  :hook
-  ('marginalia-mode-hook . 'nerd-icons-completion-marginalia-setup))
 
 (use-package consult
   ;; Enable automatic preview at point in the *Completions* buffer. This is
