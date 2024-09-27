@@ -183,16 +183,16 @@
   :ensure t)
 (setq fontaine-presets
       '((default
-          :default-family "Fira Code"
-          :default-weight regular
-          :default-height 110
-          :fixed-pitch-family "Fira Code"
-          :fixed-pitch-weight regular
-          :italic-family "Cascadia Code"
-          :italic-slant italic
-          :variable-pitch-family "Fira Sans"
-          :variable-pitch-weight regular
-          :variable-pitch-height 120)))
+         :default-family "Fira Code"
+         :default-weight regular
+         :default-height 110
+         :fixed-pitch-family "Fira Code"
+         :fixed-pitch-weight regular
+         :italic-family "Cascadia Code"
+         :italic-slant italic
+         :variable-pitch-family "Fira Sans"
+         :variable-pitch-weight regular
+         :variable-pitch-height 120)))
 ;; Set the default preset
 (fontaine-set-preset 'default)
 
@@ -212,6 +212,12 @@
   (set-fontset-font t '(#x1FA70 . #x1FAFF) font-spec)  ;; Symbols and Pictographs Extended-A
   (set-fontset-font t '(#x2600 . #x26FF) font-spec)    ;; Miscellaneous Symbols
   (set-fontset-font t '(#x2700 . #x27BF) font-spec))  ;; Dingbats
+
+;; Ensure the italic face is only italic and not underlined
+(set-face-attribute 'italic nil
+                    :underline nil
+                    :slant 'italic
+                    :family "Cascadia Code")
 
 (use-package all-the-icons
   :ensure t)
@@ -314,13 +320,16 @@
 ;;-----------------------------------------------------------------------------
 (use-package lsp-mode
   :init
-  (setq lsp-keymap-prefix "C-l")
+  (setq lsp-keymap-prefix "SPC l")
+  :ensure t
   :config
+  ;; (setq lsp-keymap-prefix "C-l")
   (lsp-register-custom-settings
    '(("pyls.plugins.pyls_mypy.enabled" t t)
 	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
 	 ("pyls.plugins.pyls_black.enabled" t t)
 	 ("pyls.plugins.pyls_isort.enabled" t t)))
+  (setq lsp-gopls-server-path (executable-find "gopls"))
   :hook (
 		 (go-mode . lsp)
 		 (python-mode . lsp)
@@ -328,13 +337,15 @@
 		 (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp)
 
-(use-package lsp-ui 
+(use-package lsp-ui
   :init
   (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-doc-show-with-cursor t)  ;; Show docs when hovering with cursor
-  (setq lsp-ui-doc-delay 0.2)           ;; Delay before showing docs
+  ;; Uncomment the following lines if you want to show docs when hovering with cursor
+  ;; (setq lsp-ui-doc-show-with-cursor t)  ;; Show docs when hovering with cursor
+  ;; (setq lsp-ui-doc-delay 0.2)           ;; Delay before showing docs
   (setq lsp-ui-doc-position 'at-point)
   (setq lsp-ui-imenu-auto-refresh t)
+  
   :commands lsp-ui-mode)
 
 (add-hook 'go-mode-hook #'lsp-deferred)
@@ -354,7 +365,7 @@
 (use-package org
   :ensure t
   :hook
-  ;; (org-mode . org-indent-mode) ;; Indent text
+  (org-mode . org-indent-mode) ;; Indent text
   (org-mode . visual-line-mode)
   :custom
   (org-return-follows-link t))
@@ -600,79 +611,80 @@
 	:global-prefix "C-SPC") ;; Set global leader key
   
   (start/leader-keys
-   "." '(find-file :wk "Find file")
-   "TAB" '(comment-line :wk "Comment lines")
-   "p" '(projectile-command-map :wk "Projectile command map"))
+	"." '(find-file :wk "Find file")
+	"TAB" '(comment-line :wk "Comment lines")
+	"p" '(projectile-command-map :wk "Projectile command map"))
   
   (start/leader-keys
-   "f" '(:ignore t :wk "Find")
-   "f c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :wk "Edit emacs config")
-   "f r" '(consult-recent-file :wk "Recent files")
-   "f f" '(consult-fd :wk "Fd search for files")
-   "f t" '(consult-ripgrep :wk "Ripgrep search in files")
-   "f l" '(consult-line :wk "Find line")
-   "f i" '(consult-imenu :wk "Imenu buffer locations"))
-  
-  (start/leader-keys
-   "b" '(:ignore t :wk "Buffer Bookmarks")
-   "b b" '(consult-buffer :wk "Switch buffer")
-   "b k" '(kill-this-buffer :wk "Kill this buffer")
-   "b i" '(ibuffer :wk "Ibuffer")
-   "b n" '(next-buffer :wk "Next buffer")
-   "b p" '(previous-buffer :wk "Previous buffer")
-   "b r" '(revert-buffer :wk "Reload buffer")
-   "b j" '(consult-bookmark :wk "Bookmark jump"))
-  
-  (start/leader-keys
-   "d" '(:ignore t :wk "Dired")
-   "d v" '(dired :wk "Open dired")
-   "d j" '(dired-jump :wk "Dired jump to current"))
-  
-  (start/leader-keys
-   "g" '(:ignore t :wk "Git")
-   "g g" '(magit-status :wk "Magit status"))
-  
-  (start/leader-keys
-   "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-   "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-   "h r" '((lambda () (interactive)
-			 (load-file "~/.config/emacs/init.el"))
-		   :wk "Reload Emacs config"))
-  
-  (start/leader-keys
-   "t" '(:ignore t :wk "Toggle")
-   "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-   "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
-  
-  (start/leader-keys
-   "o" '(:ignore t :which-key "Org")
-   "o t" '(:ignore t :which-key "TODO States")
-   "o t t" '(org-todo :which-key "Set TODO")
-   "o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-   "o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-   "o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-   "o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-   "o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
-  
-  (start/leader-keys
-   "o a" '(:ignore t :wk "Org Agenda")
-   "o a c" '(org-capture :wk "Capture")
-   "o a a" '(org-agenda :wk "Agenda")
-   
-   "o r" '(:ignore t :wk "Org Roam")
-   "o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-   "o r f" '(org-roam-node-find :wk "Find Node")
-   "o r i" '(org-roam-node-insert :wk "Insert Node")
-   "o r c" '(org-roam-capture :wk "Capture")
-   "o r g" '(org-roam-graph :wk "Graph"))
-  
-  (start/leader-keys
-   "o d" '(:ignore t :wk "Org Roam Dailies")
-   "o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-   "o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-   "o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-   "o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-   "o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
+	"f" '(:ignore t :wk "Find")
+	"f c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :wk "Edit emacs config")
+	"f r" '(consult-recent-file :wk "Recent files")
+	"f f" '(consult-fd :wk "Fd search for files")
+	"f t" '(consult-ripgrep :wk "Ripgrep search in files")
+	"f l" '(consult-line :wk "Find line")
+	"f i" '(consult-imenu :wk "Imenu buffer locations"))
 
   (start/leader-keys
-   "l" '(:ignore t :wk "LSP")))
+	"b" '(:ignore t :wk "Buffer Bookmarks")
+	"b b" '(consult-buffer :wk "Switch buffer")
+	"b k" '(kill-this-buffer :wk "Kill this buffer")
+	"b i" '(ibuffer :wk "Ibuffer")
+	"b n" '(next-buffer :wk "Next buffer")
+	"b p" '(previous-buffer :wk "Previous buffer")
+	"b r" '(revert-buffer :wk "Reload buffer")
+	"b j" '(consult-bookmark :wk "Bookmark jump"))
+  
+  (start/leader-keys
+	"d" '(:ignore t :wk "Dired")
+	"d v" '(dired :wk "Open dired")
+	"d j" '(dired-jump :wk "Dired jump to current"))
+  
+  (start/leader-keys
+	"g" '(:ignore t :wk "Git")
+	"g g" '(magit-status :wk "Magit status"))
+  
+  (start/leader-keys
+	"h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
+	"h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+	"h r" '((lambda () (interactive)
+			  (load-file "~/.config/emacs/init.el"))
+			:wk "Reload Emacs config"))
+  
+  (start/leader-keys
+	"t" '(:ignore t :wk "Toggle")
+	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+  
+  (start/leader-keys
+	"o" '(:ignore t :which-key "Org")
+	"o t" '(:ignore t :which-key "TODO States")
+	"o t t" '(org-todo :which-key "Set TODO")
+	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+  
+  (start/leader-keys
+	"o a" '(:ignore t :wk "Org Agenda")
+	"o a c" '(org-capture :wk "Capture")
+	"o a a" '(org-agenda :wk "Agenda")
+	
+	"o r" '(:ignore t :wk "Org Roam")
+	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+	"o r f" '(org-roam-node-find :wk "Find Node")
+	"o r i" '(org-roam-node-insert :wk "Insert Node")
+	"o r c" '(org-roam-capture :wk "Capture")
+	"o r g" '(org-roam-graph :wk "Graph"))
+  
+  (start/leader-keys
+	"o d" '(:ignore t :wk "Org Roam Dailies")
+	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
+
+  (start/leader-keys
+	"l" '(:ignore t :wk "LSP")
+	"l k" '(lsp-ui-doc-toggle :wk "Show Documentation")))
