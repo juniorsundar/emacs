@@ -404,10 +404,12 @@
 	  '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
 
 (setq org-todo-keyword-faces
-	  '(("DOING" . "yellow")
-		("HOLD" . "magenta")
-		("CANCELLED" . "red")
-		("MAYBE" . "orange")))
+	  '(("DOING" . (:foreground "black" :background "yellow"))
+		("DONE" . (:foreground "black" :background "green"))
+		("HOLD" . (:foreground "white" :background "blue"))
+		("TODO" . (:foreground "white" :background "red"))
+		("CANCELLED" . (:foreground "black" :background "gray"))
+		("MAYBE" . (:foreground "black" :background "orange"))))
 
 ;; Set default notes file
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
