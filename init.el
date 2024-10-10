@@ -1,10 +1,11 @@
-;; JUNIOR'S EMACS CONFIG
+;;; init.el --- My Emacs Config
+;; Author: Junior Sundar
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "30.0"))
 
-(setq gc-cons-threshold (* 50 1000 1000))
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1000 1000))
+(setq gc-cons-threshold #x40000000)
 ;; Increase the amount of data which Emacs reads from the process
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq read-process-output-max (* 1024 1024 4))
 
 ;;-----------------------------------------------------------------------------
 ;; Set up use-package and add possibility for custom configs
@@ -24,54 +25,98 @@
 ;;-----------------------------------------------------------------------------
 ;; Add to search paths
 ;;-----------------------------------------------------------------------------
-(add-to-list 'exec-path "/usr/local/go/bin")	
-(add-to-list 'exec-path "/usr/local/bin")	
-(add-to-list 'exec-path "~/.local/bin")	
-(add-to-list 'exec-path "~/go/bin")	
-(add-to-list 'exec-path "/usr/bin")	
-(add-to-list 'exec-path "~/anaconda3/bin")	
+(add-to-list 'exec-path "/usr/local/go/bin")
+(add-to-list 'exec-path "/usr/local/bin")
+(add-to-list 'exec-path "~/.local/bin")
+(add-to-list 'exec-path "~/go/bin")
+(add-to-list 'exec-path "/usr/bin")
+(add-to-list 'exec-path "~/anaconda3/bin")
 (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
 
 ;;-----------------------------------------------------------------------------
 ;; Default Emacs Configurations
 ;;-----------------------------------------------------------------------------
 (use-package emacs
+  :ensure nil
   :custom
-  (menu-bar-mode nil)         ;; Disable the menu bar
-  (scroll-bar-mode nil)       ;; Disable the scroll bar
-  (tool-bar-mode nil)         ;; Disable the tool bar
-  ;;(inhibit-startup-screen t)  ;; Disable welcome screen
-
-  (delete-selection-mode t)   ;; Select text and delete it by typing.
-  (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
-  (electric-pair-mode t)      ;; Turns on automatic parens pairing
-
-  (blink-cursor-mode nil)     ;; Don't blink cursor
-  (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
-
-  (dired-kill-when-opening-new-dired-buffer t) ;; Dired don't create new buffer
-  (recentf-mode t) ;; Enable recent file mode
-
-  (enable-recursive-minibuffers t)   ;; Support opening new minibuffers from inside existing minibuffers.
-  ;;(global-visual-line-mode t)           ;; Enable truncated lines
-  (display-line-numbers-type 'relative) ;; Relative line numbers
-  (when (display-graphic-p)
-	(context-menu-mode))
-  (global-display-line-numbers-mode t)  ;; Display line numbers
-
-  (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-  (scroll-conservatively 10) ;; Smooth scrolling
-
-  (tab-width 4)
-
-  (make-backup-files nil) ;; Stop creating ~ backup files
-  (auto-save-default nil) ;; Stop creating # auto save fles
-  (tab-always-indent 'complete)
-
-  (text-mode-ispell-word-completion nil)
-  (read-extended-command-predicate #'command-completion-default-include-p)
+  ;; General Settings
+  ;; (column-number-mode t)                          ;; Display the column number in the mode line.
+  (auto-save-default nil)                         ;; Disable automatic saving of buffers.
+  (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
+  (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
+  (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
+  (display-line-numbers-type 'relative)           ;; Use relative line numbering.
+  (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
+  (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
+  (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
+  (history-length 25)                             ;; Set the length of the command history.
+  (inhibit-startup-screen t)                      ;; Disable the startup screen.
+  (initial-scratch-message "")                    ;; Clear the initial message in the *scratch* buffer.
+  (ispell-dictionary "en_US")                     ;; Set the default dictionary for spell checking.
+  (make-backup-files nil)                         ;; Disable creation of backup files.
+  (pixel-scroll-precision-mode t)                 ;; Enable precise pixel scrolling.
+  (pixel-scroll-precision-use-momentum nil)       ;; Disable momentum scrolling.
+  (ring-bell-function 'ignore)                    ;; Disable the audible bell.
+  (split-width-threshold 300)                     ;; Prevent automatic window splitting.
+  (switch-to-buffer-obey-display-actions t)       ;; Make buffer switching respect display actions.
+  (tab-always-indent 'complete)                   ;; Make TAB key complete text instead of just indenting.
+  (tab-width 4)                                   ;; Set the tab width to 4 spaces.
+  (truncate-lines t)                              ;; Enable line truncation to avoid wrapping long lines.
+  (use-dialog-box nil)                            ;; Disable dialog boxes.
+  (use-short-answers t)                           ;; Use short answers (y/n).
+  (warning-minimum-level :emergency)              ;; Only show emergency warnings.
+  (mouse-wheel-progressive-speed nil)             ;; Disable progressive scrolling.
+  (scroll-conservatively 10)                      ;; Enable smooth scrolling.
+  (enable-recursive-minibuffers t)                ;; Allow recursive minibuffers.
+  (electric-pair-mode t)                          ;; Enable automatic parenthesis pairing.
+  (blink-cursor-mode nil)                         ;; Disable cursor blinking.
+  (xterm-mouse-mode 1)                            ;; Enable mouse support in terminal.
+  (recentf-mode t)                                ;; Enable recent file tracking.
+  (savehist-mode t)                               ;; Enable command history saving.
+  (save-place-mode t)                             ;; Enable saving of the last visited place in files.
+  (winner-mode t)                                 ;; Enable window configuration undo.
+  (file-name-shadow-mode t)                       ;; Enable shadowing of filenames for clarity.
+  (treesit-font-lock-level 4)                     ;; Advanced font locking with Treesit.
 
   :init
+  ;; UI Settings
+  (tool-bar-mode -1)                              ;; Disable the toolbar.
+  (menu-bar-mode -1)                              ;; Disable the menu bar.
+  (scroll-bar-mode -1)                            ;; Disable the scroll bar.
+  (global-hl-line-mode 1)                         ;; Highlight the current line.
+  (indent-tabs-mode -1)                           ;; Disable the use of tabs for indentation (use spaces).
+  (modify-coding-system-alist 'file "" 'utf-8)    ;; Set the default file encoding to UTF-8.
+
+  ;; Minibuffer Improvements
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt)) ;; Read-only minibuffer prompt.
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Welcome message
+  (add-hook 'after-init-hook
+            (lambda ()
+              (message "Emacs has fully loaded.")
+              (with-current-buffer (get-buffer-create "*scratch*")
+                (insert (format ";;    Welcome to Emacs!
+;;
+;;    Loading time : %s
+;;    Packages     : %s
+"
+                                (emacs-init-time)
+                                (number-to-string (length package-activated-list)))))))
+
+  ;; Custom file setup
+  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
+  (load custom-file 'noerror 'nomessage)
+
+  :config
+  ;; Function to skip special buffers when navigating
+  (defun skip-these-buffers (_window buffer _bury-or-kill)
+    "Skip buffers matching the pattern when switching."
+    (string-match "\\*[^*]+\\*" (buffer-name buffer)))
+  (setq switch-to-prev-buffer-skip 'skip-these-buffers)
+
+  ;; Advice for completing-read-multiple
   (defun crm-indicator (args)
     (cons (format "[CRM%s] %s"
                   (replace-regexp-in-string
@@ -81,33 +126,52 @@
           (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-  ;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  ;; Make Escape quit prompts
+  (global-set-key [escape] 'keyboard-escape-quit)
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
+  (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
   :hook
-  (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
-
-  :config
-  ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
-  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-  (load custom-file 'noerror 'nomessage)
-
-  :bind
-  ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-  ("C-+" . text-scale-increase)
-  ("C--" . text-scale-decrease)
-  ("<C-wheel-up>" . text-scale-increase)
-  ("<C-wheel-down>" . text-scale-decrease)
-  ;; Fix general.el leader key not working instantly in messages buffer with evil mode
+  (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
+  (prog-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
   )
 
-(add-hook 'prog-mode-hook 'eldoc-mode)
 (savehist-mode) ;; Enables save history mode
 
 (use-package eat
   :hook ('eshell-load-hook #'eat-eshell-mode))
+
+(use-package eldoc
+  :ensure nil          ;; This is built-in, no need to fetch it.
+  :init
+  (global-eldoc-mode)) 
+
+(use-package dired
+  :ensure nil                                                ;; This is built-in, no need to fetch it.
+  :custom
+  (dired-listing-switches "-lah --group-directories-first")  ;; Display files in a human-readable format and group directories first.
+  (dired-dwim-target t)                                      ;; Enable "do what I mean" for target directories.
+  (dired-guess-shell-alist-user
+   '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open") ;; Open image files with `feh' or the default viewer.
+     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv'.
+     (".*" "open" "xdg-open")))                              ;; Default opening command for other files.
+  (dired-kill-when-opening-new-dired-buffer t)               ;; Close the previous buffer when opening a new `dired' instance.
+  :config
+  (when (eq system-type 'darwin)
+    (let ((gls (executable-find "gls")))                     ;; Use GNU ls on macOS if available.
+      (when gls
+        (setq insert-directory-program gls)))))
+
+(use-package flymake
+  :ensure nil          ;; This is built-in, no need to fetch it.
+  :defer t
+  :hook (prog-mode . flymake-mode)
+  :custom
+  (flymake-margin-indicators-string
+   '((error "!»" compilation-error) (warning "»" compilation-warning)
+	 (note "»" compilation-info))))
 
 (use-package which-key
   :init
@@ -122,6 +186,40 @@
   (which-key-idle-delay 0.8)       ;; Set the time delay (in seconds) for the which-key popup to appear
   (which-key-max-description-length 25)
   (which-key-allow-imprecise-window-fit nil)) ;; Fixes which-key window slipping out in Emacs Daemon
+
+(use-package window
+  :ensure nil       ;; This is built-in, no need to fetch it.
+  :custom
+  (display-buffer-alist
+   '(
+	 ;; ("\\*.*e?shell\\*"
+     ;;  (display-buffer-in-side-window)
+     ;;  (window-height . 0.25)
+     ;;  (side . bottom)
+     ;;  (slot . -1))
+	 
+     ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\|Bookmark List\\|Ibuffer\\|Occur\\|eldoc.*\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 0))
+
+     ;; Example configuration for the LSP help buffer,
+     ;; keeps it always on bottom using 25% of the available space:
+     ("\\*\\(lsp-help\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 0))
+     
+     ;; Configuration for displaying various diagnostic buffers on
+     ;; bottom 25%:
+     ("\\*\\(Flymake diagnostics\\|xref\\|ivy\\|Swiper\\|Completions\\)"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 1))
+	 )))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -312,7 +410,7 @@
   :custom
   (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-  (projectile-project-search-path '("~/projects/" "~/work/"))) ;; . 1 means only search the first subdirectory level for projects
+  (projectile-project-search-path '("~/Documents/Projects/" "~/Documents/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
 ;;-----------------------------------------------------------------------------
@@ -335,18 +433,58 @@
 		 (python-mode . lsp)
 		 ;; if you want which-key integration
 		 (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp)
+  :commands lsp
+  :custom
+  (lsp-inlay-hint-enable t)                             ;; Enable inlay hints.
+  (lsp-completion-provider :none)                       ;; Disable the default completion provider.
+  (lsp-session-file (locate-user-emacs-file ".lsp-session")) ;; Specify session file location.
+  (lsp-log-io nil)                                      ;; Disable IO logging for speed.
+  (lsp-idle-delay 0)                                    ;; Set the delay for LSP to 0 (debouncing).
+  (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
+  ;; Core settings
+  (lsp-enable-xref t)                                   ;; Enable cross-references.
+  (lsp-auto-configure t)                                ;; Automatically configure LSP.
+  (lsp-enable-links nil)                                ;; Disable links.
+  (lsp-eldoc-enable-hover t)                            ;; Enable ElDoc hover.
+  (lsp-enable-file-watchers nil)                        ;; Disable file watchers.
+  (lsp-enable-folding nil)                              ;; Disable folding.
+  (lsp-enable-imenu t)                                  ;; Enable Imenu support.
+  (lsp-enable-indentation nil)                          ;; Disable indentation.
+  (lsp-enable-on-type-formatting nil)                   ;; Disable on-type formatting.
+  (lsp-enable-suggest-server-download t)                ;; Enable server download suggestion.
+  (lsp-enable-symbol-highlighting t)                    ;; Enable symbol highlighting.
+  (lsp-enable-text-document-color nil)                  ;; Disable text document color.
+  ;; Modeline settings
+  (lsp-modeline-code-actions-enable nil)                ;; Keep modeline clean.
+  (lsp-modeline-diagnostics-enable nil)                 ;; Use `flymake' instead.
+  (lsp-modeline-workspace-status-enable t)              ;; Display "LSP" in the modeline when enabled.
+  (lsp-signature-doc-lines 1)                           ;; Limit echo area to one line.
+  (lsp-eldoc-render-all t)                              ;; Render all ElDoc messages.
+  ;; Completion settings
+  (lsp-completion-enable t)                             ;; Enable completion.
+  (lsp-completion-enable-additional-text-edit t)        ;; Enable additional text edits for completions.
+  (lsp-enable-snippet nil)                              ;; Disable snippets
+  (lsp-completion-show-kind t)                          ;; Show kind in completions.
+  ;; Lens settings
+  (lsp-lens-enable t)                                   ;; Enable lens support.
+  ;; Headerline settings
+  (lsp-headerline-breadcrumb-enable-symbol-numbers t)   ;; Enable symbol numbers in the headerline.
+  (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
+  (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
+  (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
+  ;; Semantic settings
+  (lsp-semantic-tokens-enable nil)
+  )
 
-(use-package lsp-ui
-  :init
-  (setq lsp-ui-doc-enable t)
-  ;; Uncomment the following lines if you want to show docs when hovering with cursor
-  ;; (setq lsp-ui-doc-show-with-cursor t)  ;; Show docs when hovering with cursor
-  ;; (setq lsp-ui-doc-delay 0.2)           ;; Delay before showing docs
-  (setq lsp-ui-doc-position 'at-point)
-  (setq lsp-ui-imenu-auto-refresh t)
-  
-  :commands lsp-ui-mode)
+;; (use-package lsp-ui
+;;   :init
+;;   (setq lsp-ui-doc-enable t)
+;;   ;; Uncomment the following lines if you want to show docs when hovering with cursor
+;; (setq lsp-ui-doc-show-with-cursor t)  ;; Show docs when hovering with cursor
+;; (setq lsp-ui-doc-delay 0.2)           ;; Delay before showing docs
+;; (setq lsp-ui-doc-position 'at-point)
+;; (setq lsp-ui-imenu-auto-refresh t)
+;;:commands lsp-ui-mode)
 
 (add-hook 'go-mode-hook #'lsp-deferred)
 ;; Set up before-save hooks to format buffer and add/delete imports.
@@ -358,6 +496,15 @@
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
+
+(use-package treesit-auto
+  :ensure t
+  :after emacs
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode t))
 
 ;;-----------------------------------------------------------------------------
 ;; Org-Mode
@@ -385,12 +532,20 @@
 ;; Recursive function to find all .org files in a directory
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
-  (let ((org-file-list '()))
-	(dolist (file (directory-files-recursively directory "\\.org$"))
-	  (setq org-file-list (append org-file-list (list file))))
-	org-file-list))
+  (directory-files-recursively directory "\\.org$"))
 
-(setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/org-roam/"))
+;; Recursive function to find all .org files in a directory
+(defun my/org-agenda-files-recursive (directory)
+  "Recursively find all .org files in DIRECTORY."
+  (directory-files-recursively directory "\\.org$"))
+
+;; Set org-agenda-files dynamically before running org-agenda
+(defun my/update-org-agenda-files (&rest _)
+  "Update `org-agenda-files` to include all .org files in the directory."
+  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/org-roam/")))
+
+;; Ensure the agenda files are updated before calling the agenda
+(advice-add 'org-agenda :before #'my/update-org-agenda-files)
 
 ;; Customize agenda prefix format
 (setq org-agenda-prefix-format
@@ -465,12 +620,20 @@
   :commands magit-status)
 
 (use-package diff-hl
-  :hook ((dired-mode         . diff-hl-dired-mode-unless-remote)
-		 (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-		 (magit-post-refresh . diff-hl-magit-post-refresh))
-  :init
-  (global-diff-hl-mode))
-
+  :defer t
+  :ensure t
+  :hook
+  (find-file . (lambda ()
+				 (global-diff-hl-mode)           ;; Enable Diff-HL mode for all files.
+				 (diff-hl-flydiff-mode)          ;; Automatically refresh diffs.
+				 (diff-hl-margin-mode)))         ;; Show diff indicators in the margin.
+  :custom
+  (diff-hl-side 'left)                           ;; Set the side for diff indicators.
+  (diff-hl-margin-symbols-alist '((insert . "│") ;; Customize symbols for each change type.
+								  (delete . "-")
+								  (change . "│")
+								  (unknown . "?")
+								  (ignored . "i"))))
 ;;-----------------------------------------------------------------------------
 ;; Completions
 ;;-----------------------------------------------------------------------------
@@ -604,6 +767,18 @@
   ;; (setq consult-project-function nil)
   )
 
+(use-package embark
+  :ensure t
+  :defer t)
+
+(use-package embark-consult
+  :ensure t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode)) ;; Enable preview in Embark collect mode.
+
+;;-----------------------------------------------------------------------------
+;; Key Binders
+;;-----------------------------------------------------------------------------
 (use-package general
   :config
   (general-evil-setup)
