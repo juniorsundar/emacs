@@ -418,7 +418,7 @@
 ;;-----------------------------------------------------------------------------
 (use-package lsp-mode
   :init
-  (setq lsp-keymap-prefix "SPC l")
+  (setq lsp-keymap-prefix "C-l")
   :ensure t
   :config
   ;; (setq lsp-keymap-prefix "C-l")
@@ -475,16 +475,6 @@
   ;; Semantic settings
   (lsp-semantic-tokens-enable nil)
   )
-
-;; (use-package lsp-ui
-;;   :init
-;;   (setq lsp-ui-doc-enable t)
-;;   ;; Uncomment the following lines if you want to show docs when hovering with cursor
-;; (setq lsp-ui-doc-show-with-cursor t)  ;; Show docs when hovering with cursor
-;; (setq lsp-ui-doc-delay 0.2)           ;; Delay before showing docs
-;; (setq lsp-ui-doc-position 'at-point)
-;; (setq lsp-ui-imenu-auto-refresh t)
-;;:commands lsp-ui-mode)
 
 (add-hook 'go-mode-hook #'lsp-deferred)
 ;; Set up before-save hooks to format buffer and add/delete imports.
@@ -556,7 +546,7 @@
 
 ;; Define TODO keywords and their faces
 (setq org-todo-keywords
-	  '((sequence "TODO(t)" "DOING(d)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+	  '((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
 
 (setq org-todo-keyword-faces
 	  '(("DOING" . (:foreground "black" :background "yellow"))
@@ -565,6 +555,8 @@
 		("TODO" . (:foreground "white" :background "red"))
 		("CANCELLED" . (:foreground "black" :background "gray"))
 		("MAYBE" . (:foreground "black" :background "orange"))))
+
+(setq org-log-done 'time)
 
 ;; Set default notes file
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
