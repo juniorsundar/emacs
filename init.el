@@ -244,7 +244,17 @@
   :bind (:map evil-motion-state-map
 			  ("SPC" . nil)
 			  ("RET" . nil)
-			  ("TAB" . nil)))
+			  ("TAB" . nil)
+              ;; Window Management
+              ("C-M-<up>" . evil-window-increase-height)
+              ("C-M-k" . evil-window-increase-height)
+              ("C-M-<down>" . evil-window-decrease-height)
+              ("C-M-j" . evil-window-decrease-height)
+              ("C-M-<right>" . evil-window-increase-width)
+              ("C-M-l" . evil-window-increase-width)
+              ("C-M-<left>" . evil-window-decrease-width)
+              ("C-M-h" . evil-window-decrease-width)
+              ))
 
 (use-package evil-surround
   :after evil
@@ -416,73 +426,86 @@
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-l")
-  :ensure t
-  :config
-  ;; (setq lsp-keymap-prefix "C-l")
-  (lsp-register-custom-settings
-   '(("pyls.plugins.pyls_mypy.enabled" t t)
-	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
-	 ("pyls.plugins.pyls_black.enabled" t t)
-	 ("pyls.plugins.pyls_isort.enabled" t t)))
-  (setq lsp-gopls-server-path (executable-find "gopls"))
-  :hook (
-		 (go-mode . lsp)
-		 (python-mode . lsp)
-		 ;; if you want which-key integration
-		 (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp
-  :custom
-  (lsp-inlay-hint-enable t)                             ;; Enable inlay hints.
-  (lsp-completion-provider :none)                       ;; Disable the default completion provider.
-  (lsp-session-file (locate-user-emacs-file ".lsp-session")) ;; Specify session file location.
-  (lsp-log-io nil)                                      ;; Disable IO logging for speed.
-  (lsp-idle-delay 0)                                    ;; Set the delay for LSP to 0 (debouncing).
-  (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
-  ;; Core settings
-  (lsp-enable-xref t)                                   ;; Enable cross-references.
-  (lsp-auto-configure t)                                ;; Automatically configure LSP.
-  (lsp-enable-links nil)                                ;; Disable links.
-  (lsp-eldoc-enable-hover t)                            ;; Enable ElDoc hover.
-  (lsp-enable-file-watchers nil)                        ;; Disable file watchers.
-  (lsp-enable-folding nil)                              ;; Disable folding.
-  (lsp-enable-imenu t)                                  ;; Enable Imenu support.
-  (lsp-enable-indentation nil)                          ;; Disable indentation.
-  (lsp-enable-on-type-formatting nil)                   ;; Disable on-type formatting.
-  (lsp-enable-suggest-server-download t)                ;; Enable server download suggestion.
-  (lsp-enable-symbol-highlighting t)                    ;; Enable symbol highlighting.
-  (lsp-enable-text-document-color nil)                  ;; Disable text document color.
-  ;; Modeline settings
-  (lsp-modeline-code-actions-enable nil)                ;; Keep modeline clean.
-  (lsp-modeline-diagnostics-enable nil)                 ;; Use `flymake' instead.
-  (lsp-modeline-workspace-status-enable t)              ;; Display "LSP" in the modeline when enabled.
-  (lsp-signature-doc-lines 1)                           ;; Limit echo area to one line.
-  (lsp-eldoc-render-all t)                              ;; Render all ElDoc messages.
-  ;; Completion settings
-  (lsp-completion-enable t)                             ;; Enable completion.
-  (lsp-completion-enable-additional-text-edit t)        ;; Enable additional text edits for completions.
-  (lsp-enable-snippet nil)                              ;; Disable snippets
-  (lsp-completion-show-kind t)                          ;; Show kind in completions.
-  ;; Lens settings
-  (lsp-lens-enable t)                                   ;; Enable lens support.
-  ;; Headerline settings
-  (lsp-headerline-breadcrumb-enable-symbol-numbers t)   ;; Enable symbol numbers in the headerline.
-  (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
-  (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
-  (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
-  ;; Semantic settings
-  (lsp-semantic-tokens-enable nil)
-  )
+;; (use-package lsp-mode
+;;   :init
+;;   (setq lsp-keymap-prefix "C-l")
+;;   :ensure t
+;;   :config
+;;   ;; (setq lsp-keymap-prefix "C-l")
+;;   (lsp-register-custom-settings
+;;    '(("pyls.plugins.pyls_mypy.enabled" t t)
+;; 	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
+;; 	 ("pyls.plugins.pyls_black.enabled" t t)
+;; 	 ("pyls.plugins.pyls_isort.enabled" t t)))
+;;   (setq lsp-gopls-server-path (executable-find "gopls"))
+;;   :hook (
+;; 		 (go-mode . lsp)
+;; 		 (python-mode . lsp)
+;; 		 ;; if you want which-key integration
+;; 		 (lsp-mode . lsp-enable-which-key-integration))
+;;   :commands lsp
+;;   :custom
+;;   (lsp-inlay-hint-enable t)                             ;; Enable inlay hints.
+;;   (lsp-completion-provider :none)                       ;; Disable the default completion provider.
+;;   (lsp-session-file (locate-user-emacs-file ".lsp-session")) ;; Specify session file location.
+;;   (lsp-log-io nil)                                      ;; Disable IO logging for speed.
+;;   (lsp-idle-delay 0)                                    ;; Set the delay for LSP to 0 (debouncing).
+;;   (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
+;;   ;; Core settings
+;;   (lsp-enable-xref t)                                   ;; Enable cross-references.
+;;   (lsp-auto-configure t)                                ;; Automatically configure LSP.
+;;   (lsp-enable-links nil)                                ;; Disable links.
+;;   (lsp-eldoc-enable-hover t)                            ;; Enable ElDoc hover.
+;;   (lsp-enable-file-watchers nil)                        ;; Disable file watchers.
+;;   (lsp-enable-folding nil)                              ;; Disable folding.
+;;   (lsp-enable-imenu t)                                  ;; Enable Imenu support.
+;;   (lsp-enable-indentation nil)                          ;; Disable indentation.
+;;   (lsp-enable-on-type-formatting nil)                   ;; Disable on-type formatting.
+;;   (lsp-enable-suggest-server-download t)                ;; Enable server download suggestion.
+;;   (lsp-enable-symbol-highlighting t)                    ;; Enable symbol highlighting.
+;;   (lsp-enable-text-document-color nil)                  ;; Disable text document color.
+;;   ;; Modeline settings
+;;   (lsp-modeline-code-actions-enable nil)                ;; Keep modeline clean.
+;;   (lsp-modeline-diagnostics-enable nil)                 ;; Use `flymake' instead.
+;;   (lsp-modeline-workspace-status-enable t)              ;; Display "LSP" in the modeline when enabled.
+;;   (lsp-signature-doc-lines 1)                           ;; Limit echo area to one line.
+;;   (lsp-eldoc-render-all t)                              ;; Render all ElDoc messages.
+;;   ;; Completion settings
+;;   (lsp-completion-enable t)                             ;; Enable completion.
+;;   (lsp-completion-enable-additional-text-edit t)        ;; Enable additional text edits for completions.
+;;   (lsp-enable-snippet nil)                              ;; Disable snippets
+;;   (lsp-completion-show-kind t)                          ;; Show kind in completions.
+;;   ;; Lens settings
+;;   (lsp-lens-enable t)                                   ;; Enable lens support.
+;;   ;; Headerline settings
+;;   (lsp-headerline-breadcrumb-enable-symbol-numbers t)   ;; Enable symbol numbers in the headerline.
+;;   (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
+;;   (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
+;;   (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
+;;   ;; Semantic settings
+;;   (lsp-semantic-tokens-enable nil)
+;;   )
 
-(add-hook 'go-mode-hook #'lsp-deferred)
-;; Set up before-save hooks to format buffer and add/delete imports.
-;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+;; (add-hook 'go-mode-hook #'lsp-deferred)
+;; ;; Set up before-save hooks to format buffer and add/delete imports.
+;; ;; Make sure you don't have other gofmt/goimports hooks enabled.
+;; (defun lsp-go-install-save-hooks ()
+;;   (add-hook 'before-save-hook #'lsp-format-buffer t t)
+;;   (add-hook 'before-save-hook #'lsp-organize-imports t t))
+;; (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+
+(use-package eglot
+  :ensure nil
+  :defer t
+  :bind (:map eglot-mode-map
+			  ("C-l a" . eglot-code-actions)
+			  ("C-l k" . eldoc)
+			  ("C-l f" . eglot-format-buffer)
+			  ("C-l n" . eglot-rename))
+  :hook (go-mode . eglot-ensure))
+
+(use-package markdown-mode
+  :ensure t)
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
@@ -635,7 +658,7 @@
   (corfu-auto t)                 ;; Enable auto completion
   (corfu-auto-prefix 2)          ;; Minimum length of prefix for auto completion.
   (corfu-popupinfo-mode t)       ;; Enable popup information
-  (corfu-popupinfo-delay 0.5)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
+  (corfu-popupinfo-delay 0.1)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
   (corfu-separator ?\s)          ;; Orderless field separator, Use M-SPC to enter separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
@@ -806,11 +829,6 @@
 	"b j" '(consult-bookmark :wk "Bookmark jump"))
   
   (start/leader-keys
-	"d" '(:ignore t :wk "Dired")
-	"d v" '(dired :wk "Open dired")
-	"d j" '(dired-jump :wk "Dired jump to current"))
-  
-  (start/leader-keys
 	"g" '(:ignore t :wk "Git")
 	"g g" '(magit-status :wk "Magit status"))
   
@@ -827,35 +845,35 @@
 	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
   
   (start/leader-keys
-	"o" '(:ignore t :which-key "Org")
-	"o t" '(:ignore t :which-key "TODO States")
-	"o t t" '(org-todo :which-key "Set TODO")
-	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+	"O" '(:ignore t :which-key "Org")
+	"O t" '(:ignore t :which-key "TODO States")
+	"O t t" '(org-todo :which-key "Set TODO")
+	"O t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+	"O t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+	"O t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+	"O t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+	"O t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
   
   (start/leader-keys
-	"o a" '(:ignore t :wk "Org Agenda")
-	"o a c" '(org-capture :wk "Capture")
-	"o a a" '(org-agenda :wk "Agenda")
+	"O a" '(:ignore t :wk "Org Agenda")
+	"O a c" '(org-capture :wk "Capture")
+	"O a a" '(org-agenda :wk "Agenda")
 	
-	"o r" '(:ignore t :wk "Org Roam")
-	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-	"o r f" '(org-roam-node-find :wk "Find Node")
-	"o r i" '(org-roam-node-insert :wk "Insert Node")
-	"o r c" '(org-roam-capture :wk "Capture")
-	"o r g" '(org-roam-graph :wk "Graph"))
+	"O r" '(:ignore t :wk "Org Roam")
+	"O r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+	"O r f" '(org-roam-node-find :wk "Find Node")
+	"O r i" '(org-roam-node-insert :wk "Insert Node")
+	"O r c" '(org-roam-capture :wk "Capture")
+	"O r g" '(org-roam-graph :wk "Graph"))
   
   (start/leader-keys
-	"o d" '(:ignore t :wk "Org Roam Dailies")
-	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
+	"O d" '(:ignore t :wk "Org Roam Dailies")
+	"O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+	"O d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+	"O d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+	"O d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+	"O d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
 
   (start/leader-keys
-	"l" '(:ignore t :wk "LSP")
-	"l k" '(lsp-ui-doc-toggle :wk "Show Documentation")))
+	"o" '(lambda () (interactive) (dired default-directory) :wk "Open"))
+	)
