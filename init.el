@@ -291,12 +291,12 @@
   :ensure t)
 (setq fontaine-presets
       '((default
-         :default-family "Fira Code"
+         :default-family "FiraCode Nerd Font"
          :default-weight regular
          :default-height 110
-         :fixed-pitch-family "Fira Code"
+         :fixed-pitch-family "FiraCode Nerd Font"
          :fixed-pitch-weight regular
-         :italic-family "Cascadia Code"
+         :italic-family "CaskaydiaCove Nerd Font"
          :italic-slant italic
          :variable-pitch-family "Fira Sans"
          :variable-pitch-weight regular
@@ -325,7 +325,7 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "Cascadia Code")
+                    :family "CaskaydiaCove Nerd Font")
 
 (use-package all-the-icons
   :ensure t)
@@ -637,18 +637,22 @@
 (use-package diff-hl
   :defer t
   :ensure t
-  :hook
-  (find-file . (lambda ()
-				 (global-diff-hl-mode)           ;; Enable Diff-HL mode for all files.
-				 (diff-hl-flydiff-mode)          ;; Automatically refresh diffs.
-				 (diff-hl-margin-mode)))         ;; Show diff indicators in the margin.
+  :hook ((find-file . diff-hl-mode)                ;; Enable Diff-HL on file open.
+         (after-save . diff-hl-update)             ;; Update diffs after save.
+         (vc-dir-mode . diff-hl-dir-mode)          ;; Enable in version control directories.
+         (dired-mode . diff-hl-dired-mode))        ;; Enable in Dired mode.
+  :init
+  (global-diff-hl-mode)                            ;; Enable Diff-HL globally.
+  :config
+  (diff-hl-flydiff-mode)                           ;; Auto-refresh diffs.
+  (diff-hl-margin-mode)                            ;; Show indicators in the margin.
   :custom
-  (diff-hl-side 'left)                           ;; Set the side for diff indicators.
-  (diff-hl-margin-symbols-alist '((insert . "│") ;; Customize symbols for each change type.
-								  (delete . "-")
-								  (change . "│")
-								  (unknown . "?")
-								  (ignored . "i"))))
+  (diff-hl-side 'left)                             ;; Set the side for diff indicators.
+  (diff-hl-margin-symbols-alist '((insert . "│")   ;; Customize symbols for each change type.
+                                  (delete . "-")
+                                  (change . "│")
+                                  (unknown . "?")
+                                  (ignored . "i"))))
 ;;-----------------------------------------------------------------------------
 ;; Completions
 ;;-----------------------------------------------------------------------------
