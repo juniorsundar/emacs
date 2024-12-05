@@ -414,13 +414,13 @@
 ;;-----------------------------------------------------------------------------
 ;; Projectile
 ;;-----------------------------------------------------------------------------
-(use-package projectile
-  :init
-  (projectile-mode)
-  :custom
-  (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
-  (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-  (projectile-project-search-path '("~/Documents/Projects/" "~/Documents/work/"))) ;; . 1 means only search the first subdirectory level for projects
+;; (use-package projectile
+;;   :init
+;;   (projectile-mode)
+;;   :custom
+;;   (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
+;;   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
+;;   (projectile-project-search-path '("~/Documents/Projects/" "~/Documents/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
 ;;-----------------------------------------------------------------------------
@@ -758,6 +758,7 @@
   ;; is 'any, such that any key triggers the preview.
   ;; (setq consult-preview-key 'any)
   (setq consult-preview-key "M-.")
+  ;; (setq consult-project-function nil)
   ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
 
   ;; For some commands and buffer sources it is useful to configure the
@@ -780,8 +781,8 @@
 		 ;;;; 3. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 		 ;;;; 4. projectile.el (projectile-project-root)
-  (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
 		 ;;;; 5. No project support
   ;; (setq consult-project-function nil)
   )
@@ -849,35 +850,35 @@
 	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
   
   (start/leader-keys
-	"O" '(:ignore t :which-key "Org")
-	"O t" '(:ignore t :which-key "TODO States")
-	"O t t" '(org-todo :which-key "Set TODO")
-	"O t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-	"O t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-	"O t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-	"O t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-	"O t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+	"o" '(:ignore t :which-key "Org")
+	"o t" '(:ignore t :which-key "TODO States")
+	"o t t" '(org-todo :which-key "Set TODO")
+	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
+	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
+	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
+	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
+	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
   
   (start/leader-keys
-	"O a" '(:ignore t :wk "Org Agenda")
-	"O a c" '(org-capture :wk "Capture")
-	"O a a" '(org-agenda :wk "Agenda")
-	
-	"O r" '(:ignore t :wk "Org Roam")
-	"O r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-	"O r f" '(org-roam-node-find :wk "Find Node")
-	"O r i" '(org-roam-node-insert :wk "Insert Node")
-	"O r c" '(org-roam-capture :wk "Capture")
-	"O r g" '(org-roam-graph :wk "Graph"))
+	"o a" '(:ignore t :wk "Org Agenda")
+	"o a c" '(org-capture :wk "Capture")
+	"o a a" '(org-agenda :wk "Agenda")
+
+	"o r" '(:ignore t :wk "Org Roam")
+	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+	"o r f" '(org-roam-node-find :wk "Find Node")
+	"o r i" '(org-roam-node-insert :wk "Insert Node")
+	"o r c" '(org-roam-capture :wk "Capture")
+	"o r g" '(org-roam-graph :wk "Graph"))
   
   (start/leader-keys
-	"O d" '(:ignore t :wk "Org Roam Dailies")
-	"O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	"O d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-	"O d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-	"O d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-	"O d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
+	"o d" '(:ignore t :wk "Org Roam Dailies")
+	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
 
   (start/leader-keys
-	"o" '(lambda () (interactive) (dired default-directory) :wk "Open"))
+	"-" '(lambda () (interactive) (dired default-directory) :wk "Open"))
 	)
