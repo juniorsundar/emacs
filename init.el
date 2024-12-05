@@ -494,15 +494,15 @@
 ;;   (add-hook 'before-save-hook #'lsp-organize-imports t t))
 ;; (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
-(use-package eglot
-  :ensure nil
-  :defer t
-  :bind (:map eglot-mode-map
-			  ("C-l a" . eglot-code-actions)
-			  ("C-l k" . eldoc)
-			  ("C-l f" . eglot-format-buffer)
-			  ("C-l n" . eglot-rename))
-  :hook (go-mode . eglot-ensure))
+;; (use-package eglot
+;;   :ensure nil
+;;   :defer t
+;;   :bind (:map eglot-mode-map
+;; 			  ("C-l a" . eglot-code-actions)
+;; 			  ("C-l k" . eldoc)
+;; 			  ("C-l f" . eglot-format-buffer)
+;; 			  ("C-l n" . eglot-rename))
+;;   :hook (go-mode . eglot-ensure))
 
 (use-package markdown-mode
   :ensure t)
