@@ -271,7 +271,7 @@
 (use-package avy
   :ensure t
   :demand t
-  :bind (("C-c j" . avy-goto-char-timer)
+  :bind (("C-c s" . avy-goto-char-timer)
 		 ))
 
 ;;-----------------------------------------------------------------------------
