@@ -607,6 +607,17 @@
   :ensure t
   :custom
   (org-roam-directory (file-truename "~/Dropbox/neorg/org/org-roam/"))
+  (org-roam-dailies-directory "journals/")
+  (org-roam-capture-templates
+   '(("d" "default" plain "%?"
+	  ;; Accomodates for the fact that Logseq uses the "pages" directory
+	  :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
+	  :unnarrowed t))
+   org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %?"
+	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+
+
   :config
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
