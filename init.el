@@ -146,7 +146,7 @@
 (use-package eldoc
   :ensure nil          ;; This is built-in, no need to fetch it.
   :init
-  (global-eldoc-mode)) 
+  (global-eldoc-mode))
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -555,7 +555,7 @@
 ;; Set org-agenda-files dynamically before running org-agenda
 (defun my/update-org-agenda-files (&rest _)
   "Update `org-agenda-files` to include all .org files in the directory."
-  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/org-roam/")))
+  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/")))
 
 ;; Ensure the agenda files are updated before calling the agenda
 (advice-add 'org-agenda :before #'my/update-org-agenda-files)
@@ -639,6 +639,20 @@
   :ensure nil
   :after org)
 
+(use-package org-novelist
+  :ensure nil
+  :load-path "./lisp/org-novelist/"  ; The directory containing 'org-novelist.el'
+  :custom
+	;; The default author name to use when exporting a story. Each
+	;; story can also override this setting
+    (org-novelist-author "Junior Sundar")
+    ;; The default author contact email to use when exporting a
+    ;; story. Each story can also override this setting
+    (org-novelist-author-email "juniorsundar@gmail.com")
+	;; Set this variable to 't' if you want Org Novelist to always keep
+	;; note links up to date. This may slow down some systems when
+	;; operating on complex stories. It defaults to 'nil' when not set
+    (org-novelist-automatic-referencing-p nil))
 ;;-----------------------------------------------------------------------------
 ;; Git Integration
 ;;-----------------------------------------------------------------------------
