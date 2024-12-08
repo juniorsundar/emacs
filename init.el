@@ -540,7 +540,7 @@
 (add-hook 'org-mode-hook 'display-inline-images)
 
 ;; Set Org directory
-(setq org-directory "~/Dropbox/neorg/org/")
+(setq org-directory "~/Dropbox/org/")
 
 ;; Recursive function to find all .org files in a directory
 (defun my/org-agenda-files-recursive (directory)
@@ -555,7 +555,7 @@
 ;; Set org-agenda-files dynamically before running org-agenda
 (defun my/update-org-agenda-files (&rest _)
   "Update `org-agenda-files` to include all .org files in the directory."
-  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/neorg/org/")))
+  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/org/")))
 
 ;; Ensure the agenda files are updated before calling the agenda
 (advice-add 'org-agenda :before #'my/update-org-agenda-files)
@@ -587,13 +587,13 @@
 ;; Define capture templates
 (setq org-capture-templates
 	  '(("t" "Blank Todo [inbox]" entry
-		 (file+headline "~/Dropbox/neorg/org/inbox.org" "Tasks")
+		 (file+headline "~/Dropbox/org/inbox.org" "Tasks")
 		 "* TODO %i%?")
 		("w" "Work Todo [work]" entry
-		 (file+headline "~/Dropbox/neorg/org/work.org" "Work")
+		 (file+headline "~/Dropbox/org/work.org" "Work")
 		 "* TODO %i%?")
 		("p" "Personal Todo [personal]" entry
-		 (file+headline "~/Dropbox/neorg/org/personal.org" "Personal")
+		 (file+headline "~/Dropbox/org/personal.org" "Personal")
 		 "* TODO %i%?")))
 
 ;; Conceal emphasis markers for bold and italic text
@@ -606,7 +606,7 @@
 (use-package org-roam
   :ensure t
   :custom
-  (org-roam-directory (file-truename "~/Dropbox/neorg/org/org-roam/"))
+  (org-roam-directory (file-truename "~/Dropbox/org/org-roam/"))
   (org-roam-dailies-directory "journals/")
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
