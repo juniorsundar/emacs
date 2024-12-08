@@ -277,10 +277,10 @@
 ;;-----------------------------------------------------------------------------
 ;; Theme
 ;;-----------------------------------------------------------------------------
-(load-config-file "cyberdream-theme.el")
-(load-theme 'cyberdream :no-confirm) ;; We need to add t to trust this package
-(setq cyberdream-flavor 'mocha)
-(cyberdream-reload)
+(load-config-file "catppuccin-theme/catppuccin-theme.el")
+(load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
+(setq catppuccin-flavor 'cyberdream)
+(catppuccin-reload)
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 
