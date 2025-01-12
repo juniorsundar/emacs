@@ -45,7 +45,7 @@
   (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
-  (display-line-numbers-type 'relative)           ;; Use relative line numbering.
+  (display-line-numbers-type nil)           ;; Use relative line numbering.
   (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
@@ -164,14 +164,14 @@
       (when gls
         (setq insert-directory-program gls)))))
 
-(use-package flymake
-  :ensure nil          ;; This is built-in, no need to fetch it.
-  :defer t
-  :hook (prog-mode . flymake-mode)
-  :custom
-  (flymake-margin-indicators-string
-   '((error "!»" compilation-error) (warning "»" compilation-warning)
-	 (note "»" compilation-info))))
+;; (use-package flymake
+;;   :ensure nil          ;; This is built-in, no need to fetch it.
+;;   :defer t
+;;   :hook (prog-mode . flymake-mode)
+;;   :custom
+;;   (flymake-margin-indicators-string
+;;    '((error "!»" compilation-error) (warning "»" compilation-warning)
+;; 	 (note "»" compilation-info))))
 
 (use-package which-key
   :init
@@ -409,18 +409,19 @@
   (doom-modeline-height 25)     ;; Sets modeline height
   (doom-modeline-bar-width 5)   ;; Sets right bar width
   (doom-modeline-persp-name t)  ;; Adds perspective name to modeline
-  (doom-modeline-persp-icon t)) ;; Adds folder icon next to persp name
+  (doom-modeline-persp-icon t)
+  (doom-modeline-enable-word-count t)) ;; Adds folder icon next to persp name
 
 ;;-----------------------------------------------------------------------------
 ;; Projectile
 ;;-----------------------------------------------------------------------------
-;; (use-package projectile
-;;   :init
-;;   (projectile-mode)
-;;   :custom
-;;   (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
-;;   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-;;   (projectile-project-search-path '("~/Documents/Projects/" "~/Documents/work/"))) ;; . 1 means only search the first subdirectory level for projects
+(use-package projectile
+  :init
+  (projectile-mode)
+  :custom
+  (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
+  (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
+  (projectile-project-search-path '("~/Documents/Projects/" "~/Documents/work/"))) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
 ;;-----------------------------------------------------------------------------
@@ -532,12 +533,7 @@
 
 ;; Ensure inline images are displayed when opening an Org file
 (setq org-startup-with-inline-images t)
-;; Function to display images
-(defun display-inline-images ()
-  "Display inline images in the buffer."
-  (org-display-inline-images))
-;; Add the display function to the Org mode hook
-(add-hook 'org-mode-hook 'display-inline-images)
+(setq org-image-actual-width 500) 
 
 ;; Set Org directory
 (setq org-directory "~/Dropbox/org/")
@@ -546,12 +542,10 @@
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (directory-files-recursively directory "\\.org$"))
-
 ;; Recursive function to find all .org files in a directory
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (directory-files-recursively directory "\\.org$"))
-
 ;; Set org-agenda-files dynamically before running org-agenda
 (defun my/update-org-agenda-files (&rest _)
   "Update `org-agenda-files` to include all .org files in the directory."
@@ -560,25 +554,68 @@
 ;; Ensure the agenda files are updated before calling the agenda
 (advice-add 'org-agenda :before #'my/update-org-agenda-files)
 
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+(setq org-todo-keyword-faces
+      '(("DOING" . (:background "orange" :foreground "black"))
+        ("DONE" . (:background "green" :foreground "black"))
+        ("HOLD" . (:background "turquoise" :foreground "black"))
+        ("TODO" . (:background "red" :foreground "white"))
+        ("CANCELLED" . (:background "gray" :foreground "black"))
+        ("MAYBE" . (:background "yellow" :foreground "black"))))
 ;; Customize agenda prefix format
 (setq org-agenda-prefix-format
-	  '((agenda . " %i %?-12t% s")  ; remove file name
-		(todo . " %i ")
-		(tags . " %i ")
-		(search . " %i ")))
+      '((agenda . " %i %?-12t% s")  ; remove file name
+        (todo . " %i ")
+        (tags . " %i ")
+        (search . " %i ")))
 
-;; Define TODO keywords and their faces
-(setq org-todo-keywords
-	  '((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+;; This is to create highlighted org-admonitions
+(defface my-note-face
+         '((t :background "#a6d189" :foreground "#1e1e2e" :extend t))
+         "Face for NOTE blocks with full width background.")
+(defface my-important-face
+         '((t :background "#ea6962" :foreground "#1e1e2e" :extend t))
+         "Face for IMPORTANT blocks with full width background.")
+(defface my-warning-face
+         '((t :background "#e5c890" :foreground "#1e1e2e" :extend t))
+         "Face for WARNING blocks with full width background.")
+(defun apply-custom-org-block-face (start end face)
+  "Apply FACE to the entire visual line from START to END."
+  (let ((overlay (make-overlay start end)))
+    (overlay-put overlay 'face face)
+    (overlay-put overlay 'line-prefix
+                 nil)
+    ;; (propertize " " 'face face 'display '(space :align-to 0)))
+    (overlay-put overlay 'after-string
+                 (propertize " " 'face face 'display '(space :align-to right-margin)))))
+(defun highlight-org-block-region ()
+  "Highlight org blocks with full window width background."
+  (remove-overlays (point-min) (point-max)) ; Clear existing overlays
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^[ \t]*#\\+BEGIN_\\(NOTE\\|IMPORTANT\\|WARN\\)" nil t)
+           (let* ((block-type (match-string 1))
+                  (block-start (line-beginning-position))
+                  (face (pcase block-type
+                               ("NOTE" 'my-note-face)
+                               ("IMPORTANT" 'my-important-face)
+                               ("WARN" 'my-warning-face))))
+             (when (re-search-forward (format "^[ \t]*#\\+END_%s" block-type) nil t)
+               (apply-custom-org-block-face block-start (line-end-position) face))))))
+(define-minor-mode org-block-highlight-mode
+                   "Minor mode for highlighting org blocks with full window width background."
+                   :lighter " OrgBlockHL"
+                   (if org-block-highlight-mode
+                     (progn
+                       (highlight-org-block-region)
+                       (add-hook 'after-change-functions
+                                 (lambda (&rest _) (highlight-org-block-region))
+                                 nil t))
+                     (remove-overlays (point-min) (point-max))))
+(add-hook 'org-mode-hook 'org-block-highlight-mode)
 
-(setq org-todo-keyword-faces
-	  '(("DOING" . (:foreground "black" :background "yellow"))
-		("DONE" . (:foreground "black" :background "green"))
-		("HOLD" . (:foreground "white" :background "blue"))
-		("TODO" . (:foreground "white" :background "red"))
-		("CANCELLED" . (:foreground "black" :background "gray"))
-		("MAYBE" . (:foreground "black" :background "orange"))))
-
+(font-lock-mode 1)
 (setq org-log-done 'time)
 
 ;; Set default notes file
@@ -586,7 +623,7 @@
 
 ;; Define capture templates
 (setq org-capture-templates
-	  '(("t" "Blank Todo [inbox]" entry
+      '(("t" "Blank Todo [inbox]" entry
 		 (file+headline "~/Dropbox/org/inbox.org" "Tasks")
 		 "* TODO %i%?")
 		("w" "Work Todo [work]" entry
@@ -606,8 +643,8 @@
 (use-package org-roam
   :ensure t
   :custom
-  (org-roam-directory (file-truename "~/Dropbox/org/org-roam/"))
-  (org-roam-dailies-directory "journals/")
+  (org-roam-directory (file-truename "~/Dropbox/org/pages"))
+  (org-roam-dailies-directory "../journals/")
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
 	  ;; Accomodates for the fact that Logseq uses the "pages" directory
@@ -615,7 +652,7 @@
 	  :unnarrowed t))
    org-roam-dailies-capture-templates
    '(("d" "default" entry "* %?"
-	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+FILETAGS: journal"))))
 
 
   :config
@@ -624,6 +661,13 @@
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
+
+(use-package org-attach
+  :ensure t
+  :config
+  (setq org-attach-id-dir "~/Dropbox/org/assets/")
+  (setq org-attach-use-inheritance t)
+  )
 
 (use-package toc-org
   :commands toc-org-enable
@@ -638,6 +682,31 @@
 (use-package org-tempo
   :ensure nil
   :after org)
+
+(use-package org-modern
+  :after org
+  :config
+  (setq org-modern-star nil)
+
+  (setq org-agenda-tags-column 0)
+  (setq org-agenda-block-separator ?─)
+  (setq org-agenda-time-grid
+        '((daily today require-timed)
+          (800 1000 1200 1400 1600 1800 2000)
+          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+  (setq org-agenda-current-time-string
+        "<-- now ───────")
+  (setq org-modern-priority nil)
+
+  (setq org-modern-todo-faces
+        (quote (("TODO" :background "red" :foreground "white")
+                ("DOING" :background "orange" :foreground "black")
+                ("HOLD" :background "turquoise" :foreground "black")
+                ("CANCELLED" . (:background "gray" :foreground "black"))
+                ("MAYBE" . (:background "yellow" :foreground "black"))
+                ("DONE" . (:background "green" :foreground "black")))))
+  (global-org-modern-mode)
+  )
 
 (use-package org-novelist
   :ensure nil
@@ -876,6 +945,8 @@
   
   (start/leader-keys
 	"o" '(:ignore t :which-key "Org")
+	"o i" '(org-toggle-inline-images :wk "Toggle Inline Images")
+
 	"o t" '(:ignore t :which-key "TODO States")
 	"o t t" '(org-todo :which-key "Set TODO")
 	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
