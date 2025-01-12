@@ -421,7 +421,11 @@
   :custom
   (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-  (projectile-project-search-path '("~/Documents/Projects/" "~/Documents/work/"))) ;; . 1 means only search the first subdirectory level for projects
+  (projectile-project-search-path '("~/Documents/Projects/"
+									;; "~/Documents/work/"
+									)
+								  )
+  ) ;; . 1 means only search the first subdirectory level for projects
 ;; Use Bookmarks for smaller, not standard projects
 
 ;;-----------------------------------------------------------------------------
@@ -621,6 +625,9 @@
 ;; Set default notes file
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
 
+(setq org-attach-id-dir "~/Dropbox/org/assets/")
+(setq org-attach-use-inheritance t)
+
 ;; Define capture templates
 (setq org-capture-templates
       '(("t" "Blank Todo [inbox]" entry
@@ -661,13 +668,6 @@
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
-
-(use-package org-attach
-  :ensure t
-  :config
-  (setq org-attach-id-dir "~/Dropbox/org/assets/")
-  (setq org-attach-use-inheritance t)
-  )
 
 (use-package toc-org
   :commands toc-org-enable
