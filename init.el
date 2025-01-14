@@ -651,7 +651,7 @@
   :ensure t
   :custom
   (org-roam-directory (file-truename "~/Dropbox/org/pages"))
-  (org-roam-dailies-directory "../journals/")
+  (org-roam-dailies-directory "./journals/")
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
 	  ;; Accomodates for the fact that Logseq uses the "pages" directory
