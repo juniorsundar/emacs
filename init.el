@@ -298,7 +298,7 @@
          :fixed-pitch-weight regular
          :italic-family "CaskaydiaCove Nerd Font"
          :italic-slant italic
-         :variable-pitch-family "Fira Sans"
+         :variable-pitch-family "SF Pro"
          :variable-pitch-weight regular
          :variable-pitch-height 120)))
 ;; Set the default preset
