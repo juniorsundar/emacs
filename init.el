@@ -32,6 +32,7 @@
 (add-to-list 'exec-path "/usr/bin")
 (add-to-list 'exec-path "~/anaconda3/bin")
 (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
+(add-to-list 'exec-path (expand-file-name "~/.local/share/nvim/mason/bin"))
 
 ;;-----------------------------------------------------------------------------
 ;; Default Emacs Configurations
@@ -45,7 +46,7 @@
   (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
-  (display-line-numbers-type nil)           ;; Use relative line numbering.
+  (display-line-numbers-type 'relative)           ;; Use relative line numbering.
   (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
@@ -431,65 +432,66 @@
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
-;; (use-package lsp-mode
-;;   :init
-;;   (setq lsp-keymap-prefix "C-l")
-;;   :ensure t
-;;   :config
-;;   ;; (setq lsp-keymap-prefix "C-l")
-;;   (lsp-register-custom-settings
-;;    '(("pyls.plugins.pyls_mypy.enabled" t t)
-;; 	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
-;; 	 ("pyls.plugins.pyls_black.enabled" t t)
-;; 	 ("pyls.plugins.pyls_isort.enabled" t t)))
-;;   (setq lsp-gopls-server-path (executable-find "gopls"))
-;;   :hook (
-;; 		 (go-mode . lsp)
-;; 		 (python-mode . lsp)
-;; 		 ;; if you want which-key integration
-;; 		 (lsp-mode . lsp-enable-which-key-integration))
-;;   :commands lsp
-;;   :custom
-;;   (lsp-inlay-hint-enable t)                             ;; Enable inlay hints.
-;;   (lsp-completion-provider :none)                       ;; Disable the default completion provider.
-;;   (lsp-session-file (locate-user-emacs-file ".lsp-session")) ;; Specify session file location.
-;;   (lsp-log-io nil)                                      ;; Disable IO logging for speed.
-;;   (lsp-idle-delay 0)                                    ;; Set the delay for LSP to 0 (debouncing).
-;;   (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
-;;   ;; Core settings
-;;   (lsp-enable-xref t)                                   ;; Enable cross-references.
-;;   (lsp-auto-configure t)                                ;; Automatically configure LSP.
-;;   (lsp-enable-links nil)                                ;; Disable links.
-;;   (lsp-eldoc-enable-hover t)                            ;; Enable ElDoc hover.
-;;   (lsp-enable-file-watchers nil)                        ;; Disable file watchers.
-;;   (lsp-enable-folding nil)                              ;; Disable folding.
-;;   (lsp-enable-imenu t)                                  ;; Enable Imenu support.
-;;   (lsp-enable-indentation nil)                          ;; Disable indentation.
-;;   (lsp-enable-on-type-formatting nil)                   ;; Disable on-type formatting.
-;;   (lsp-enable-suggest-server-download t)                ;; Enable server download suggestion.
-;;   (lsp-enable-symbol-highlighting t)                    ;; Enable symbol highlighting.
-;;   (lsp-enable-text-document-color nil)                  ;; Disable text document color.
-;;   ;; Modeline settings
-;;   (lsp-modeline-code-actions-enable nil)                ;; Keep modeline clean.
-;;   (lsp-modeline-diagnostics-enable nil)                 ;; Use `flymake' instead.
-;;   (lsp-modeline-workspace-status-enable t)              ;; Display "LSP" in the modeline when enabled.
-;;   (lsp-signature-doc-lines 1)                           ;; Limit echo area to one line.
-;;   (lsp-eldoc-render-all t)                              ;; Render all ElDoc messages.
-;;   ;; Completion settings
-;;   (lsp-completion-enable t)                             ;; Enable completion.
-;;   (lsp-completion-enable-additional-text-edit t)        ;; Enable additional text edits for completions.
-;;   (lsp-enable-snippet nil)                              ;; Disable snippets
-;;   (lsp-completion-show-kind t)                          ;; Show kind in completions.
-;;   ;; Lens settings
-;;   (lsp-lens-enable t)                                   ;; Enable lens support.
-;;   ;; Headerline settings
-;;   (lsp-headerline-breadcrumb-enable-symbol-numbers t)   ;; Enable symbol numbers in the headerline.
-;;   (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
-;;   (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
-;;   (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
-;;   ;; Semantic settings
-;;   (lsp-semantic-tokens-enable nil)
-;;   )
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-l")
+  :ensure t
+  :config
+  ;; (setq lsp-keymap-prefix "C-l")
+  (lsp-register-custom-settings
+   '(("pyls.plugins.pyls_mypy.enabled" t t)
+	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
+	 ("pyls.plugins.pyls_black.enabled" t t)
+	 ("pyls.plugins.pyls_isort.enabled" t t)))
+  (setq lsp-gopls-server-path (executable-find "gopls"))
+  :hook (
+		 (go-mode . lsp)
+		 (python-mode . lsp)
+		 (zig-mode . lsp)
+		 ;; if you want which-key integration
+		 (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp
+  :custom
+  (lsp-inlay-hint-enable t)                             ;; Enable inlay hints.
+  (lsp-completion-provider :none)                       ;; Disable the default completion provider.
+  (lsp-session-file (locate-user-emacs-file ".lsp-session")) ;; Specify session file location.
+  (lsp-log-io nil)                                      ;; Disable IO logging for speed.
+  (lsp-idle-delay 0)                                    ;; Set the delay for LSP to 0 (debouncing).
+  (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
+  ;; Core settings
+  (lsp-enable-xref t)                                   ;; Enable cross-references.
+  (lsp-auto-configure t)                                ;; Automatically configure LSP.
+  (lsp-enable-links nil)                                ;; Disable links.
+  (lsp-eldoc-enable-hover t)                            ;; Enable ElDoc hover.
+  (lsp-enable-file-watchers nil)                        ;; Disable file watchers.
+  (lsp-enable-folding nil)                              ;; Disable folding.
+  (lsp-enable-imenu t)                                  ;; Enable Imenu support.
+  (lsp-enable-indentation nil)                          ;; Disable indentation.
+  (lsp-enable-on-type-formatting nil)                   ;; Disable on-type formatting.
+  (lsp-enable-suggest-server-download t)                ;; Enable server download suggestion.
+  (lsp-enable-symbol-highlighting t)                    ;; Enable symbol highlighting.
+  (lsp-enable-text-document-color nil)                  ;; Disable text document color.
+  ;; Modeline settings
+  (lsp-modeline-code-actions-enable nil)                ;; Keep modeline clean.
+  (lsp-modeline-diagnostics-enable nil)                 ;; Use `flymake' instead.
+  (lsp-modeline-workspace-status-enable t)              ;; Display "LSP" in the modeline when enabled.
+  (lsp-signature-doc-lines 1)                           ;; Limit echo area to one line.
+  (lsp-eldoc-render-all t)                              ;; Render all ElDoc messages.
+  ;; Completion settings
+  (lsp-completion-enable t)                             ;; Enable completion.
+  (lsp-completion-enable-additional-text-edit t)        ;; Enable additional text edits for completions.
+  (lsp-enable-snippet nil)                              ;; Disable snippets
+  (lsp-completion-show-kind t)                          ;; Show kind in completions.
+  ;; Lens settings
+  (lsp-lens-enable t)                                   ;; Enable lens support.
+  ;; Headerline settings
+  (lsp-headerline-breadcrumb-enable-symbol-numbers t)   ;; Enable symbol numbers in the headerline.
+  (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
+  (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
+  (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
+  ;; Semantic settings
+  (lsp-semantic-tokens-enable nil)
+  )
 
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
 ;; ;; Set up before-save hooks to format buffer and add/delete imports.
@@ -514,6 +516,9 @@
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
+
+(use-package zig-mode
+  :ensure t)
 
 (use-package treesit-auto
   :ensure t
