@@ -492,6 +492,7 @@
 		 (go-ts-mode . lsp)
 		 (python-ts-mode . lsp)
 		 (zig-ts-mode . lsp)
+		 (rust-ts-mode . lsp)
 		 (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
   :custom
@@ -552,6 +553,7 @@
 (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 (add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
 (add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
+(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
 ;; ;; Set up before-save hooks to format buffer and add/delete imports.
