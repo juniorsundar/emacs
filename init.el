@@ -149,20 +149,6 @@
   :init
   (global-eldoc-mode))
 
-(use-package all-the-icons
-  :ensure t ;; Ensure installed
-  :if (display-graphic-p) ;; Only load icons in graphical Emacs
-  ;; Run M-x all-the-icons-install-fonts if prompted, though system install is preferred.
-  )
-
-(use-package all-the-icons-dired
-  :ensure t ;; Ensure installed
-  :hook (dired-mode . all-the-icons-dired-mode) ;; Enable icons in dired buffers
-  :config
-  (setq all-the-icons-dired-monochrome nil) ;; Use color icons if available
-  ;; Optional: Adjust icon size relative to font height if needed
-  ;; (setq all-the-icons-dired-scale-factor 1.0)
-  )
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -608,6 +594,29 @@
 ;; Ensure the agenda files are updated before calling the agenda
 (advice-add 'org-agenda :before #'my/update-org-agenda-files)
 
+(defun my/kill-agenda-file-buffers ()
+  "Kill unmodified buffers visiting files listed in `org-agenda-files`."
+  (interactive)
+  (let ((killed-count 0)
+        ;; Ensure agenda files list is current (or rely on static setting)
+        (agenda-files (org-agenda-files t)) ; Pass 't' to maybe refresh if needed? Or just use the variable value.
+        (agenda-files-set (make-hash-table :test 'equal)))
+    ;; Create a hash set for quick lookup
+    (dolist (file agenda-files)
+      (puthash (expand-file-name file) t agenda-files-set))
+
+    (dolist (buffer (buffer-list))
+      (let ((filename (buffer-file-name buffer)))
+        (when (and filename
+                   (gethash (expand-file-name filename) agenda-files-set) ; Is it an agenda file?
+                   (not (buffer-modified-p buffer)) ; Is it unmodified?
+                   (not (eq buffer (current-buffer))) ; Is it not the current buffer?
+                   ;; Add check to avoid killing special org buffers? Maybe check name?
+                   (not (string-prefix-p "*" (buffer-name buffer))))
+          (kill-buffer buffer)
+          (setq killed-count (1+ killed-count)))))
+    (message "Killed %d agenda file buffers." killed-count)))
+
 (setq org-todo-keywords
       '((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
 (setq org-todo-keyword-faces
@@ -867,6 +876,7 @@
 ;;-----------------------------------------------------------------------------
 ;; Search
 ;;-----------------------------------------------------------------------------
+
 (use-package consult
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
