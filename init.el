@@ -46,13 +46,14 @@
   (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
-  (display-line-numbers-type 'relative)           ;; Use relative line numbering.
-  (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
+  ;; (display-line-numbers-type 'relative)           ;; Use relative line numbering.
+  ;; (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
   (history-length 25)                             ;; Set the length of the command history.
   (inhibit-startup-screen t)                      ;; Disable the startup screen.
   (initial-scratch-message "")                    ;; Clear the initial message in the *scratch* buffer.
+  (ispell-program-name "aspell")
   (ispell-dictionary "en_US")                     ;; Set the default dictionary for spell checking.
   (make-backup-files nil)                         ;; Disable creation of backup files.
   (pixel-scroll-precision-mode t)                 ;; Enable precise pixel scrolling.
@@ -324,19 +325,19 @@
       '((default
          :default-family "FiraCode Nerd Font"
          :default-weight regular
-         :default-height 110
+         :default-height 140
          :fixed-pitch-family "FiraCode Nerd Font"
          :fixed-pitch-weight regular
          :italic-family "CaskaydiaCove Nerd Font"
          :italic-slant italic
          :variable-pitch-family "SF Pro"
          :variable-pitch-weight regular
-         :variable-pitch-height 120)))
+         :variable-pitch-height 160)))
 ;; Set the default preset
 (fontaine-set-preset 'default)
 
 ;; Set Nerd Font for symbols
-(let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 18)))
+(let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 20)))
   (set-fontset-font t 'unicode font-spec nil 'prepend)
   (set-fontset-font t '(#x1F000 . #x1F02F) font-spec)  ;; Mahjong Tiles
   (set-fontset-font t '(#x1F0A0 . #x1F0FF) font-spec)  ;; Playing Cards
@@ -736,7 +737,8 @@
   :after org
   :hook (org-mode . org-superstar-mode)
   :config
-  (setq org-superstar-headline-bullets-list '("󰼏" "󰼐" "󰼑" "󰼒" "󰼓" "󰼔")))
+  ;; (setq org-superstar-headline-bullets-list '("󰼏" "󰼐" "󰼑" "󰼒" "󰼓" "󰼔"))
+  )
 
 (use-package org-tempo
   :ensure nil
