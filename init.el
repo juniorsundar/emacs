@@ -323,16 +323,16 @@
   :ensure t)
 (setq fontaine-presets
       '((default
-         :default-family "FiraCode Nerd Font"
+         :default-family "JetBrainsMono Nerd Font"
          :default-weight regular
-         :default-height 140
-         :fixed-pitch-family "FiraCode Nerd Font"
+         :default-height 120
+         :fixed-pitch-family "JetBrainsMono Nerd Font"
          :fixed-pitch-weight regular
-         :italic-family "CaskaydiaCove Nerd Font"
+         :italic-family "JetBrainsMono Nerd Font"
          :italic-slant italic
          :variable-pitch-family "SF Pro"
          :variable-pitch-weight regular
-         :variable-pitch-height 160)))
+         :variable-pitch-height 140)))
 ;; Set the default preset
 (fontaine-set-preset 'default)
 
@@ -357,7 +357,7 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "CaskaydiaCove Nerd Font")
+                    :family "JetBrainsMono Nerd Font")
 
 (use-package all-the-icons
   :ensure t)
