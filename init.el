@@ -46,7 +46,7 @@
   (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
-  ;; (display-line-numbers-type 'relative)           ;; Use relative line numbering.
+  (display-line-numbers-type 'relative)           ;; Use relative line numbering.
   ;; (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
@@ -309,13 +309,28 @@
 ;;-----------------------------------------------------------------------------
 ;; Theme
 ;;-----------------------------------------------------------------------------
-(load-config-file "catppuccin-theme/catppuccin-theme.el")
-(load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
-(setq catppuccin-flavor 'cyberdream)
-(setq catppuccin-italic-comments 't)
-(catppuccin-reload)
+;; (load-config-file "catppuccin-theme/catppuccin-theme.el")
+;; (load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
+;; (setq catppuccin-flavor 'cyberdream)
+;; (setq catppuccin-italic-comments 't)
+;; (catppuccin-reload)
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
+(use-package modus-themes
+  :ensure t
+  :config
+  ;; Add all your customizations prior to loading the themes
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t)
+
+  ;; Maybe define some palette overrides, such as by using our presets
+  ;; (setq modus-themes-common-palette-overrides
+  ;;       modus-themes-preset-overrides-intense)
+
+  ;; Load the theme of your choice.
+  (load-theme 'modus-vivendi)
+
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 ;;-----------------------------------------------------------------------------
 ;; Fonts
 ;;-----------------------------------------------------------------------------
