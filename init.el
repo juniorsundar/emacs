@@ -32,7 +32,7 @@
 (add-to-list 'exec-path "/usr/bin")
 (add-to-list 'exec-path "~/anaconda3/bin")
 (add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
-(add-to-list 'exec-path (expand-file-name "~/.local/share/nvim/mason/bin"))
+;; (add-to-list 'exec-path (expand-file-name "~/.local/share/nvim/mason/bin"))
 
 ;;-----------------------------------------------------------------------------
 ;; Default Emacs Configurations
@@ -316,21 +316,25 @@
 ;; (catppuccin-reload)
 
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
-(use-package modus-themes
+(use-package doom-themes
   :ensure t
+  :custom
+  ;; Global settings (defaults)
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  ;; for treemacs users
+  (doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   :config
-  ;; Add all your customizations prior to loading the themes
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t)
+  (load-theme 'doom-one t)
 
-  ;; Maybe define some palette overrides, such as by using our presets
-  ;; (setq modus-themes-common-palette-overrides
-  ;;       modus-themes-preset-overrides-intense)
-
-  ;; Load the theme of your choice.
-  (load-theme 'modus-vivendi)
-
-  (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (nerd-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 ;;-----------------------------------------------------------------------------
 ;; Fonts
 ;;-----------------------------------------------------------------------------
