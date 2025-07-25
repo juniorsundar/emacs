@@ -484,7 +484,7 @@
 ;;-----------------------------------------------------------------------------
 (use-package lsp-mode
   :init
-  (setq lsp-keymap-prefix "C-l")
+  (setq lsp-keymap-prefix "SPC L")
   :ensure t
   :config
   ;; (setq lsp-keymap-prefix "C-l")
