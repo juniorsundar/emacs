@@ -47,7 +47,7 @@
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
   (display-line-numbers-type 'relative)           ;; Use relative line numbering.
-  ;; (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
+  (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
   (history-length 25)                             ;; Set the length of the command history.
@@ -342,18 +342,19 @@
   :ensure t)
 (setq fontaine-presets
       '((default
-         :default-family "JetBrainsMono Nerd Font"
+         :default-family "Monaspace Neon"
          :default-weight regular
          :default-height 120
-         :fixed-pitch-family "JetBrainsMono Nerd Font"
+         :fixed-pitch-family "Monaspace Neon"
          :fixed-pitch-weight regular
-         :italic-family "JetBrainsMono Nerd Font"
+         :italic-family "Monaspace Argon"
          :italic-slant italic
          :variable-pitch-family "SF Pro"
          :variable-pitch-weight regular
          :variable-pitch-height 140)))
 ;; Set the default preset
 (fontaine-set-preset 'default)
+(setq-default line-spacing 0.2)
 
 ;; Set Nerd Font for symbols
 (let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 20)))
@@ -376,10 +377,19 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "JetBrainsMono Nerd Font")
+                    :family "Monaspace Argon")
+
+(add-hook 'org-mode-hook 'variable-pitch-mode)
+(add-hook 'markdown-mode-hook 'variable-pitch-mode)
+(add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
+(add-hook 'markdown-mode-hook (lambda () (display-line-numbers-mode -1)))
 
 (use-package all-the-icons
   :ensure t)
+
+(use-package all-the-icons-dired
+  :ensure t
+  :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package ligature
   :config
@@ -724,7 +734,7 @@
 
 ;; Customize the appearance of inline code #45475a #c6d0f5
 (custom-set-faces
- '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "JetBrainsMono NFM")))))
+ '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "Monaspace Neon")))))
 
 (use-package org-roam
   :ensure t
