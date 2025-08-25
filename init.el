@@ -342,19 +342,19 @@
   :ensure t)
 (setq fontaine-presets
       '((default
-         :default-family "Monaspace Neon"
+         :default-family "IosevkaTerm Nerd Font"
          :default-weight regular
-         :default-height 120
-         :fixed-pitch-family "Monaspace Neon"
+         :default-height 140
+         :fixed-pitch-family "IosevkaTerm Nerd Font"
          :fixed-pitch-weight regular
-         :italic-family "Monaspace Argon"
+         :italic-family "IosevkaTerm Nerd Font"
          :italic-slant italic
-         :variable-pitch-family "SF Pro"
+         :variable-pitch-family "Iosevka Aile"
          :variable-pitch-weight regular
-         :variable-pitch-height 140)))
+         :variable-pitch-height 160)))
 ;; Set the default preset
 (fontaine-set-preset 'default)
-(setq-default line-spacing 0.2)
+;; (setq-default line-spacing 0.2)
 
 ;; Set Nerd Font for symbols
 (let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 20)))
@@ -377,7 +377,7 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "Monaspace Argon")
+                    :family "IosevkaTerm Nerd Font")
 
 (add-hook 'org-mode-hook 'variable-pitch-mode)
 (add-hook 'markdown-mode-hook 'variable-pitch-mode)
@@ -386,10 +386,6 @@
 
 (use-package all-the-icons
   :ensure t)
-
-(use-package all-the-icons-dired
-  :ensure t
-  :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package ligature
   :config
@@ -734,7 +730,7 @@
 
 ;; Customize the appearance of inline code #45475a #c6d0f5
 (custom-set-faces
- '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "Monaspace Neon")))))
+ '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "IosevkaTerm Nerd Font")))))
 
 (use-package org-roam
   :ensure t
