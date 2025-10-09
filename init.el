@@ -4,7 +4,6 @@
 ;; Package-Requires: ((emacs "30.0"))
 
 (setq gc-cons-threshold #x40000000)
-;; Increase the amount of data which Emacs reads from the process
 (setq read-process-output-max (* 1024 1024 4))
 
 ;;-----------------------------------------------------------------------------
@@ -25,14 +24,14 @@
 ;;-----------------------------------------------------------------------------
 ;; Add to search paths
 ;;-----------------------------------------------------------------------------
-(add-to-list 'exec-path "/usr/local/go/bin")
-(add-to-list 'exec-path "/usr/local/bin")
-(add-to-list 'exec-path "~/.local/bin")
-(add-to-list 'exec-path "~/go/bin")
-(add-to-list 'exec-path "/usr/bin")
-(add-to-list 'exec-path "~/anaconda3/bin")
-(add-to-list 'exec-path "~/.nvm/versions/node/v20.15.0/bin/")
-;; (add-to-list 'exec-path (expand-file-name "~/.local/share/nvim/mason/bin"))
+(dolist (path '("/usr/local/go/bin"
+                "/usr/local/bin"
+                "~/.local/bin"
+                "~/go/bin"
+                "/usr/bin"
+                "~/anaconda3/bin"
+                "~/.nvm/versions/node/v20.15.0/bin/"))
+  (add-to-list 'exec-path (expand-file-name path)))
 
 ;;-----------------------------------------------------------------------------
 ;; Default Emacs Configurations
@@ -40,8 +39,7 @@
 (use-package emacs
   :ensure nil
   :custom
-  ;; General Settings
-  ;; (column-number-mode t)                          ;; Display the column number in the mode line.
+  (frame-resize-pixelwise t)
   (auto-save-default nil)                         ;; Disable automatic saving of buffers.
   (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
@@ -137,7 +135,7 @@
 
   :hook
   (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
-  (prog-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
+  ;; (prog-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
   )
 
 (savehist-mode) ;; Enables save history mode
@@ -146,31 +144,48 @@
   :hook ('eshell-load-hook #'eat-eshell-mode))
 
 (use-package eldoc
-  :ensure nil          ;; This is built-in, no need to fetch it.
+  :ensure nil
   :init
   (global-eldoc-mode))
 
+(use-package ibuffer-projectile
+  :ensure t
+  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
+  )
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
   :custom
-  (dired-listing-switches "-lah --group-directories-first")  ;; Display files in a human-readable format and group directories first.
+  (dired-listing-switches "-lah -v --group-directories-first")  ;; Display files in a human-readable format and group directories first.
   (dired-dwim-target t)                                      ;; Enable "do what I mean" for target directories.
   (dired-guess-shell-alist-user
    '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open") ;; Open image files with `feh' or the default viewer.
      ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv'.
      (".*" "open" "xdg-open")))                              ;; Default opening command for other files.
-  (dired-kill-when-opening-new-dired-buffer t)               ;; Close the previous buffer when opening a new `dired' instance.
+  (dired-kill-when-opening-new-dired-buffer t)
+  (dired-auto-revert-buffer #'dired-buffer-stale-p)
+  (dired-recursive-copies  'always)
+  (dired-recursive-deletes 'top)
+  (dired-create-destination-dirs 'ask)
+  (image-dired-dir (concat doom-cache-dir "image-dired/"))
+  (image-dired-db-file (concat image-dired-dir "db.el"))
+  (image-dired-gallery-dir (concat image-dired-dir "gallery/"))
+  (image-dired-temp-image-file (concat image-dired-dir "temp-image"))
+  (image-dired-temp-rotate-image-file (concat image-dired-dir "temp-rotate-image"))
+  (image-dired-thumb-size 150)
   :config
   (when (eq system-type 'darwin)
-    (let ((gls (executable-find "gls")))                     ;; Use GNU ls on macOS if available.
-      (when gls
-        (setq insert-directory-program gls)))))
+	(let ((gls (executable-find "gls")))
+	  (when gls
+		(setq insert-directory-program gls)))))
+
+(use-package diredfl
+  :hook (dired-mode . diredfl-mode))
 
 (use-package flymake
-  :ensure nil          ;; This is built-in, no need to fetch it.
+  :ensure nil
   :defer t
-  :hook (prog-mode . flymake-mode)
+  :hook ((prog-mode text-mode) . flymake-mode)
   :custom
   (flymake-margin-indicators-string
    '((error "!»" compilation-error) (warning "»" compilation-warning)
@@ -263,7 +278,6 @@
 		("M-<left>" . evil-shift-left)
 		("M-<right>". evil-shift-right)
 		)
-  ;; Bindings for VISUAL state (newly integrated)
   )
 
 (use-package evil-surround
@@ -274,37 +288,23 @@
 
 (use-package evil-collection
   :ensure t
-  :after evil ;; Ensure evil is loaded first
+  :after evil
   :config
-  ;; Just initialize it. It will automatically set up integrations
-  ;; for all supported packages it finds (like dired, magit, corfu, vertico, etc.)
-  ;; No need to set evil-collection-mode-list unless you specifically want to *exclude* modes.
   (evil-collection-init))
 
 (use-package avy
-  :ensure t
-  )
+  :ensure t)
+
+(use-package evil-commentary
+  :after evil
+  :config (evil-commentary-mode))
 
 (use-package evil-avy
-  :ensure t
-  :after (evil avy) ;; Ensure both are loaded first
+  :after (evil avy)
   :config
-  (evil-define-key '(normal visual) 'global "gy" #'avy-goto-char-timer)
-  (evil-define-key '(normal visual) 'global "gl" #'avy-goto-line)
-  (evil-define-key '(normal visual) 'global "gw" #'avy-goto-word-1)
-  (general-define-key
-   :keymaps 'evil-normal-state-map
-   "SPC j c" 'avy-goto-char-timer
-   "SPC j l" 'avy-goto-line
-   "SPC j w" 'avy-goto-word-1
-   )
-  (general-define-key
-   :keymaps 'evil-visual-state-map
-   "SPC j c" 'avy-goto-char-timer
-   "SPC j l" 'avy-goto-line
-   "SPC j w" 'avy-goto-word-1
-   )
-  )
+  ;; (evil-define-key '(normal visual) 'global "gy" #'avy-goto-char-timer)
+  ;; (evil-define-key '(normal visual) 'global "" #'avy-goto-line)
+  (evil-define-key '(normal visual) 'global "s" #'avy-goto-word-1))
 
 ;;-----------------------------------------------------------------------------
 ;; Theme
@@ -319,21 +319,14 @@
 (use-package doom-themes
   :ensure t
   :custom
-  ;; Global settings (defaults)
-  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
-  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; for treemacs users
-  (doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italic t)
+  (doom-themes-treemacs-theme "doom-atom")
   :config
   (load-theme 'doom-one t)
-
-  ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (nerd-icons must be installed!)
   (doom-themes-neotree-config)
-  ;; or for treemacs users
   (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 ;;-----------------------------------------------------------------------------
 ;; Fonts
@@ -344,21 +337,21 @@
       '((default
          :default-family "IosevkaTerm Nerd Font"
          :default-weight regular
-         :default-height 140
+         :default-height 120
          :fixed-pitch-family "IosevkaTerm Nerd Font"
          :fixed-pitch-weight regular
          :italic-family "IosevkaTerm Nerd Font"
          :italic-slant italic
          :variable-pitch-family "Iosevka Aile"
          :variable-pitch-weight regular
-         :variable-pitch-height 160)))
+         :variable-pitch-height 140)))
 ;; Set the default preset
 (fontaine-set-preset 'default)
 ;; (setq-default line-spacing 0.2)
 
 ;; Set Nerd Font for symbols
 (let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 20)))
-  (set-fontset-font t 'unicode font-spec nil 'prepend)
+  ;; (set-fontset-font t 'unicode font-spec nil 'prepend)
   (set-fontset-font t '(#x1F000 . #x1F02F) font-spec)  ;; Mahjong Tiles
   (set-fontset-font t '(#x1F0A0 . #x1F0FF) font-spec)  ;; Playing Cards
   (set-fontset-font t '(#x1F300 . #x1F5FF) font-spec)  ;; Misc Symbols and Pictographs
@@ -373,88 +366,56 @@
   (set-fontset-font t '(#x2600 . #x26FF) font-spec)    ;; Miscellaneous Symbols
   (set-fontset-font t '(#x2700 . #x27BF) font-spec))  ;; Dingbats
 
-;; Ensure the italic face is only italic and not underlined
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
                     :family "IosevkaTerm Nerd Font")
 
-(add-hook 'org-mode-hook 'variable-pitch-mode)
-(add-hook 'markdown-mode-hook 'variable-pitch-mode)
+;; (add-hook 'org-mode-hook 'variable-pitch-mode)
+;; (add-hook 'markdown-mode-hook 'variable-pitch-mode)
 (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
 (add-hook 'markdown-mode-hook (lambda () (display-line-numbers-mode -1)))
 
 (use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p)
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package all-the-icons-dired
   :ensure t)
 
 (use-package ligature
   :config
-  ;; Enable the "www" ligature in every possible major mode
   (ligature-set-ligatures 't '("www"))
-  ;; Enable traditional ligature support in eww-mode, if the
-  ;; `variable-pitch' face supports it
   (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
-  ;; Enable all Cascadia and Fira Code ligatures in programming modes
   (ligature-set-ligatures 't
-						  '(;; == === ==== => =| =>>=>=|=>==>> ==< =/=//=// =~
-							;; =:= =!=
-							("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
-							;; ;; ;;;
+						  '(("=" (rx (+ (or ">" "<" "|" "/" "~" ":" "!" "="))))
 							(";" (rx (+ ";")))
-							;; && &&&
 							("&" (rx (+ "&")))
-							;; !! !!! !. !: !!. != !== !~
 							("!" (rx (+ (or "=" "!" "\." ":" "~"))))
-							;; ?? ??? ?:  ?=  ?.
 							("?" (rx (or ":" "=" "\." (+ "?"))))
-							;; %% %%%
 							("%" (rx (+ "%")))
-							;; |> ||> |||> ||||> |] |} || ||| |-> ||-||
-							;; |->>-||-<<-| |- |== ||=||
-							;; |==>>==<<==<=>==//==/=!==:===>
 							("|" (rx (+ (or ">" "<" "|" "/" ":" "!" "}" "\]"
 											"-" "=" ))))
-							;; \\ \\\ \/
 							("\\" (rx (or "/" (+ "\\"))))
-							;; ++ +++ ++++ +>
 							("+" (rx (or ">" (+ "+"))))
-							;; :: ::: :::: :> :< := :// ::=
 							(":" (rx (or ">" "<" "=" "//" ":=" (+ ":"))))
-							;; // /// //// /\ /* /> /===:===!=//===>>==>==/
 							("/" (rx (+ (or ">"  "<" "|" "/" "\\" "\*" ":" "!"
 											"="))))
-							;; .. ... .... .= .- .? ..= ..<
 							("\." (rx (or "=" "-" "\?" "\.=" "\.<" (+ "\."))))
-							;; -- --- ---- -~ -> ->> -| -|->-->>->--<<-|
 							("-" (rx (+ (or ">" "<" "|" "~" "-"))))
-							;; *> */ *)  ** *** ****
 							("*" (rx (or ">" "/" ")" (+ "*"))))
-							;; www wwww
 							("w" (rx (+ "w")))
-							;; <> <!-- <|> <: <~ <~> <~~ <+ <* <$ </  <+> <*>
-							;; <$> </> <|  <||  <||| <|||| <- <-| <-<<-|-> <->>
-							;; <<-> <= <=> <<==<<==>=|=>==/==//=!==:=>
-							;; << <<< <<<<
 							("<" (rx (+ (or "\+" "\*" "\$" "<" ">" ":" "~"  "!"
 											"-"  "/" "|" "="))))
-							;; >: >- >>- >--|-> >>-|-> >= >== >>== >=|=:=>>
-							;; >> >>> >>>>
 							(">" (rx (+ (or ">" "<" "|" "/" ":" "=" "-"))))
-							;; #: #= #! #( #? #[ #{ #_ #_( ## ### #####
 							("#" (rx (or ":" "=" "!" "(" "\?" "\[" "{" "_(" "_"
 										 (+ "#"))))
-							;; ~~ ~~~ ~=  ~-  ~@ ~> ~~>
 							("~" (rx (or ">" "=" "-" "@" "~>" (+ "~"))))
-							;; __ ___ ____ _|_ __|____|_
 							("_" (rx (+ (or "_" "|"))))
-							;; Fira code: 0xFF 0x12
 							("0" (rx (and "x" (+ (in "A-F" "a-f" "0-9")))))
-							;; Fira code:
 							"Fl"  "Tl"  "fi"  "fj"  "fl"  "ft"
-							;; The few not covered by the regexps.
 							"{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^="))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
   (global-ligature-mode t))
 
 ;;-----------------------------------------------------------------------------
@@ -467,6 +428,7 @@
   (doom-modeline-bar-width 5)   ;; Sets right bar width
   (doom-modeline-persp-name t)  ;; Adds perspective name to modeline
   (doom-modeline-persp-icon t)
+  (doom-modeline-buffer-encoding nil)
   (doom-modeline-enable-word-count t)) ;; Adds folder icon next to persp name
 
 ;;-----------------------------------------------------------------------------
@@ -476,24 +438,23 @@
   :init
   (projectile-mode)
   :custom
-  (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
-  (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
+  (projectile-run-use-comint-mode t)
+  (projectile-switch-project-action #'projectile-dired)
   (projectile-project-search-path '("~/Documents/Projects/"
 									;; "~/Documents/work/"
 									)
 								  )
-  ) ;; . 1 means only search the first subdirectory level for projects
-;; Use Bookmarks for smaller, not standard projects
+  )
 
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
+
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "SPC L")
   :ensure t
   :config
-  ;; (setq lsp-keymap-prefix "C-l")
   (lsp-register-custom-settings
    '(("pyls.plugins.pyls_mypy.enabled" t t)
 	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
@@ -514,7 +475,6 @@
   (lsp-log-io nil)                                      ;; Disable IO logging for speed.
   (lsp-idle-delay 0.1)                                    ;; Set the delay for LSP to 0 (debouncing).
   (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
-  ;; Core settings
   (lsp-enable-xref t)                                   ;; Enable cross-references.
   (lsp-auto-configure t)                                ;; Automatically configure LSP.
   (lsp-enable-links nil)                                ;; Disable links.
@@ -545,9 +505,8 @@
   (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
   (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
   (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
-  ;; Semantic settings
   (lsp-semantic-tokens-enable t)
-  :bind (:map lsp-mode-map ;; Bind only when lsp-mode is active
+  :bind (:map lsp-mode-map
               ("C-l d" . consult-flymake))
   )
 
@@ -805,17 +764,16 @@
 (use-package diff-hl
   :defer t
   :ensure t
-  :hook ((find-file . diff-hl-mode)                ;; Enable Diff-HL on file open.
-         (after-save . diff-hl-update)             ;; Update diffs after save.
-         (vc-dir-mode . diff-hl-dir-mode)          ;; Enable in version control directories.
-         (dired-mode . diff-hl-dired-mode))        ;; Enable in Dired mode.
+  :hook ((find-file . diff-hl-mode)
+         (after-save . diff-hl-update)
+         (vc-dir-mode . diff-hl-dir-mode))
   :init
-  (global-diff-hl-mode 1)                            ;; Enable Diff-HL globally.
+  (global-diff-hl-mode 1)
   :config
-  (diff-hl-flydiff-mode 1)                           ;; Auto-refresh diffs.
-  (diff-hl-margin-mode 1)                            ;; Show indicators in the margin.
+  (diff-hl-flydiff-mode 1)
+  (diff-hl-margin-mode 1)
   :custom
-  (diff-hl-side 'left)                             ;; Set the side for diff indicators.
+  (diff-hl-side 'left)
   (diff-hl-margin-symbols-alist '((insert . "│")   ;; Customize symbols for each change type.
                                   (delete . "-")
                                   (change . "│")
@@ -829,39 +787,24 @@
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-prefix 2)          ;; Minimum length of prefix for auto completion.
+  (corfu-auto-prefix 1)          ;; Minimum length of prefix for auto completion.
   (corfu-separator ?\s)          ;; Orderless field separator, Use M-SPC to enter separator
   (corfu-quit-at-boundary 'separator)   ;; Never quit at completion boundary
   (corfu-preview-current nil)    ;; Disable current candidate preview
   (corfu-popupinfo-mode t)       ;; Enable popup information
   (corfu-popupinfo-delay 0.5)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
   (completion-ignore-case t)
-  ;; Enable indentation+completion using the TAB key.
-  ;; `completion-at-point' is often bound to M-TAB.
-  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-  ;; be used globally (M-/).  See also the customization variable
-  ;; `global-corfu-modes' to exclude certain modes.
   :init
   (global-corfu-mode))
 
 (use-package cape
   :after corfu
   :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  ;; The functions that are added later will be the first in the list
-
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev nil t) ;; Complete word from current buffers
-  (add-to-list 'completion-at-point-functions #'cape-dict nil t) ;; Dictionary completion
-  (add-to-list 'completion-at-point-functions #'cape-file nil t) ;; Path completion
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block nil t) ;; Complete elisp in Org or Markdown mode
-  (add-to-list 'completion-at-point-functions #'cape-keyword nil t) ;; Keyword/Snipet completion
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev) ;; Complete word from current buffers
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict) ;; Dictionary completion
+  (add-to-list 'completion-at-point-functions #'cape-file) ;; Path completion
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block) ;; Complete elisp in Org or Markdown mode
+  (add-to-list 'completion-at-point-functions #'cape-keyword) ;; Keyword/Snipet completion
 
   ;;(add-to-list 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
   ;;(add-to-list 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
@@ -874,8 +817,6 @@
 
 (use-package orderless
   :custom
-  ;; (orderless-style-dispatchers '(orderless-affix-dispatch))
-  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
@@ -891,12 +832,8 @@
 
 (use-package marginalia
   :after vertico
-  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
-  ;; available in the *Completions* buffer, add it to the
-  ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
 			  ("M-A" . marginalia-cycle))
-  ;; The :init section is always executed.
   :init
   (marginalia-mode))
 
@@ -905,65 +842,36 @@
 ;;-----------------------------------------------------------------------------
 
 (use-package consult
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
 		register-preview-function #'consult-register-format)
-
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
 		xref-show-definitions-function #'consult-xref)
   :config
-  ;; Optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key "M-.")
-  ;; (setq consult-project-function nil)
-  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
-
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
-  consult-theme :preview-key '(:debounce 0.2 any)
-  consult-ripgrep consult-git-grep consult-grep consult-fd
-  consult-bookmark consult-recent-file consult-xref
-  consult--source-bookmark consult--source-file-register
-  consult--source-recent-file consult--source-project-recent-file
-  ;; :preview-key "M-."
-  :preview-key '(:debounce 0.4 any))
-
-  ;; By default `consult-project-function' uses `project-root' from project.el.
-  ;; Optionally configure a different project root function.
-		 ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
-		 ;;;; 2. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-		 ;;;; 3. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-		 ;;;; 4. projectile.el (projectile-project-root)
-  ;; (autoload 'projectile-project-root "projectile")
-  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-		 ;;;; 5. No project support
-  ;; (setq consult-project-function nil)
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep consult-fd
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   :preview-key '(:debounce 0.4 any))
   )
 
 (use-package embark
   :ensure t
-  :defer t)
+  :defer t
+  :bind
+  (("C-q" . embark-act)
+   ("C-;" . embark-dwim)
+   ("C-h B" . embark-bindings))
+  )
 
 (use-package embark-consult
   :ensure t
   :hook
-  (embark-collect-mode . consult-preview-at-point-mode)) ;; Enable preview in Embark collect mode.
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 ;;-----------------------------------------------------------------------------
 ;; Key Binders
@@ -971,16 +879,14 @@
 (use-package general
   :config
   (general-evil-setup)
-  ;; Set up 'SPC' as the leader key
   (general-create-definer start/leader-keys
 	:states '(normal insert visual motion emacs)
 	:keymaps 'override
-	:prefix "SPC"           ;; Set leader key
-	:global-prefix "C-SPC") ;; Set global leader key
+	:prefix "SPC"
+	:global-prefix "C-SPC")
   
   (start/leader-keys
 	"." '(find-file :wk "Find file")
-	"TAB" '(comment-line :wk "Comment lines")
 	"p" '(projectile-command-map :wk "Projectile command map"))
   
   (start/leader-keys
@@ -1024,11 +930,11 @@
 
 	"o t" '(:ignore t :which-key "TODO States")
 	"o t t" '(org-todo :which-key "Set TODO")
-	"o t d" '(lambda () (interactive) (org-todo "DOING") :which-key "Set DOING")
-	"o t h" '(lambda () (interactive) (org-todo "HOLD") :which-key "Set HOLD")
-	"o t D" '(lambda () (interactive) (org-todo "DONE") :which-key "Set DONE")
-	"o t c" '(lambda () (interactive) (org-todo "CANCELLED") :which-key "Set CANCELLED")
-	"o t m" '(lambda () (interactive) (org-todo "MAYBE") :which-key "Set MAYBE"))
+	"o t d" '((lambda () (interactive) (org-todo "DOING")) :which-key "Set DOING")
+	"o t h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "Set HOLD")
+	"o t D" '((lambda () (interactive) (org-todo "DONE")) :which-key "Set DONE")
+	"o t c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "Set CANCELLED")
+	"o t m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "Set MAYBE"))
   
   (start/leader-keys
 	"o a" '(:ignore t :wk "Org Agenda")
@@ -1051,5 +957,5 @@
 	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
 
   (start/leader-keys
-	"-" '(lambda () (interactive) (dired default-directory) :wk "Open"))
+	"-" '((lambda () (interactive) (dired default-directory)) :wk "Open"))
   )
