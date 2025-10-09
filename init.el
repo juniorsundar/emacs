@@ -140,8 +140,8 @@
 
 (savehist-mode) ;; Enables save history mode
 
-(use-package eat
-  :hook ('eshell-load-hook #'eat-eshell-mode))
+(use-package vterm
+    :ensure t)
 
 (use-package eldoc
   :ensure nil
@@ -449,6 +449,9 @@
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
+(use-package direnv
+ :config
+ (direnv-mode))
 
 (use-package lsp-mode
   :init
