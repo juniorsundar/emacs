@@ -453,81 +453,27 @@
  :config
  (direnv-mode))
 
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "SPC L")
-  :ensure t
-  :config
-  (lsp-register-custom-settings
-   '(("pyls.plugins.pyls_mypy.enabled" t t)
-	 ("pyls.plugins.pyls_mypy.live_mode" nil t)
-	 ("pyls.plugins.pyls_black.enabled" t t)
-	 ("pyls.plugins.pyls_isort.enabled" t t)))
-  (setq lsp-gopls-server-path (executable-find "gopls"))
-  :hook (
-		 (go-ts-mode . lsp)
-		 (python-ts-mode . lsp)
-		 (zig-ts-mode . lsp)
-		 (rust-ts-mode . lsp)
-		 (lsp-mode . lsp-enable-which-key-integration))
-  :commands (lsp lsp-deferred)
+(use-package eglot
+  :ensure nil ;; Eglot is built-in in Emacs 29+
+  :hook ((go-ts-mode . eglot-ensure)
+         (python-ts-mode . eglot-ensure)
+         (zig-ts-mode . eglot-ensure)
+         (rust-ts-mode . eglot-ensure)
+         ;; Add a hook to enable format-on-save for eglot-managed buffers
+         (eglot-managed-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer nil t))))
   :custom
-  (lsp-inlay-hint-enable t)                             ;; Enable inlay hints.
-  (lsp-completion-provider :none)                       ;; Disable the default completion provider.
-  (lsp-session-file (locate-user-emacs-file ".lsp-session")) ;; Specify session file location.
-  (lsp-log-io nil)                                      ;; Disable IO logging for speed.
-  (lsp-idle-delay 0.1)                                    ;; Set the delay for LSP to 0 (debouncing).
-  (lsp-keep-workspace-alive nil)                        ;; Disable keeping the workspace alive.
-  (lsp-enable-xref t)                                   ;; Enable cross-references.
-  (lsp-auto-configure t)                                ;; Automatically configure LSP.
-  (lsp-enable-links nil)                                ;; Disable links.
-  (lsp-eldoc-enable-hover t)                            ;; Enable ElDoc hover.
-  (lsp-enable-file-watchers nil)                        ;; Disable file watchers.
-  (lsp-enable-folding t)                              ;; Disable folding.
-  (lsp-enable-imenu t)                                  ;; Enable Imenu support.
-  (lsp-enable-indentation t)                          ;; Disable indentation.
-  (lsp-enable-on-type-formatting nil)                   ;; Disable on-type formatting.
-  (lsp-enable-suggest-server-download t)                ;; Enable server download suggestion.
-  (lsp-enable-symbol-highlighting t)                    ;; Enable symbol highlighting.
-  (lsp-enable-text-document-color t)                  ;; Disable text document color.
-  ;; Modeline settings
-  (lsp-modeline-code-actions-enable t)                ;; Keep modeline clean.
-  (lsp-modeline-diagnostics-enable t)                 ;; Use `flymake' instead.
-  (lsp-modeline-workspace-status-enable t)              ;; Display "LSP" in the modeline when enabled.
-  (lsp-signature-doc-lines 1)                           ;; Limit echo area to one line.
-  (lsp-eldoc-render-all nil)                              ;; Render all ElDoc messages.
-  ;; Completion settings
-  (lsp-completion-enable t)                             ;; Enable completion.
-  (lsp-completion-enable-additional-text-edit t)        ;; Enable additional text edits for completions.
-  (lsp-enable-snippet t)                              ;; Disable snippets
-  (lsp-completion-show-kind t)                          ;; Show kind in completions.
-  ;; Lens settings
-  (lsp-lens-enable t)                                   ;; Enable lens support.
-  ;; Headerline settings
-  (lsp-headerline-breadcrumb-enable-symbol-numbers t)   ;; Enable symbol numbers in the headerline.
-  (lsp-headerline-arrow "▶")                            ;; Set arrow for headerline.
-  (lsp-headerline-breadcrumb-enable-diagnostics nil)    ;; Disable diagnostics in headerline.
-  (lsp-headerline-breadcrumb-icons-enable nil)          ;; Disable icons in breadcrumb.
-  (lsp-semantic-tokens-enable t)
-  :bind (:map lsp-mode-map
-              ("C-l d" . consult-flymake))
-  )
+  (eglot-autoshutdown t) ;; Automatically shut down server when last buffer is killed
+  (eglot-inlay-hints-mode nil)
+  :bind (:map eglot-mode-map
+              ("C-l d" . consult-flymake)))
 
-(use-package lsp-ui
-  :ensure t
-  :config
-  (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-doc-position 'top)
-  (setq lsp-ui-doc-side 'right)
-  (setq lsp-ui-doc-show-with-cursor t)
-  (setq lsp-ui-sideline-enable t) ; Sane default
-  (setq lsp-ui-sideline-show-code-actions t)
-  )
+(use-package markdown-mode)
 
 (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 (add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
 (add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
+(add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
 
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
 ;; ;; Set up before-save hooks to format buffer and add/delete imports.
