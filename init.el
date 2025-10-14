@@ -9,12 +9,12 @@
 ;;-----------------------------------------------------------------------------
 ;; Set up use-package and add possibility for custom configs
 ;;-----------------------------------------------------------------------------
-(require 'use-package-ensure) ;; Load use-package-always-ensure
-(setq use-package-always-ensure t) ;; Always ensures that a package is installed
-(setq package-archives '(("melpa" . "https://melpa.org/packages/") ;; Sets default package repositories
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
 						 ("org" . "https://orgmode.org/elpa/")
 						 ("elpa" . "https://elpa.gnu.org/packages/")
-						 ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
+						 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 (defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
   "Directory containing my configuration files.")
@@ -23,7 +23,7 @@
 
 ;;-----------------------------------------------------------------------------
 ;; Add to search paths
-;;-----------------------------------------------------------------------------
+;;----------------------------------------------------------------------------
 (dolist (path '("/usr/local/go/bin"
                 "/usr/local/bin"
                 "~/.local/bin"
@@ -79,7 +79,6 @@
   (treesit-font-lock-level 4)                     ;; Advanced font locking with Treesit.
 
   :init
-  ;; UI Settings
   (tool-bar-mode -1)                              ;; Disable the toolbar.
   (menu-bar-mode -1)                              ;; Disable the menu bar.
   (scroll-bar-mode -1)                            ;; Disable the scroll bar.
@@ -189,7 +188,9 @@
   :custom
   (flymake-margin-indicators-string
    '((error "!»" compilation-error) (warning "»" compilation-warning)
-	 (note "»" compilation-info))))
+	 (note "»" compilation-info)))
+  (flymake-fringe-indicator-position 'right-fringe)
+  )
 
 (use-package which-key
   :init
@@ -199,9 +200,9 @@
   (which-key-side-window-location 'bottom)
   (which-key-sort-order #'which-key-key-order-alpha) ;; Same as default, except single characters are sorted alphabetically
   (which-key-sort-uppercase-first nil)
-  (which-key-add-column-padding 1) ;; Number of spaces to add to the left of each column
-  (which-key-min-display-lines 6)  ;; Increase the minimum lines to display, because the default is only 1
-  (which-key-idle-delay 0.8)       ;; Set the time delay (in seconds) for the which-key popup to appear
+  (which-key-add-column-padding 1)
+  (which-key-min-display-lines 6)
+  (which-key-idle-delay 0.0)
   (which-key-max-description-length 25)
   (which-key-allow-imprecise-window-fit nil)) ;; Fixes which-key window slipping out in Emacs Daemon
 
@@ -302,8 +303,6 @@
 (use-package evil-avy
   :after (evil avy)
   :config
-  ;; (evil-define-key '(normal visual) 'global "gy" #'avy-goto-char-timer)
-  ;; (evil-define-key '(normal visual) 'global "" #'avy-goto-line)
   (evil-define-key '(normal visual) 'global "s" #'avy-goto-word-1))
 
 ;;-----------------------------------------------------------------------------
@@ -350,21 +349,9 @@
 ;; (setq-default line-spacing 0.2)
 
 ;; Set Nerd Font for symbols
-(let ((font-spec (font-spec :family "Symbols Nerd Font Mono" :size 20)))
-  ;; (set-fontset-font t 'unicode font-spec nil 'prepend)
-  (set-fontset-font t '(#x1F000 . #x1F02F) font-spec)  ;; Mahjong Tiles
-  (set-fontset-font t '(#x1F0A0 . #x1F0FF) font-spec)  ;; Playing Cards
-  (set-fontset-font t '(#x1F300 . #x1F5FF) font-spec)  ;; Misc Symbols and Pictographs
-  (set-fontset-font t '(#x1F600 . #x1F64F) font-spec)  ;; Emoticons
-  (set-fontset-font t '(#x1F680 . #x1F6FF) font-spec)  ;; Transport and Map
-  (set-fontset-font t '(#x1F700 . #x1F77F) font-spec)  ;; Alchemical Symbols
-  (set-fontset-font t '(#x1F780 . #x1F7FF) font-spec)  ;; Geometric Shapes Extended
-  (set-fontset-font t '(#x1F800 . #x1F8FF) font-spec)  ;; Supplemental Arrows-C
-  (set-fontset-font t '(#x1F900 . #x1F9FF) font-spec)  ;; Supplemental Symbols and Pictographs
-  (set-fontset-font t '(#x1FA00 . #x1FA6F) font-spec)  ;; Chess Symbols
-  (set-fontset-font t '(#x1FA70 . #x1FAFF) font-spec)  ;; Symbols and Pictographs Extended-A
-  (set-fontset-font t '(#x2600 . #x26FF) font-spec)    ;; Miscellaneous Symbols
-  (set-fontset-font t '(#x2700 . #x27BF) font-spec))  ;; Dingbats
+(when (member "Noto Color Emoji" (font-family-list))
+  (set-fontset-font
+    t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
 
 (set-face-attribute 'italic nil
                     :underline nil
@@ -375,6 +362,7 @@
 ;; (add-hook 'markdown-mode-hook 'variable-pitch-mode)
 (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
 (add-hook 'markdown-mode-hook (lambda () (display-line-numbers-mode -1)))
+(add-hook 'ibuffer-mode-hook (lambda () (display-line-numbers-mode -1)))
 
 (use-package all-the-icons
   :ensure t
@@ -424,12 +412,12 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom
-  (doom-modeline-height 25)     ;; Sets modeline height
-  (doom-modeline-bar-width 5)   ;; Sets right bar width
-  (doom-modeline-persp-name t)  ;; Adds perspective name to modeline
+  (doom-modeline-height 25)
+  (doom-modeline-bar-width 5)
+  (doom-modeline-persp-name t)
   (doom-modeline-persp-icon t)
   (doom-modeline-buffer-encoding nil)
-  (doom-modeline-enable-word-count t)) ;; Adds folder icon next to persp name
+  (doom-modeline-enable-word-count t))
 
 ;;-----------------------------------------------------------------------------
 ;; Projectile
@@ -454,18 +442,21 @@
  (direnv-mode))
 
 (use-package eglot
-  :ensure nil ;; Eglot is built-in in Emacs 29+
+  :ensure nil
   :hook ((go-ts-mode . eglot-ensure)
          (python-ts-mode . eglot-ensure)
          (zig-ts-mode . eglot-ensure)
          (rust-ts-mode . eglot-ensure)
-         ;; Add a hook to enable format-on-save for eglot-managed buffers
-         (eglot-managed-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer nil t))))
+		 )
   :custom
-  (eglot-autoshutdown t) ;; Automatically shut down server when last buffer is killed
-  (eglot-inlay-hints-mode nil)
-  :bind (:map eglot-mode-map
-              ("C-l d" . consult-flymake)))
+  (eglot-autoshutdown t)
+  (eldoc-echo-area-use-multiline-p nil)
+  (eglot-code-action-suggestion nil)
+  :config
+  (setq eglot-inlay-hints-mode nil)
+  (setq eglot-code-action-indicator "")
+  (setq eglot-code-action-indications '(mode-line))
+  )
 
 (use-package markdown-mode)
 
@@ -474,14 +465,6 @@
 (add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
-
-;; (add-hook 'go-mode-hook #'lsp-deferred)
-;; ;; Set up before-save hooks to format buffer and add/delete imports.
-;; ;; Make sure you don't have other gofmt/goimports hooks enabled.
-;; (defun lsp-go-install-save-hooks ()
-;;   (add-hook 'before-save-hook #'lsp-format-buffer t t)
-;;   (add-hook 'before-save-hook #'lsp-organize-imports t t))
-;; (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
@@ -494,58 +477,62 @@
   (setq treesit-auto-add-to-auto-mode-alist 'all)
   (setq global-treesit-auto-mode t))
 
+(use-package treesit-fold
+  :ensure t
+  :hook (prog-mode . global-treesit-fold-mode)
+  :config
+  (evil-define-key '(normal visual) 'global
+    "za" #'treesit-fold-toggle
+    "zc" #'treesit-fold-close
+    "zo" #'treesit-fold-open
+    "zC" #'treesit-fold-close-all
+    "zO" #'treesit-fold-open-all
+    "zR" #'treesit-fold-open-all
+    "zM" #'treesit-fold-close-all
+    "zr" #'treesit-fold-open-recursively
+    "zm" #'treesit-fold-close))
 ;;-----------------------------------------------------------------------------
 ;; Org-Mode
 ;;-----------------------------------------------------------------------------
 (use-package org
   :ensure t
   :hook
-  (org-mode . org-indent-mode) ;; Indent text
+  (org-mode . org-indent-mode)
   (org-mode . visual-line-mode)
   :custom
   (org-return-follows-link t))
 
-;; Ensure inline images are displayed when opening an Org file
 (setq org-startup-with-inline-images t)
 (setq org-image-actual-width 500) 
 
-;; Set Org directory
 (setq org-directory "~/Dropbox/org/")
 
-;; Recursive function to find all .org files in a directory
+(defun my/org-agenda-files-recursive (directory)
+  (directory-files-recursively directory "\\.org$"))
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (directory-files-recursively directory "\\.org$"))
-;; Recursive function to find all .org files in a directory
-(defun my/org-agenda-files-recursive (directory)
-  "Recursively find all .org files in DIRECTORY."
-  (directory-files-recursively directory "\\.org$"))
-;; Set org-agenda-files dynamically before running org-agenda
 (defun my/update-org-agenda-files (&rest _)
   "Update `org-agenda-files` to include all .org files in the directory."
   (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/org/")))
 
-;; Ensure the agenda files are updated before calling the agenda
 (advice-add 'org-agenda :before #'my/update-org-agenda-files)
 
 (defun my/kill-agenda-file-buffers ()
   "Kill unmodified buffers visiting files listed in `org-agenda-files`."
   (interactive)
   (let ((killed-count 0)
-        ;; Ensure agenda files list is current (or rely on static setting)
-        (agenda-files (org-agenda-files t)) ; Pass 't' to maybe refresh if needed? Or just use the variable value.
+        (agenda-files (org-agenda-files t))
         (agenda-files-set (make-hash-table :test 'equal)))
-    ;; Create a hash set for quick lookup
     (dolist (file agenda-files)
       (puthash (expand-file-name file) t agenda-files-set))
 
     (dolist (buffer (buffer-list))
       (let ((filename (buffer-file-name buffer)))
         (when (and filename
-                   (gethash (expand-file-name filename) agenda-files-set) ; Is it an agenda file?
-                   (not (buffer-modified-p buffer)) ; Is it unmodified?
-                   (not (eq buffer (current-buffer))) ; Is it not the current buffer?
-                   ;; Add check to avoid killing special org buffers? Maybe check name?
+                   (gethash (expand-file-name filename) agenda-files-set)
+                   (not (buffer-modified-p buffer))
+                   (not (eq buffer (current-buffer)))
                    (not (string-prefix-p "*" (buffer-name buffer))))
           (kill-buffer buffer)
           (setq killed-count (1+ killed-count)))))
@@ -560,14 +547,12 @@
         ("TODO" . (:background "red" :foreground "white"))
         ("CANCELLED" . (:background "gray" :foreground "black"))
         ("MAYBE" . (:background "yellow" :foreground "black"))))
-;; Customize agenda prefix format
 (setq org-agenda-prefix-format
-      '((agenda . " %i %?-12t% s")  ; remove file name
+      '((agenda . " %i %?-12t% s")
         (todo . " %i ")
         (tags . " %i ")
         (search . " %i ")))
 
-;; This is to create highlighted org-admonitions
 (defface my-note-face
   '((t :background "#a6d189" :foreground "#1e1e2e" :extend t))
   "Face for NOTE blocks with full width background.")
@@ -583,12 +568,11 @@
     (overlay-put overlay 'face face)
     (overlay-put overlay 'line-prefix
                  nil)
-    ;; (propertize " " 'face face 'display '(space :align-to 0)))
     (overlay-put overlay 'after-string
                  (propertize " " 'face face 'display '(space :align-to right-margin)))))
 (defun highlight-org-block-region ()
   "Highlight org blocks with full window width background."
-  (remove-overlays (point-min) (point-max)) ; Clear existing overlays
+  (remove-overlays (point-min) (point-max))
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward "^[ \t]*#\\+BEGIN_\\(NOTE\\|IMPORTANT\\|WARN\\)" nil t)
@@ -615,13 +599,11 @@
 (font-lock-mode 1)
 (setq org-log-done 'time)
 
-;; Set default notes file
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
 
 (setq org-attach-id-dir "~/Dropbox/org/assets/")
 (setq org-attach-use-inheritance t)
 
-;; Define capture templates
 (setq org-capture-templates
       '(("t" "Blank Todo [inbox]" entry
 		 (file+headline "~/Dropbox/org/inbox.org" "Tasks")
@@ -633,10 +615,8 @@
 		 (file+headline "~/Dropbox/org/personal.org" "Personal")
 		 "* TODO %i%?")))
 
-;; Conceal emphasis markers for bold and italic text
 (setq org-hide-emphasis-markers t)
 
-;; Customize the appearance of inline code #45475a #c6d0f5
 (custom-set-faces
  '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "IosevkaTerm Nerd Font")))))
 
@@ -647,7 +627,6 @@
   (org-roam-dailies-directory "./journals/")
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
-	  ;; Accomodates for the fact that Logseq uses the "pages" directory
 	  :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
 	  :unnarrowed t))
    org-roam-dailies-capture-templates
@@ -656,10 +635,8 @@
 
 
   :config
-  ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-  ;; If using org-roam-protocol
   (require 'org-roam-protocol))
 
 (use-package toc-org
@@ -706,7 +683,7 @@
 ;; Git Integration
 ;;-----------------------------------------------------------------------------
 (use-package magit
-  :ensure t ;; Ensure package is installed
+  :ensure t
   :commands (magit-status magit-blame-addition) 
   )
 
@@ -721,13 +698,18 @@
   :config
   (diff-hl-flydiff-mode 1)
   (diff-hl-margin-mode 1)
+  (add-hook 'diff-hl-mode-hook
+            (lambda ()
+              (set-face-background 'diff-hl-insert nil)
+              (set-face-background 'diff-hl-delete nil)
+              (set-face-background 'diff-hl-change nil)))
   :custom
   (diff-hl-side 'left)
-  (diff-hl-margin-symbols-alist '((insert . "│")   ;; Customize symbols for each change type.
-                                  (delete . "-")
-                                  (change . "│")
-                                  (unknown . "?")
-                                  (ignored . "i"))))
+  (diff-hl-margin-symbols-alist '((insert . "┃")
+                                   (delete . "-")
+                                   (change . "┃")
+                                   (unknown . "?")
+                                   (ignored . "i"))))
 
 ;; -----------------------------------------------------------------------------
 ;; Completions
@@ -773,7 +755,7 @@
 (use-package vertico
   :custom
   ;; (vertico-scroll-margin 0) ;; Different scroll margin
-  ;; (vertico-count 20) ;; Show more candidates
+  (vertico-count 17) ;; Show more candidates
   (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
   (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
   :init
@@ -839,35 +821,35 @@
   
   (start/leader-keys
 	"." '(find-file :wk "Find file")
-	"p" '(projectile-command-map :wk "Projectile command map"))
+	"P" '(projectile-command-map :wk "Projectile command map"))
   
   (start/leader-keys
-	"f" '(:ignore t :wk "Find")
-	"f c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :wk "Edit emacs config")
-	"f r" '(consult-recent-file :wk "Recent files")
-	"f f" '(consult-fd :wk "Fd search for files")
-	"f t" '(consult-ripgrep :wk "Ripgrep search in files")
-	"f l" '(consult-line :wk "Find line")
-	"f i" '(consult-imenu :wk "Imenu buffer locations"))
+	"F" '(:ignore t :wk "Find")
+	"F c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :wk "Edit emacs config")
+	"F r" '(consult-recent-file :wk "Recent files")
+	"F f" '(consult-fd :wk "Fd search for files")
+	"F t" '(consult-ripgrep :wk "Ripgrep search in files")
+	"F l" '(consult-line :wk "Find line")
+	)
 
   (start/leader-keys
-	"b" '(:ignore t :wk "Buffer Bookmarks")
-	"b b" '(consult-buffer :wk "Switch buffer")
-	"b k" '(kill-this-buffer :wk "Kill this buffer")
-	"b i" '(ibuffer :wk "Ibuffer")
-	"b n" '(next-buffer :wk "Next buffer")
-	"b p" '(previous-buffer :wk "Previous buffer")
-	"b r" '(revert-buffer :wk "Reload buffer")
-	"b j" '(consult-bookmark :wk "Bookmark jump"))
+	"B" '(:ignore t :wk "Buffer Bookmarks")
+	"B b" '(consult-buffer :wk "Switch buffer")
+	"B k" '(kill-this-buffer :wk "Kill this buffer")
+	"B i" '(ibuffer :wk "Ibuffer")
+	"B n" '(next-buffer :wk "Next buffer")
+	"B p" '(previous-buffer :wk "Previous buffer")
+	"B r" '(revert-buffer :wk "Reload buffer")
+	"B j" '(consult-bookmark :wk "Bookmark jump"))
   
   (start/leader-keys
-	"g" '(:ignore t :wk "Git")
-	"g g" '(magit-status :wk "Magit status"))
+	"G" '(:ignore t :wk "Git")
+	"G g" '(magit-status :wk "Magit status"))
   
   (start/leader-keys
-	"h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-	"h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-	"h r" '((lambda () (interactive)
+	"H" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
+	"H q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+	"H r" '((lambda () (interactive)
 			  (load-file "~/.config/emacs/init.el"))
 			:wk "Reload Emacs config"))
   
@@ -877,37 +859,64 @@
 	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
   
   (start/leader-keys
-	"o" '(:ignore t :which-key "Org")
-	"o i" '(org-toggle-inline-images :wk "Toggle Inline Images")
+	"O" '(:ignore t :which-key "Org")
+	"O i" '(org-toggle-inline-images :wk "Toggle Inline Images")
 
-	"o t" '(:ignore t :which-key "TODO States")
-	"o t t" '(org-todo :which-key "Set TODO")
-	"o t d" '((lambda () (interactive) (org-todo "DOING")) :which-key "Set DOING")
-	"o t h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "Set HOLD")
-	"o t D" '((lambda () (interactive) (org-todo "DONE")) :which-key "Set DONE")
-	"o t c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "Set CANCELLED")
-	"o t m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "Set MAYBE"))
+	"O t" '(:ignore t :which-key "TODO States")
+	"O t t" '(org-todo :which-key "Set TODO")
+	"O t d" '((lambda () (interactive) (org-todo "DOING")) :which-key "Set DOING")
+	"O t h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "Set HOLD")
+	"O t D" '((lambda () (interactive) (org-todo "DONE")) :which-key "Set DONE")
+	"O t c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "Set CANCELLED")
+	"O t m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "Set MAYBE"))
   
   (start/leader-keys
-	"o a" '(:ignore t :wk "Org Agenda")
-	"o a c" '(org-capture :wk "Capture")
-	"o a a" '(org-agenda :wk "Agenda")
+	"O a" '(:ignore t :wk "Org Agenda")
+	"O a c" '(org-capture :wk "Capture")
+	"O a a" '(org-agenda :wk "Agenda")
 
-	"o r" '(:ignore t :wk "Org Roam")
-	"o r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-	"o r f" '(org-roam-node-find :wk "Find Node")
-	"o r i" '(org-roam-node-insert :wk "Insert Node")
-	"o r c" '(org-roam-capture :wk "Capture")
-	"o r g" '(org-roam-graph :wk "Graph"))
+	"O r" '(:ignore t :wk "Org Roam")
+	"O r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+	"O r f" '(org-roam-node-find :wk "Find Node")
+	"O r i" '(org-roam-node-insert :wk "Insert Node")
+	"O r c" '(org-roam-capture :wk "Capture")
+	"O r g" '(org-roam-graph :wk "Graph"))
   
   (start/leader-keys
-	"o d" '(:ignore t :wk "Org Roam Dailies")
-	"o d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	"o d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-	"o d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-	"o d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-	"o d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
+	"O d" '(:ignore t :wk "Org Roam Dailies")
+	"O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+	"O d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+	"O d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+	"O d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+	"O d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
 
   (start/leader-keys
 	"-" '((lambda () (interactive) (dired default-directory)) :wk "Open"))
+
+  (start/leader-keys
+	"L"  '(:ignore t :wk "LSP")
+	"L a" '(eglot-code-actions :wk "Code Action")
+	"L f" '(eglot-format-buffer :wk "Format Buffer")
+	"L l" '(eglot-code-lens-action :wk "CodeLens Action")
+	"L n" '(eglot-rename :wk "Rename")
+	"L k" '(eldoc :wk "Hover Documentation")
+	"L I" '(eglot-events-buffer :wk "LSP Info")
+	"L d" '(xref-find-definitions :wk "Definition")
+	"L c" '(eglot-find-declaration :wk "Declaration")
+	"L i" '(eglot-find-implementation :wk "Implementation")
+	"L t" '(eglot-find-typeDefinition :wk "Type Definition")
+	"L r" '(xref-find-references :wk "References")
+
+    ;; Document actions
+    "L D" '(:ignore t :wk "Document")
+    "L D s" '(consult-imenu :wk "Symbols")
+    "L D d" '(consult-flymake :wk "Diagnostics")
+
+    ;; Workspace actions
+    "L W" '(:ignore t :wk "Workspace")
+    "L W a" '(projectile-add-known-project :wk "Add Folder")
+    "L W r" '(projectile-remove-known-project :wk "Remove Folder")
+    "L W l" '(consult-project-buffer :wk "List Folders (Buffers)")
+    "L W s" '(consult-lsp-file-symbols :wk "Symbols")
+    "L W d" '((lambda () (interactive) (consult-flymake t)) :wk "Diagnostics (Project)"))
   )
