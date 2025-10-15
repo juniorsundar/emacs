@@ -45,7 +45,7 @@
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
   (display-line-numbers-type 'relative)           ;; Use relative line numbering.
-  (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
+  ;; (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
   (history-length 25)                             ;; Set the length of the command history.
@@ -465,6 +465,7 @@
 (add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
+(add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
