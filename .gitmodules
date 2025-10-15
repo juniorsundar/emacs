@@ -2,6 +2,3 @@
     path = lisp/catppuccin-theme
     url = https://github.com/juniorsundar/catppuccin.emacs
     branch = main
-[submodule "lisp/org-novelist"]
-    path = lisp/org-novelist
-    url = https://github.com/sympodius/org-novelist
