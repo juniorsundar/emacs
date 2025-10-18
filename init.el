@@ -147,10 +147,42 @@
   :init
   (global-eldoc-mode))
 
+(use-package ibuffer
+  :ensure nil ; It's a built-in package
+  :config
+  (setq ibuffer-show-empty-filter-groups nil
+        ibuffer-filter-group-name-face '(:inherit (success bold))
+        ibuffer-formats
+        `((mark modified read-only locked
+                " " (all-the-icons 4 4 :left)
+                (name 18 18 :left :elide)
+                " " (size 9 -1 :right)
+                " " (mode 16 16 :left :elide)
+                ,@(when (require 'ibuffer-vc nil t)
+                    '(" " (vc-status 12 :left)))
+                " " filename-and-process)
+          (mark " " (name 16 -1) " " filename)))
+
+  (define-ibuffer-column size (:name "Size" :inline t)
+    (file-size-human-readable (buffer-size)))
+
+  ;; (evil-define-key 'normal ibuffer-mode-map "q" #'kill-current-buffer)
+  )
+
+(use-package ibuffer-vc
+  :ensure t)
+
 (use-package ibuffer-projectile
   :ensure t
   :hook (ibuffer . ibuffer-projectile-set-filter-groups)
-  )
+  :config
+  (setq ibuffer-projectile-prefix
+        (if (and (display-graphic-p) (require 'nerd-icons nil t))
+            (concat (nerd-icons-octicon "nf-oct-file_directory"
+                                       :face 'ibuffer-filter-group-name-face
+                                       :v-adjust -0.05)
+                    " ")
+          "Project: ")))
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -372,6 +404,10 @@
 (use-package all-the-icons-dired
   :ensure t)
 
+(use-package all-the-icons-ibuffer
+  :ensure t
+  :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
+
 (use-package ligature
   :config
   (ligature-set-ligatures 't '("www"))
@@ -453,10 +489,27 @@
   (eldoc-echo-area-use-multiline-p nil)
   (eglot-code-action-suggestion nil)
   :config
+  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (setq eglot-inlay-hints-mode nil)
   (setq eglot-code-action-indicator "")
   (setq eglot-code-action-indications '(mode-line))
   )
+
+(defvar-local my--eldoc-buffer-tracker nil
+  "Buffer-local variable to track if this buffer showed eldoc docs.")
+(advice-add 'eldoc--handle-doc-buffer :after
+            (lambda (&rest _)
+              (when (get-buffer-window "*eldoc*")
+                (with-current-buffer "*eldoc*"
+                  (setq my--eldoc-buffer-tracker t)))))
+(defun my/close-eldoc-buffer-if-left ()
+  "Close *eldoc* buffer if point is no longer in it."
+  (unless (or (null (get-buffer "*eldoc*"))
+              (eq (current-buffer) (get-buffer "*eldoc*")))
+    (let ((win (get-buffer-window "*eldoc*")))
+      (when win
+        (quit-window t win)))))
+(add-hook 'post-command-hook #'my/close-eldoc-buffer-if-left)
 
 (use-package markdown-mode)
 
@@ -834,14 +887,14 @@
 	)
 
   (start/leader-keys
-	"B" '(:ignore t :wk "Buffer Bookmarks")
-	"B b" '(consult-buffer :wk "Switch buffer")
-	"B k" '(kill-this-buffer :wk "Kill this buffer")
-	"B i" '(ibuffer :wk "Ibuffer")
-	"B n" '(next-buffer :wk "Next buffer")
-	"B p" '(previous-buffer :wk "Previous buffer")
-	"B r" '(revert-buffer :wk "Reload buffer")
-	"B j" '(consult-bookmark :wk "Bookmark jump"))
+	"b" '(:ignore t :wk "Buffer Bookmarks")
+	"b b" '(consult-buffer :wk "Switch buffer")
+	"b k" '(kill-this-buffer :wk "Kill this buffer")
+	"b i" '(ibuffer :wk "Ibuffer")
+	"b n" '(next-buffer :wk "Next buffer")
+	"b p" '(previous-buffer :wk "Previous buffer")
+	"b r" '(revert-buffer :wk "Reload buffer")
+	"b j" '(consult-bookmark :wk "Bookmark jump"))
   
   (start/leader-keys
 	"G" '(:ignore t :wk "Git")
