@@ -109,7 +109,6 @@
   (load custom-file 'noerror 'nomessage)
 
   :config
-  ;; Function to skip special buffers when navigating
   (defun skip-these-buffers (_window buffer _bury-or-kill)
     "Skip buffers matching the pattern when switching."
     (string-match "\\*[^*]+\\*" (buffer-name buffer)))
@@ -134,13 +133,13 @@
 
   :hook
   (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
-  ;; (prog-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
+  (prog-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
   )
 
 (savehist-mode) ;; Enables save history mode
 
 (use-package vterm
-    :ensure t)
+  :ensure t)
 
 (use-package eldoc
   :ensure nil
@@ -205,8 +204,8 @@
   (setq ibuffer-projectile-prefix
         (if (and (display-graphic-p) (require 'nerd-icons nil t))
             (concat (nerd-icons-octicon "nf-oct-file_directory"
-                                       :face 'ibuffer-filter-group-name-face
-                                       :v-adjust -0.05)
+										:face 'ibuffer-filter-group-name-face
+										:v-adjust -0.05)
                     " ")
           "Project: ")))
 
@@ -310,22 +309,22 @@
          ("C-r" . isearch-backward)))          ;; Bind C-r to backward isearch.
 
 (use-package smerge-mode
- :ensure nil
- :defer t
- :bind (:map smerge-mode-map
-             ("C-c s u" . smerge-keep-upper)  ;; Keep the changes from the upper version.
-             ("C-c s l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
-             ("C-c s n" . smerge-next)        ;; Move to the next conflict.
-             ("C-c s p" . smerge-previous)))  ;; Move to the previous conflict.
+  :ensure nil
+  :defer t
+  :bind (:map smerge-mode-map
+              ("C-c s u" . smerge-keep-upper)  ;; Keep the changes from the upper version.
+              ("C-c s l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
+              ("C-c s n" . smerge-next)        ;; Move to the next conflict.
+              ("C-c s p" . smerge-previous)))  ;; Move to the previous conflict.
 ;;-----------------------------------------------------------------------------
 ;; Evil
 ;;-----------------------------------------------------------------------------
 (use-package evil
-  :init ;; Execute code Before a package is loaded
+  :init
   (evil-mode)
-  :config ;; Execute code After a package is loaded
-  (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-  :custom ;; Customization of package custom variables
+  :config
+  (evil-set-initial-state 'eat-mode 'insert)
+  :custom
   (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
   (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
   (evil-want-C-i-jump nil)      ;; Disables C-i jump
@@ -423,7 +422,7 @@
 ;; Set Nerd Font for symbols
 (when (member "Noto Color Emoji" (font-family-list))
   (set-fontset-font
-    t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
+   t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
 
 (set-face-attribute 'italic nil
                     :underline nil
@@ -522,8 +521,8 @@
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
 (use-package direnv
- :config
- (direnv-mode))
+  :config
+  (direnv-mode))
 
 (use-package eglot
   :ensure nil
@@ -594,194 +593,6 @@
     "zr" #'treesit-fold-open-recursively
     "zm" #'treesit-fold-close))
 ;;-----------------------------------------------------------------------------
-;; Org-Mode
-;;-----------------------------------------------------------------------------
-(use-package org
-  :ensure t
-  :hook
-  (org-mode . org-indent-mode)
-  (org-mode . visual-line-mode)
-  :custom
-  (org-return-follows-link t))
-
-(setq org-startup-with-inline-images t)
-(setq org-image-actual-width 500) 
-
-(setq org-directory "~/Dropbox/org/")
-
-(defun my/org-agenda-files-recursive (directory)
-  (directory-files-recursively directory "\\.org$"))
-(defun my/org-agenda-files-recursive (directory)
-  "Recursively find all .org files in DIRECTORY."
-  (directory-files-recursively directory "\\.org$"))
-(defun my/update-org-agenda-files (&rest _)
-  "Update `org-agenda-files` to include all .org files in the directory."
-  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/org/")))
-
-(advice-add 'org-agenda :before #'my/update-org-agenda-files)
-
-(defun my/kill-agenda-file-buffers ()
-  "Kill unmodified buffers visiting files listed in `org-agenda-files`."
-  (interactive)
-  (let ((killed-count 0)
-        (agenda-files (org-agenda-files t))
-        (agenda-files-set (make-hash-table :test 'equal)))
-    (dolist (file agenda-files)
-      (puthash (expand-file-name file) t agenda-files-set))
-
-    (dolist (buffer (buffer-list))
-      (let ((filename (buffer-file-name buffer)))
-        (when (and filename
-                   (gethash (expand-file-name filename) agenda-files-set)
-                   (not (buffer-modified-p buffer))
-                   (not (eq buffer (current-buffer)))
-                   (not (string-prefix-p "*" (buffer-name buffer))))
-          (kill-buffer buffer)
-          (setq killed-count (1+ killed-count)))))
-    (message "Killed %d agenda file buffers." killed-count)))
-
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
-(setq org-todo-keyword-faces
-      '(("DOING" . (:background "orange" :foreground "black"))
-        ("DONE" . (:background "green" :foreground "black"))
-        ("HOLD" . (:background "turquoise" :foreground "black"))
-        ("TODO" . (:background "red" :foreground "white"))
-        ("CANCELLED" . (:background "gray" :foreground "black"))
-        ("MAYBE" . (:background "yellow" :foreground "black"))))
-(setq org-agenda-prefix-format
-      '((agenda . " %i %?-12t% s")
-        (todo . " %i ")
-        (tags . " %i ")
-        (search . " %i ")))
-
-(defface my-note-face
-  '((t :background "#a6d189" :foreground "#1e1e2e" :extend t))
-  "Face for NOTE blocks with full width background.")
-(defface my-important-face
-  '((t :background "#ea6962" :foreground "#1e1e2e" :extend t))
-  "Face for IMPORTANT blocks with full width background.")
-(defface my-warning-face
-  '((t :background "#e5c890" :foreground "#1e1e2e" :extend t))
-  "Face for WARNING blocks with full width background.")
-(defun apply-custom-org-block-face (start end face)
-  "Apply FACE to the entire visual line from START to END."
-  (let ((overlay (make-overlay start end)))
-    (overlay-put overlay 'face face)
-    (overlay-put overlay 'line-prefix
-                 nil)
-    (overlay-put overlay 'after-string
-                 (propertize " " 'face face 'display '(space :align-to right-margin)))))
-(defun highlight-org-block-region ()
-  "Highlight org blocks with full window width background."
-  (remove-overlays (point-min) (point-max))
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward "^[ \t]*#\\+BEGIN_\\(NOTE\\|IMPORTANT\\|WARN\\)" nil t)
-      (let* ((block-type (match-string 1))
-             (block-start (line-beginning-position))
-             (face (pcase block-type
-                     ("NOTE" 'my-note-face)
-                     ("IMPORTANT" 'my-important-face)
-                     ("WARN" 'my-warning-face))))
-        (when (re-search-forward (format "^[ \t]*#\\+END_%s" block-type) nil t)
-          (apply-custom-org-block-face block-start (line-end-position) face))))))
-(define-minor-mode org-block-highlight-mode
-  "Minor mode for highlighting org blocks with full window width background."
-  :lighter " OrgBlockHL"
-  (if org-block-highlight-mode
-      (progn
-        (highlight-org-block-region)
-        (add-hook 'after-change-functions
-                  (lambda (&rest _) (highlight-org-block-region))
-                  nil t))
-    (remove-overlays (point-min) (point-max))))
-(add-hook 'org-mode-hook 'org-block-highlight-mode)
-
-(font-lock-mode 1)
-(setq org-log-done 'time)
-
-(setq org-default-notes-file (concat org-directory "/inbox.org"))
-
-(setq org-attach-id-dir "~/Dropbox/org/assets/")
-(setq org-attach-use-inheritance t)
-
-(setq org-capture-templates
-      '(("t" "Blank Todo [inbox]" entry
-		 (file+headline "~/Dropbox/org/inbox.org" "Tasks")
-		 "* TODO %i%?")
-		("w" "Work Todo [work]" entry
-		 (file+headline "~/Dropbox/org/work.org" "Work")
-		 "* TODO %i%?")
-		("p" "Personal Todo [personal]" entry
-		 (file+headline "~/Dropbox/org/personal.org" "Personal")
-		 "* TODO %i%?")))
-
-(setq org-hide-emphasis-markers t)
-
-(custom-set-faces
- '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "IosevkaTerm Nerd Font")))))
-
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory (file-truename "~/Dropbox/org/pages"))
-  (org-roam-dailies-directory "./journals/")
-  (org-roam-capture-templates
-   '(("d" "default" plain "%?"
-	  :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
-	  :unnarrowed t))
-   org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %?"
-	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+FILETAGS: journal"))))
-
-
-  :config
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
-  (require 'org-roam-protocol))
-
-(use-package toc-org
-  :commands toc-org-enable
-  :hook (org-mode . toc-org-mode))
-
-(use-package org-superstar
-  :after org
-  :hook (org-mode . org-superstar-mode)
-  :config
-  ;; (setq org-superstar-headline-bullets-list '("󰼏" "󰼐" "󰼑" "󰼒" "󰼓" "󰼔"))
-  )
-
-(use-package org-tempo
-  :ensure nil
-  :after org)
-
-(use-package org-modern
-  :after org
-  :config
-  (setq org-modern-star nil)
-
-  (setq org-agenda-tags-column 0)
-  (setq org-agenda-block-separator ?─)
-  (setq org-agenda-time-grid
-        '((daily today require-timed)
-          (800 1000 1200 1400 1600 1800 2000)
-          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
-  (setq org-agenda-current-time-string
-        "<-- now ───────")
-  (setq org-modern-priority nil)
-
-  (setq org-modern-todo-faces
-        (quote (("TODO" :background "red" :foreground "white")
-                ("DOING" :background "orange" :foreground "black")
-                ("HOLD" :background "turquoise" :foreground "black")
-                ("CANCELLED" . (:background "gray" :foreground "black"))
-                ("MAYBE" . (:background "yellow" :foreground "black"))
-                ("DONE" . (:background "green" :foreground "black")))))
-  (global-org-modern-mode)
-  )
-
-;;-----------------------------------------------------------------------------
 ;; Git Integration
 ;;-----------------------------------------------------------------------------
 (use-package magit
@@ -808,10 +619,10 @@
   :custom
   (diff-hl-side 'left)
   (diff-hl-margin-symbols-alist '((insert . "┃")
-                                   (delete . "-")
-                                   (change . "┃")
-                                   (unknown . "?")
-                                   (ignored . "i"))))
+                                  (delete . "-")
+                                  (change . "┃")
+                                  (unknown . "?")
+                                  (ignored . "i"))))
 
 ;; -----------------------------------------------------------------------------
 ;; Completions
@@ -895,6 +706,10 @@
 (use-package embark
   :ensure t
   :defer t
+  :bind
+  (("C-q" . embark-act)
+   ("C-d" . embark-dwim)
+   ("C-h B" . embark-bindings))
   )
 
 (use-package embark-consult
@@ -922,10 +737,12 @@
 	"P" '(projectile-command-map :wk "Projectile command map"))
   
   (start/leader-keys
-	"E" '(:ignore t :wk "Embark")
-	"E a" '(embark-act :wk "Act")
-	"E d" '(embark-dwim :wk "DWIM")
-	"E b" '(embark-bindings :wk "Bindings")
+	"z" '(:ignore t :wk "Hide-Show")
+	"z a" '(hs-toggle-hiding :wk "Toggle fold")
+	"z c" '(hs-hide-block :wk "Fold block")
+	"z o" '(hs-show-block :wk "Reveal block")
+	"z R" '(hs-show-all :wk "Reveal all")
+	"z M" '(hs-hide-all :wk "Fold all")
 	)
 
   (start/leader-keys
@@ -1035,4 +852,186 @@
     "L W l" '(consult-project-buffer :wk "List Folders (Buffers)")
     "L W s" '(consult-lsp-file-symbols :wk "Symbols")
     "L W d" '((lambda () (interactive) (consult-flymake t)) :wk "Diagnostics (Project)"))
+  )
+
+;;-----------------------------------------------------------------------------
+;; Org-Mode
+;;-----------------------------------------------------------------------------
+(use-package org
+  :ensure t
+  :hook
+  (org-mode . org-indent-mode)
+  (org-mode . visual-line-mode)
+  :custom
+  (org-return-follows-link t)
+  :config
+  (setq org-startup-with-inline-images t)
+  (setq org-image-actual-width 500) 
+  (setq org-directory "~/Dropbox/org/")
+  (setq org-todo-keywords
+		'((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
+  (setq org-todo-keyword-faces
+		'(("DOING" . (:background "orange" :foreground "black"))
+		  ("DONE" . (:background "green" :foreground "black"))
+		  ("HOLD" . (:background "turquoise" :foreground "black"))
+		  ("TODO" . (:background "red" :foreground "white"))
+		  ("CANCELLED" . (:background "gray" :foreground "black"))
+		  ("MAYBE" . (:background "yellow" :foreground "black"))))
+  (setq org-agenda-prefix-format
+		'((agenda . " %i %?-12t% s")
+		  (todo . " %i ")
+		  (tags . " %i ")
+		  (search . " %i ")))
+  (setq org-log-done 'time)
+  (setq org-default-notes-file (concat org-directory "/inbox.org"))
+  (setq org-attach-id-dir "~/Dropbox/org/assets/")
+  (setq org-attach-use-inheritance t)
+  (setq org-capture-templates
+		'(("t" "Blank Todo [inbox]" entry
+		   (file+headline "~/Dropbox/org/inbox.org" "Tasks")
+		   "* TODO %i%?")
+		  ("w" "Work Todo [work]" entry
+		   (file+headline "~/Dropbox/org/work.org" "Work")
+		   "* TODO %i%?")
+		  ("p" "Personal Todo [personal]" entry
+		   (file+headline "~/Dropbox/org/personal.org" "Personal")
+		   "* TODO %i%?")))
+  (setq org-hide-emphasis-markers t)
+  )
+
+(defun my/org-agenda-files-recursive (directory)
+  (directory-files-recursively directory "\\.org$"))
+(defun my/org-agenda-files-recursive (directory)
+  "Recursively find all .org files in DIRECTORY."
+  (directory-files-recursively directory "\\.org$"))
+(defun my/update-org-agenda-files (&rest _)
+  "Update `org-agenda-files` to include all .org files in the directory."
+  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/org/")))
+
+(advice-add 'org-agenda :before #'my/update-org-agenda-files)
+
+(defun my/kill-agenda-file-buffers ()
+  "Kill unmodified buffers visiting files listed in `org-agenda-files`."
+  (interactive)
+  (let ((killed-count 0)
+        (agenda-files (org-agenda-files t))
+        (agenda-files-set (make-hash-table :test 'equal)))
+    (dolist (file agenda-files)
+      (puthash (expand-file-name file) t agenda-files-set))
+
+    (dolist (buffer (buffer-list))
+      (let ((filename (buffer-file-name buffer)))
+        (when (and filename
+                   (gethash (expand-file-name filename) agenda-files-set)
+                   (not (buffer-modified-p buffer))
+                   (not (eq buffer (current-buffer)))
+                   (not (string-prefix-p "*" (buffer-name buffer))))
+          (kill-buffer buffer)
+          (setq killed-count (1+ killed-count)))))
+    (message "Killed %d agenda file buffers." killed-count)))
+
+(defface my-note-face
+  '((t :background "#a6d189" :foreground "#1e1e2e" :extend t))
+  "Face for NOTE blocks with full width background.")
+(defface my-important-face
+  '((t :background "#ea6962" :foreground "#1e1e2e" :extend t))
+  "Face for IMPORTANT blocks with full width background.")
+(defface my-warning-face
+  '((t :background "#e5c890" :foreground "#1e1e2e" :extend t))
+  "Face for WARNING blocks with full width background.")
+(defun apply-custom-org-block-face (start end face)
+  "Apply FACE to the entire visual line from START to END."
+  (let ((overlay (make-overlay start end)))
+    (overlay-put overlay 'face face)
+    (overlay-put overlay 'line-prefix
+                 nil)
+    (overlay-put overlay 'after-string
+                 (propertize " " 'face face 'display '(space :align-to right-margin)))))
+(defun highlight-org-block-region ()
+  "Highlight org blocks with full window width background."
+  (remove-overlays (point-min) (point-max))
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^[ \t]*#\\+BEGIN_\\(NOTE\\|IMPORTANT\\|WARN\\)" nil t)
+      (let* ((block-type (match-string 1))
+             (block-start (line-beginning-position))
+             (face (pcase block-type
+                     ("NOTE" 'my-note-face)
+                     ("IMPORTANT" 'my-important-face)
+                     ("WARN" 'my-warning-face))))
+        (when (re-search-forward (format "^[ \t]*#\\+END_%s" block-type) nil t)
+          (apply-custom-org-block-face block-start (line-end-position) face))))))
+(define-minor-mode org-block-highlight-mode
+  "Minor mode for highlighting org blocks with full window width background."
+  :lighter " OrgBlockHL"
+  (if org-block-highlight-mode
+      (progn
+        (highlight-org-block-region)
+        (add-hook 'after-change-functions
+                  (lambda (&rest _) (highlight-org-block-region))
+                  nil t))
+    (remove-overlays (point-min) (point-max))))
+(add-hook 'org-mode-hook 'org-block-highlight-mode)
+
+(font-lock-mode 1)
+
+(custom-set-faces
+ '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "IosevkaTerm Nerd Font")))))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/Dropbox/org/pages"))
+  (org-roam-dailies-directory "./journals/")
+  (org-roam-capture-templates
+   '(("d" "default" plain "%?"
+	  :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
+	  :unnarrowed t))
+   org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %?"
+	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+FILETAGS: journal"))))
+
+  :config
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  (require 'org-roam-protocol))
+
+(use-package toc-org
+  :commands toc-org-enable
+  :hook (org-mode . toc-org-mode))
+
+(use-package org-superstar
+  :after org
+  :hook (org-mode . org-superstar-mode)
+  :config
+  (setq org-superstar-headline-bullets-list '("󰼏 " "󰼐 " "󰼑 " "󰼒 " "󰼓 " "󰼔 "))
+  )
+
+(use-package org-tempo
+  :ensure nil
+  :after org)
+
+(use-package org-modern
+  :after org
+  :config
+  (setq org-modern-star nil)
+
+  (setq org-agenda-tags-column 0)
+  (setq org-agenda-block-separator ?─)
+  (setq org-agenda-time-grid
+        '((daily today require-timed)
+          (800 1000 1200 1400 1600 1800 2000)
+          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+  (setq org-agenda-current-time-string
+        "<-- now ───────")
+  (setq org-modern-priority nil)
+
+  (setq org-modern-todo-faces
+        (quote (("TODO" :background "red" :foreground "white")
+                ("DOING" :background "orange" :foreground "black")
+                ("HOLD" :background "turquoise" :foreground "black")
+                ("CANCELLED" . (:background "gray" :foreground "black"))
+                ("MAYBE" . (:background "yellow" :foreground "black"))
+                ("DONE" . (:background "green" :foreground "black")))))
+  (global-org-modern-mode)
   )
