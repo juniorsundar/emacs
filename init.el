@@ -147,6 +147,32 @@
   :init
   (global-eldoc-mode))
 
+(use-package vc
+  :ensure nil                        ;; This is built-in, no need to fetch it.
+  :defer t
+  :bind
+  (("C-x v d" . vc-dir)              ;; Open VC directory for version control status.
+   ("C-x v =" . vc-diff)             ;; Show differences for the current file.
+   ("C-x v D" . vc-root-diff)        ;; Show differences for the entire repository.
+   ("C-x v v" . vc-next-action))     ;; Perform the next version control action.
+  :config
+  ;; Better colors for <leader> g b  (blame file)
+  (setq vc-annotate-color-map
+        '((20 . "#f5e0dc")
+          (40 . "#f2cdcd")
+          (60 . "#f5c2e7")
+          (80 . "#cba6f7")
+          (100 . "#f38ba8")
+          (120 . "#eba0ac")
+          (140 . "#fab387")
+          (160 . "#f9e2af")
+          (180 . "#a6e3a1")
+          (200 . "#94e2d5")
+          (220 . "#89dceb")
+          (240 . "#74c7ec")
+          (260 . "#89b4fa")
+          (280 . "#b4befe"))))
+
 (use-package ibuffer
   :ensure nil ; It's a built-in package
   :config
@@ -239,7 +265,7 @@
   (which-key-allow-imprecise-window-fit nil)) ;; Fixes which-key window slipping out in Emacs Daemon
 
 (use-package window
-  :ensure nil       ;; This is built-in, no need to fetch it.
+  :ensure nil
   :custom
   (display-buffer-alist
    '(
@@ -255,16 +281,12 @@
       (side . bottom)
       (slot . 0))
 
-     ;; Example configuration for the LSP help buffer,
-     ;; keeps it always on bottom using 25% of the available space:
      ("\\*\\(lsp-help\\)\\*"
       (display-buffer-in-side-window)
       (window-height . 0.25)
       (side . bottom)
       (slot . 0))
      
-     ;; Configuration for displaying various diagnostic buffers on
-     ;; bottom 25%:
      ("\\*\\(Flymake diagnostics\\|xref\\|ivy\\|Swiper\\|Completions\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
@@ -277,6 +299,24 @@
 
 (use-package diminish)
 
+(use-package isearch
+  :ensure nil
+  :config
+  (setq isearch-lazy-count t)                  ;; Enable lazy counting to show current match information.
+  (setq lazy-count-prefix-format "(%s/%s) ")   ;; Format for displaying current match count.
+  (setq lazy-count-suffix-format nil)          ;; Disable suffix formatting for match count.
+  (setq search-whitespace-regexp ".*?")        ;; Allow searching across whitespace.
+  :bind (("C-s" . isearch-forward)             ;; Bind C-s to forward isearch.
+         ("C-r" . isearch-backward)))          ;; Bind C-r to backward isearch.
+
+(use-package smerge-mode
+ :ensure nil
+ :defer t
+ :bind (:map smerge-mode-map
+             ("C-c s u" . smerge-keep-upper)  ;; Keep the changes from the upper version.
+             ("C-c s l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
+             ("C-c s n" . smerge-next)        ;; Move to the next conflict.
+             ("C-c s p" . smerge-previous)))  ;; Move to the previous conflict.
 ;;-----------------------------------------------------------------------------
 ;; Evil
 ;;-----------------------------------------------------------------------------
@@ -408,6 +448,10 @@
   :ensure t
   :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
 
+(use-package nerd-icons-corfu
+  :ensure t
+  :after (:all corfu))
+
 (use-package ligature
   :config
   (ligature-set-ligatures 't '("www"))
@@ -450,11 +494,15 @@
   :custom
   (doom-modeline-height 25)
   (doom-modeline-bar-width 5)
+  (doom-modeline-buffer-name t)                        ;; Show the buffer name in the mode line.
+  (doom-modeline-vcs-max-length 25)                    ;; Limit the version control system (VCS) branch name length to 25 characters.
   (doom-modeline-persp-name t)
   (doom-modeline-persp-icon t)
+  (doom-modeline-buffer-file-name-style 'buffer-name)  ;; Set the buffer file name style to just the buffer name (without path).
+  (doom-modeline-project-detection 'project)           ;; Enable project detection for displaying the project name.
+  (doom-modeline-icon t)                      ;; Enable icons in the mode line if nerd fonts are used.
   (doom-modeline-buffer-encoding nil)
   (doom-modeline-enable-word-count t))
-
 ;;-----------------------------------------------------------------------------
 ;; Projectile
 ;;-----------------------------------------------------------------------------
@@ -809,9 +857,9 @@
 (use-package vertico
   :custom
   ;; (vertico-scroll-margin 0) ;; Different scroll margin
-  (vertico-count 17) ;; Show more candidates
-  (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-  (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  (vertico-count 17)
+  (vertico-resize t)
+  (vertico-cycle t)
   :init
   (vertico-mode))
 
@@ -847,10 +895,6 @@
 (use-package embark
   :ensure t
   :defer t
-  :bind
-  (("C-q" . embark-act)
-   ("C-;" . embark-dwim)
-   ("C-h B" . embark-bindings))
   )
 
 (use-package embark-consult
@@ -878,6 +922,13 @@
 	"P" '(projectile-command-map :wk "Projectile command map"))
   
   (start/leader-keys
+	"E" '(:ignore t :wk "Embark")
+	"E a" '(embark-act :wk "Act")
+	"E d" '(embark-dwim :wk "DWIM")
+	"E b" '(embark-bindings :wk "Bindings")
+	)
+
+  (start/leader-keys
 	"F" '(:ignore t :wk "Find")
 	"F c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :wk "Edit emacs config")
 	"F r" '(consult-recent-file :wk "Recent files")
@@ -898,15 +949,26 @@
   
   (start/leader-keys
 	"G" '(:ignore t :wk "Git")
-	"G g" '(magit-status :wk "Magit status"))
+	"G g" '(magit-status :wk "Magit status")
+	"G l" '(magit-log-current :wk "Current log")
+	"G d" '(magit-diff-buffer-file :wk "Diff current file")
+	"G D" '(diff-hl-show-hunk :wk "Diff hunk")
+	"G V" '(:ignore t :wk "VC")
+	"G V d" '(vc-dir :wk "VC directory")
+	"G V b" '(vc-annotate :wk "VC annotate buffer")
+	"G V =" '(vc-diff :wk "VC diff current file")
+	"G V D" '(vc-root-diff :wk "VC diff entire repository")
+	"G V v" '(vc-next-action :wk "Next VC action")
+	)
   
   (start/leader-keys
-	"H" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-	"H q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-	"H r" '((lambda () (interactive)
-			  (load-file "~/.config/emacs/init.el"))
-			:wk "Reload Emacs config"))
-  
+	"H" '(:ignore t :wk "Describe")
+	"H m" '(describe-mode :wk "Describe current mode")
+	"H f" '(describe-function :wk "Describe function")
+	"H v" '(describe-variable :wk "Describe variable")
+	"H k" '(describe-key :wk "Describe key")
+	)
+
   (start/leader-keys
 	"t" '(:ignore t :wk "Toggle")
 	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
