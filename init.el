@@ -133,7 +133,7 @@
 
   :hook
   (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
-  (prog-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
+  (emacs-lisp-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
   )
 
 (savehist-mode) ;; Enables save history mode
@@ -398,6 +398,12 @@
   (doom-themes-neotree-config)
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
+
+(use-package solaire-mode
+  :ensure t
+  :config
+  (solaire-global-mode +1)
+  )
 ;;-----------------------------------------------------------------------------
 ;; Fonts
 ;;-----------------------------------------------------------------------------
@@ -407,7 +413,7 @@
       '((default
          :default-family "IosevkaTerm Nerd Font"
          :default-weight regular
-         :default-height 120
+         :default-height 130
          :fixed-pitch-family "IosevkaTerm Nerd Font"
          :fixed-pitch-weight regular
          :italic-family "IosevkaTerm Nerd Font"
@@ -523,6 +529,16 @@
 (use-package direnv
   :config
   (direnv-mode))
+
+;; (use-package lsp-mode
+;;   :init
+;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+;;   ;; (setq lsp-keymap-prefix "SPC L")
+;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+;;          (rust-ts-mode . lsp)
+;;          (lsp-mode . lsp-enable-which-key-integration))
+;;   :commands lsp)
+;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 
 (use-package eglot
   :ensure nil
@@ -828,6 +844,17 @@
 
   (start/leader-keys
 	"L"  '(:ignore t :wk "LSP")
+	;; "L a" '(lsp-execute-code-action :wk "Code Action")
+	;; "L f" '(lsp-format-buffer :wk "Format Buffer")
+	;; "L l" '(lsp-lens-mode :wk "CodeLens Mode")
+	;; "L n" '(lsp-rename :wk "Rename")
+	;; "L k" '(lsp-describe-thing-at-point :wk "Hover Documentation")
+	;; "L I" '(lsp-describe-session :wk "LSP Info")
+	;; "L d" '(lsp-find-definition :wk "Definition")
+	;; "L c" '(lsp-find-declaration :wk "Declaration")
+	;; "L i" '(lsp-find-implementation :wk "Implementation")
+	;; "L t" '(lsp-find-typeDefinition :wk "Type Definition")
+	;; "L r" '(lsp-find-references :wk "References")
 	"L a" '(eglot-code-actions :wk "Code Action")
 	"L f" '(eglot-format-buffer :wk "Format Buffer")
 	"L l" '(eglot-code-lens-action :wk "CodeLens Action")
