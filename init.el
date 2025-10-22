@@ -1,7 +1,11 @@
-;;; init.el --- My Emacs Config
+;;; init.el --- My Emacs Config -*- lexical-binding: t -*-
+;;; Commentary:
+;;
 ;; Author: Junior Sundar
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "30.0"))
+;; Package-Requires: ((Emacs "30.0"))
+;;
+;;; Code:
 
 (setq gc-cons-threshold #x40000000)
 (setq read-process-output-max (* 1024 1024 4))
@@ -132,11 +136,10 @@
   (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
   :hook
-  (prog-mode . display-line-numbers-mode)         ;; Enable line numbers in programming modes.
-  (emacs-lisp-mode . hs-minor-mode)                    ;; Enable code folding in programming modes.
-  )
+  (prog-mode . display-line-numbers-mode)
+  (emacs-lisp-mode . hs-minor-mode))
 
-(savehist-mode) ;; Enables save history mode
+(savehist-mode)
 
 (use-package vterm
   :ensure t)
@@ -155,7 +158,6 @@
    ("C-x v D" . vc-root-diff)        ;; Show differences for the entire repository.
    ("C-x v v" . vc-next-action))     ;; Perform the next version control action.
   :config
-  ;; Better colors for <leader> g b  (blame file)
   (setq vc-annotate-color-map
         '((20 . "#f5e0dc")
           (40 . "#f2cdcd")
@@ -345,7 +347,7 @@
               ("C-M-h" . evil-window-decrease-width)
               )
   (:map evil-visual-state-map
-		("M-h"      . evil-shift-left) 
+		("M-h"      . evil-shift-left)
 		("M-l"      . evil-shift-right)
 		("M-<left>" . evil-shift-left)
 		("M-<right>". evil-shift-right)
@@ -407,23 +409,23 @@
 ;;-----------------------------------------------------------------------------
 ;; Fonts
 ;;-----------------------------------------------------------------------------
-(use-package fontaine
-  :ensure t)
-(setq fontaine-presets
-      '((default
-         :default-family "IosevkaTerm Nerd Font"
-         :default-weight regular
-         :default-height 130
-         :fixed-pitch-family "IosevkaTerm Nerd Font"
-         :fixed-pitch-weight regular
-         :italic-family "IosevkaTerm Nerd Font"
-         :italic-slant italic
-         :variable-pitch-family "Iosevka Aile"
-         :variable-pitch-weight regular
-         :variable-pitch-height 140)))
-;; Set the default preset
-(fontaine-set-preset 'default)
-;; (setq-default line-spacing 0.2)
+(set-face-font 'default "IosevkaTerm Nerd Font")
+(set-face-font 'variable-pitch "Iosevka Aile")
+(copy-face 'default 'fixed-pitch)
+(set-face-attribute 'default nil :height 130)
+(set-face-attribute 'variable-pitch nil :height 130)
+(defun fixed-pitch-mode ()
+  (buffer-face-mode -1))
+(defun variable-pitch-mode ()
+  (buffer-face-mode t))
+(defun toggle-pitch (&optional arg)
+  "Switch between the `fixed-pitch' face and the `variable-pitch' face"
+  (interactive)
+  (buffer-face-toggle 'variable-pitch))
+(buffer-face-mode)
+
+;; Set the fonts to format correctly
+(add-hook 'eww-mode-hook 'variable-pitch-mode)
 
 ;; Set Nerd Font for symbols
 (when (member "Noto Color Emoji" (font-family-list))
@@ -435,10 +437,6 @@
                     :slant 'italic
                     :family "IosevkaTerm Nerd Font")
 
-;; (add-hook 'org-mode-hook 'variable-pitch-mode)
-;; (add-hook 'markdown-mode-hook 'variable-pitch-mode)
-(add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
-(add-hook 'markdown-mode-hook (lambda () (display-line-numbers-mode -1)))
 (add-hook 'ibuffer-mode-hook (lambda () (display-line-numbers-mode -1)))
 
 (use-package all-the-icons
@@ -499,13 +497,13 @@
   :custom
   (doom-modeline-height 25)
   (doom-modeline-bar-width 5)
-  (doom-modeline-buffer-name t)                        ;; Show the buffer name in the mode line.
-  (doom-modeline-vcs-max-length 25)                    ;; Limit the version control system (VCS) branch name length to 25 characters.
+  (doom-modeline-buffer-name t)
+  (doom-modeline-vcs-max-length 25)
   (doom-modeline-persp-name t)
   (doom-modeline-persp-icon t)
-  (doom-modeline-buffer-file-name-style 'buffer-name)  ;; Set the buffer file name style to just the buffer name (without path).
-  (doom-modeline-project-detection 'project)           ;; Enable project detection for displaying the project name.
-  (doom-modeline-icon t)                      ;; Enable icons in the mode line if nerd fonts are used.
+  (doom-modeline-buffer-file-name-style 'buffer-name)
+  (doom-modeline-project-detection 'project)
+  (doom-modeline-icon t)
   (doom-modeline-buffer-encoding nil)
   (doom-modeline-enable-word-count t))
 ;;-----------------------------------------------------------------------------
@@ -574,15 +572,6 @@
         (quit-window t win)))))
 (add-hook 'post-command-hook #'my/close-eldoc-buffer-if-left)
 
-(use-package markdown-mode)
-
-(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
-(add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
-(add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
-(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-(add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
-(add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
-
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
 
@@ -608,12 +597,37 @@
     "zM" #'treesit-fold-close-all
     "zr" #'treesit-fold-open-recursively
     "zm" #'treesit-fold-close))
+
+;;-----------------------------------------------------------------------------
+;; Language Modes
+;;-----------------------------------------------------------------------------
+(use-package markdown-mode)
+(add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
+(add-hook 'markdown-ts-mode-hook 'variable-pitch-mode)
+(add-hook 'markdown-ts-mode-hook 'visual-line-mode)
+(add-hook 'markdown-ts-mode-hook (lambda () (display-line-numbers-mode -1)))
+
+(use-package python-mode)
+(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+
+(use-package go-mode)
+(add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
+
+(use-package zig-mode)
+(add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
+
+(use-package rust-mode)
+(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
+
+(use-package nix-mode)
+(add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
+
 ;;-----------------------------------------------------------------------------
 ;; Git Integration
 ;;-----------------------------------------------------------------------------
 (use-package magit
   :ensure t
-  :commands (magit-status magit-blame-addition) 
+  :commands (magit-status magit-blame-addition)
   )
 
 (use-package diff-hl
@@ -750,6 +764,7 @@
   
   (start/leader-keys
 	"." '(find-file :wk "Find file")
+	"u" '(vundo :wk "UndoTree")
 	"P" '(projectile-command-map :wk "Projectile command map"))
   
   (start/leader-keys
@@ -893,7 +908,7 @@
   (org-return-follows-link t)
   :config
   (setq org-startup-with-inline-images t)
-  (setq org-image-actual-width 500) 
+  (setq org-image-actual-width 500)
   (setq org-directory "~/Dropbox/org/")
   (setq org-todo-keywords
 		'((sequence "TODO(t)" "DOING(d!)" "HOLD(h)" "|" "DONE(D)" "CANCELLED(c)" "MAYBE(m)")))
@@ -926,8 +941,6 @@
   (setq org-hide-emphasis-markers t)
   )
 
-(defun my/org-agenda-files-recursive (directory)
-  (directory-files-recursively directory "\\.org$"))
 (defun my/org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (directory-files-recursively directory "\\.org$"))
@@ -1062,3 +1075,7 @@
                 ("DONE" . (:background "green" :foreground "black")))))
   (global-org-modern-mode)
   )
+
+(add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
+
+;;; init.el ends here
