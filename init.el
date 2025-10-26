@@ -409,14 +409,11 @@
 ;;-----------------------------------------------------------------------------
 ;; Fonts
 ;;-----------------------------------------------------------------------------
-(set-face-font 'default "IosevkaTerm Nerd Font")
-(set-face-font 'variable-pitch "Iosevka Aile")
-(copy-face 'default 'fixed-pitch)
-(set-face-attribute 'default nil :height 130)
-(set-face-attribute 'variable-pitch nil :height 130)
 (defun fixed-pitch-mode ()
+  (interactive)
   (buffer-face-mode -1))
 (defun variable-pitch-mode ()
+  (interactive)
   (buffer-face-mode t))
 (defun toggle-pitch (&optional arg)
   "Switch between the `fixed-pitch' face and the `variable-pitch' face"
@@ -424,8 +421,34 @@
   (buffer-face-toggle 'variable-pitch))
 (buffer-face-mode)
 
-;; Set the fonts to format correctly
 (add-hook 'eww-mode-hook 'variable-pitch-mode)
+
+(defun my/set-frame-fonts (frame)
+  "Set fonts for the given FRAME."
+  (when (display-graphic-p frame)
+    (with-selected-frame frame
+      (set-face-font 'default "IosevkaTerm Nerd Font")
+      (set-face-font 'variable-pitch "Iosevka Aile")
+      (copy-face 'default 'fixed-pitch)
+      
+      (set-face-attribute 'default nil :height 130)
+      (set-face-attribute 'variable-pitch nil :height 130)
+      
+      (buffer-face-mode)
+
+      (when (member "Noto Color Emoji" (font-family-list))
+        (set-fontset-font
+          t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
+      
+      (set-face-attribute 'italic nil
+                          :underline nil
+                          :slant 'italic
+                          :family "IosevkaTerm Nerd Font")
+    )))
+
+(add-hook 'after-make-frame-functions #'my/set-frame-fonts)
+(when (and (not (daemonp)) (display-graphic-p))
+  (my/set-frame-fonts (selected-frame)))
 
 ;; Set Nerd Font for symbols
 (when (member "Noto Color Emoji" (font-family-list))
