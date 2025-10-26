@@ -137,7 +137,8 @@
 
   :hook
   (prog-mode . display-line-numbers-mode)
-  (emacs-lisp-mode . hs-minor-mode))
+  (emacs-lisp-mode . hs-minor-mode)
+  )
 
 (savehist-mode)
 
@@ -619,14 +620,15 @@
     "zR" #'treesit-fold-open-all
     "zM" #'treesit-fold-close-all
     "zr" #'treesit-fold-open-recursively
-    "zm" #'treesit-fold-close))
+    "zm" #'treesit-fold-close)
+  )
 
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
 ;;-----------------------------------------------------------------------------
 (use-package markdown-mode)
 (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
-(add-hook 'markdown-ts-mode-hook 'variable-pitch-mode)
+;; (add-hook 'markdown-ts-mode-hook 'variable-pitch-mode)
 (add-hook 'markdown-ts-mode-hook 'visual-line-mode)
 (add-hook 'markdown-ts-mode-hook (lambda () (display-line-numbers-mode -1)))
 
@@ -645,6 +647,8 @@
 (use-package nix-mode)
 (add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
 
+(use-package lua-mode)
+(add-to-list 'major-mode-remap-alist '(lua-mode . lua-ts-mode))
 ;;-----------------------------------------------------------------------------
 ;; Git Integration
 ;;-----------------------------------------------------------------------------
