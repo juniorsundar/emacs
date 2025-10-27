@@ -49,7 +49,6 @@
   (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
   (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
   (display-line-numbers-type 'relative)           ;; Use relative line numbering.
-  ;; (global-display-line-numbers-mode t)            ;; Enable line numbers globally.
   (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
   (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
   (history-length 25)                             ;; Set the length of the command history.
@@ -58,6 +57,7 @@
   (ispell-program-name "aspell")
   (ispell-dictionary "en_US")                     ;; Set the default dictionary for spell checking.
   (make-backup-files nil)                         ;; Disable creation of backup files.
+  (line-number-mode nil)
   (pixel-scroll-precision-mode t)                 ;; Enable precise pixel scrolling.
   (pixel-scroll-precision-use-momentum nil)       ;; Disable momentum scrolling.
   (ring-bell-function 'ignore)                    ;; Disable the audible bell.
@@ -402,10 +402,12 @@
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
 
-(use-package solaire-mode
+(use-package spacious-padding
   :ensure t
+  :if (display-graphic-p)
   :config
-  (solaire-global-mode +1)
+  (spacious-padding-mode t)
+  (spacious-padd)
   )
 ;;-----------------------------------------------------------------------------
 ;; Fonts
@@ -1042,8 +1044,19 @@
 
 (font-lock-mode 1)
 
-(custom-set-faces
- '(org-code ((t (:background "#1e2124" :foreground "#ffffff" :family "IosevkaTerm Nerd Font")))))
+(defun my-org-faces ()
+    (set-face-attribute 'org-document-title nil :height 2.0 :family "Iosevka Aile")
+    (set-face-attribute 'org-level-1 nil :height 1.8 :family "Iosevka Aile")
+    (set-face-attribute 'org-level-2 nil :height 1.6 :family "Iosevka Aile")
+    (set-face-attribute 'org-level-3 nil :height 1.4 :family "Iosevka Aile")
+    (set-face-attribute 'org-level-4 nil :height 1.2 :family "Iosevka Aile")
+    (set-face-attribute 'org-level-5 nil :height 1.1 :family "Iosevka Aile")
+    (set-face-attribute 'org-block nil :height 1.0 :family "IosevkaTerm Nerd Font")
+    (set-face-attribute 'org-code nil :height 1.0 :family "IosevkaTerm Nerd Font")
+    (set-face-attribute 'org-table nil :height 1.0 :family "IosevkaTerm Nerd Font")
+	)
+(add-hook 'org-mode-hook #'my-org-faces)
+(add-hook 'org-mode-hook #'variable-pitch-mode)
 
 (use-package org-roam
   :ensure t
@@ -1067,12 +1080,12 @@
   :commands toc-org-enable
   :hook (org-mode . toc-org-mode))
 
-(use-package org-superstar
-  :after org
-  :hook (org-mode . org-superstar-mode)
-  :config
-  (setq org-superstar-headline-bullets-list '("󰼏 " "󰼐 " "󰼑 " "󰼒 " "󰼓 " "󰼔 "))
-  )
+;; (use-package org-superstar
+;;   :after org
+;;   :hook (org-mode . org-superstar-mode)
+;;   :config
+;;   (setq org-superstar-headline-bullets-list '("󰼏 " "󰼐 " "󰼑 " "󰼒 " "󰼓 " "󰼔 "))
+;;   )
 
 (use-package org-tempo
   :ensure nil
