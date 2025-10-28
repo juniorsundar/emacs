@@ -31,10 +31,7 @@
 (dolist (path '("/usr/local/go/bin"
                 "/usr/local/bin"
                 "~/.local/bin"
-                "~/go/bin"
-                "/usr/bin"
-                "~/anaconda3/bin"
-                "~/.nvm/versions/node/v20.15.0/bin/"))
+                "/usr/bin"))
   (add-to-list 'exec-path (expand-file-name path)))
 
 ;;-----------------------------------------------------------------------------
@@ -276,7 +273,7 @@
      ;;  (window-height . 0.25)
      ;;  (side . bottom)
      ;;  (slot . -1))
-	 
+
      ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\|Bookmark List\\|Ibuffer\\|Occur\\|eldoc.*\\)\\*"
       (display-buffer-in-side-window)
       (window-height . 0.25)
@@ -288,7 +285,7 @@
       (window-height . 0.25)
       (side . bottom)
       (slot . 0))
-     
+
      ("\\*\\(Flymake diagnostics\\|xref\\|ivy\\|Swiper\\|Completions\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
@@ -433,16 +430,16 @@
       (set-face-font 'default "IosevkaTerm Nerd Font")
       (set-face-font 'variable-pitch "Iosevka Aile")
       (copy-face 'default 'fixed-pitch)
-      
+
       (set-face-attribute 'default nil :height 130)
       (set-face-attribute 'variable-pitch nil :height 130)
-      
+
       (buffer-face-mode)
 
       (when (member "Noto Color Emoji" (font-family-list))
         (set-fontset-font
           t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
-      
+
       (set-face-attribute 'italic nil
                           :underline nil
                           :slant 'italic
@@ -527,6 +524,8 @@
   (doom-modeline-vcs-max-length 25)
   (doom-modeline-persp-name t)
   (doom-modeline-persp-icon t)
+  (doom-modeline-modal nil)
+  (doom-modeline-percent-position nil)
   (doom-modeline-buffer-file-name-style 'buffer-name)
   (doom-modeline-project-detection 'project)
   (doom-modeline-icon t)
@@ -790,12 +789,11 @@
 	:keymaps 'override
 	:prefix "SPC"
 	:global-prefix "C-SPC")
-  
+
   (start/leader-keys
 	"." '(find-file :wk "Find file")
-	"u" '(vundo :wk "UndoTree")
 	"P" '(projectile-command-map :wk "Projectile command map"))
-  
+
   (start/leader-keys
 	"z" '(:ignore t :wk "Hide-Show")
 	"z a" '(hs-toggle-hiding :wk "Toggle fold")
@@ -823,7 +821,7 @@
 	"b p" '(previous-buffer :wk "Previous buffer")
 	"b r" '(revert-buffer :wk "Reload buffer")
 	"b j" '(consult-bookmark :wk "Bookmark jump"))
-  
+
   (start/leader-keys
 	"G" '(:ignore t :wk "Git")
 	"G g" '(magit-status :wk "Magit status")
@@ -837,7 +835,7 @@
 	"G V D" '(vc-root-diff :wk "VC diff entire repository")
 	"G V v" '(vc-next-action :wk "Next VC action")
 	)
-  
+
   (start/leader-keys
 	"H" '(:ignore t :wk "Describe")
 	"H m" '(describe-mode :wk "Describe current mode")
@@ -850,7 +848,7 @@
 	"t" '(:ignore t :wk "Toggle")
 	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
 	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
-  
+
   (start/leader-keys
 	"O" '(:ignore t :which-key "Org")
 	"O i" '(org-toggle-inline-images :wk "Toggle Inline Images")
@@ -862,7 +860,7 @@
 	"O t D" '((lambda () (interactive) (org-todo "DONE")) :which-key "Set DONE")
 	"O t c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "Set CANCELLED")
 	"O t m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "Set MAYBE"))
-  
+
   (start/leader-keys
 	"O a" '(:ignore t :wk "Org Agenda")
 	"O a c" '(org-capture :wk "Capture")
@@ -874,7 +872,7 @@
 	"O r i" '(org-roam-node-insert :wk "Insert Node")
 	"O r c" '(org-roam-capture :wk "Capture")
 	"O r g" '(org-roam-graph :wk "Graph"))
-  
+
   (start/leader-keys
 	"O d" '(:ignore t :wk "Org Roam Dailies")
 	"O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
@@ -1079,13 +1077,6 @@
 (use-package toc-org
   :commands toc-org-enable
   :hook (org-mode . toc-org-mode))
-
-;; (use-package org-superstar
-;;   :after org
-;;   :hook (org-mode . org-superstar-mode)
-;;   :config
-;;   (setq org-superstar-headline-bullets-list '("󰼏 " "󰼐 " "󰼑 " "󰼒 " "󰼓 " "󰼔 "))
-;;   )
 
 (use-package org-tempo
   :ensure nil
