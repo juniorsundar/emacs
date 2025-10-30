@@ -404,7 +404,6 @@
   :if (display-graphic-p)
   :config
   (spacious-padding-mode t)
-  (spacious-padd)
   )
 ;;-----------------------------------------------------------------------------
 ;; Fonts
