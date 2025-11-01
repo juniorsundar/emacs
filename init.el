@@ -634,6 +634,7 @@
 
 (use-package python-mode)
 (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+(require 'python)
 
 (use-package go-mode)
 (add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
@@ -758,6 +759,20 @@
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
    :preview-key '(:debounce 0.4 any))
+  (setq consult-narrow-key "<")
+  (setq consult-buffer-sources
+   '(consult--source-project-buffer ; 1. Show project buffers first
+	 consult--source-buffer         ; 2. Then show all other buffers
+	 consult--source-recent-file
+	 consult--source-bookmark))
+(advice-add #'consult--buffer-filter :override
+              (lambda (buffer) (not (consult--project-buffer-p buffer))))
+  (setq consult-fd-args
+   '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
+	 "--color=never"
+	 ;; https://github.com/sharkdp/fd/issues/839
+	 "--hidden --exclude .git"
+	 (if (featurep :system 'windows) "--path-separator=/")))
   )
 
 (use-package embark
