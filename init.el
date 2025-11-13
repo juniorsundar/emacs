@@ -25,6 +25,17 @@
 (defun load-config-file (file)
   (load (expand-file-name file my-config-dir)))
 
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+	(url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+	(eval-buffer)
+	(quelpa-self-upgrade)))
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+
 ;;-----------------------------------------------------------------------------
 ;; Add to search paths
 ;;----------------------------------------------------------------------------
@@ -880,20 +891,27 @@
 	"O a c" '(org-capture :wk "Capture")
 	"O a a" '(org-agenda :wk "Agenda")
 
-	"O r" '(:ignore t :wk "Org Roam")
-	"O r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-	"O r f" '(org-roam-node-find :wk "Find Node")
-	"O r i" '(org-roam-node-insert :wk "Insert Node")
-	"O r c" '(org-roam-capture :wk "Capture")
-	"O r g" '(org-roam-graph :wk "Graph"))
+	"O d" '(:ignore t :wk "Denote")
+	"O d n" '(denote :wk "New File")
+	"O d r" '(denote-rename-file :wk "Rename")
+	"O d l" '(denote-link :wk "Insert Link")
+	"O d b" '(denote-backlinks :wk "Backlinks")
+	"O d o" '(denote-open-or-create :wk "Open")
+	"O d d" '(denote-dired :wk "Dired")
+	"O d g" '(denote-grep :wk "Grep"))
+	;; "O r" '(:ignore t :wk "Org Roam")
+	;; "O r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
+	;; "O r f" '(org-roam-node-find :wk "Find Node")
+	;; "O r i" '(org-roam-node-insert :wk "Insert Node")
+	;; "O r c" '(org-roam-capture :wk "Capture")
+	;; "O r g" '(org-roam-graph :wk "Graph")
 
-  (start/leader-keys
-	"O d" '(:ignore t :wk "Org Roam Dailies")
-	"O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	"O d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-	"O d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-	"O d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-	"O d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
+	;; "O d" '(:ignore t :wk "Org Roam Dailies")
+	;; "O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
+	;; "O d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
+	;; "O d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
+	;; "O d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
+	;; "O d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
 
   (start/leader-keys
 	"-" '((lambda () (interactive) (dired default-directory)) :wk "Open"))
@@ -1068,25 +1086,35 @@
     (set-face-attribute 'org-table nil :height 1.0 :family "IosevkaTerm Nerd Font")
 	)
 (add-hook 'org-mode-hook #'my-org-faces)
-(add-hook 'org-mode-hook #'variable-pitch-mode)
+;; (add-hook 'org-mode-hook #'variable-pitch-mode)
 
-(use-package org-roam
+(use-package denote
   :ensure t
-  :custom
-  (org-roam-directory (file-truename "~/Dropbox/org/pages"))
-  (org-roam-dailies-directory "./journals/")
-  (org-roam-capture-templates
-   '(("d" "default" plain "%?"
-	  :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
-	  :unnarrowed t))
-   org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %?"
-	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+FILETAGS: journal"))))
-
+  :hook (dired-mode . denote-dired-mode)
   :config
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
-  (require 'org-roam-protocol))
+  (setq denote-directory (expand-file-name "~/Dropbox/org/pages/"))
+  (denote-rename-buffer-mode 1))
+
+(use-package denote-org
+  :ensure t)
+
+;; (use-package org-roam
+;;   :ensure t
+;;   :custom
+;;   (org-roam-directory (file-truename "~/Dropbox/org/pages"))
+;;   (org-roam-dailies-directory "./journals/")
+;;   (org-roam-capture-templates
+;;    '(("d" "default" plain "%?"
+;; 	  :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
+;; 	  :unnarrowed t))
+;;    org-roam-dailies-capture-templates
+;;    '(("d" "default" entry "* %?"
+;; 	  :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+FILETAGS: journal"))))
+
+;;   :config
+;;   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+;;   (org-roam-db-autosync-mode)
+;;   (require 'org-roam-protocol))
 
 (use-package toc-org
   :commands toc-org-enable
