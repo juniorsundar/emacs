@@ -585,6 +585,8 @@
   :ensure t
   :commands (magit-status magit-blame-addition)
   )
+(setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1
+      magit-bury-buffer-function #'magit-mode-quit-window)
 
 (use-package diff-hl
   :defer t
