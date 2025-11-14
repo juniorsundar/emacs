@@ -246,6 +246,10 @@
 	  (when gls
 		(setq insert-directory-program gls)))))
 
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (define-key dired-mode-map (kbd "-") #'dired-up-directory)))
+
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
 
@@ -330,72 +334,11 @@
 ;;-----------------------------------------------------------------------------
 ;; Evil
 ;;-----------------------------------------------------------------------------
-(use-package evil
-  :init
-  (evil-mode)
-  :config
-  (evil-set-initial-state 'eat-mode 'insert)
-  :custom
-  (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
-  (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
-  (evil-want-C-i-jump nil)      ;; Disables C-i jump
-  (evil-undo-system 'undo-redo) ;; C-r to redo
-  ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
-  :bind (:map evil-motion-state-map
-			  ("SPC" . nil)
-			  ("RET" . nil)
-			  ("TAB" . nil)
-              ;; Window Management
-              ("C-M-<up>" . evil-window-increase-height)
-              ("C-M-k" . evil-window-increase-height)
-              ("C-M-<down>" . evil-window-decrease-height)
-              ("C-M-j" . evil-window-decrease-height)
-              ("C-M-<right>" . evil-window-increase-width)
-              ("C-M-l" . evil-window-increase-width)
-              ("C-M-<left>" . evil-window-decrease-width)
-              ("C-M-h" . evil-window-decrease-width)
-              )
-  (:map evil-visual-state-map
-		("M-h"      . evil-shift-left)
-		("M-l"      . evil-shift-right)
-		("M-<left>" . evil-shift-left)
-		("M-<right>". evil-shift-right)
-		)
-  )
-
-(use-package evil-surround
-  :ensure t
-  :after evil
-  :config
-  (global-evil-surround-mode 1))
-
-(use-package evil-collection
-  :ensure t
-  :after evil
-  :config
-  (evil-collection-init))
-
 (use-package avy
   :ensure t)
-
-(use-package evil-commentary
-  :after evil
-  :config (evil-commentary-mode))
-
-(use-package evil-avy
-  :after (evil avy)
-  :config
-  (evil-define-key '(normal visual) 'global "s" #'avy-goto-word-1))
-
 ;;-----------------------------------------------------------------------------
 ;; Theme
 ;;-----------------------------------------------------------------------------
-;; (load-config-file "catppuccin-theme/catppuccin-theme.el")
-;; (load-theme 'catppuccin :no-confirm) ;; We need to add t to trust this package
-;; (setq catppuccin-flavor 'cyberdream)
-;; (setq catppuccin-italic-comments 't)
-;; (catppuccin-reload)
-
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
 (use-package doom-themes
   :ensure t
@@ -448,13 +391,13 @@
 
       (when (member "Noto Color Emoji" (font-family-list))
         (set-fontset-font
-          t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
+         t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
 
       (set-face-attribute 'italic nil
                           :underline nil
                           :slant 'italic
                           :family "IosevkaTerm Nerd Font")
-    )))
+      )))
 
 (add-hook 'after-make-frame-functions #'my/set-frame-fonts)
 (when (and (not (daemonp)) (display-graphic-p))
@@ -563,16 +506,6 @@
   :config
   (direnv-mode))
 
-;; (use-package lsp-mode
-;;   :init
-;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-;;   ;; (setq lsp-keymap-prefix "SPC L")
-;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-;;          (rust-ts-mode . lsp)
-;;          (lsp-mode . lsp-enable-which-key-integration))
-;;   :commands lsp)
-;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-
 (use-package eglot
   :ensure nil
   :hook ((go-ts-mode . eglot-ensure)
@@ -617,22 +550,6 @@
   :config
   (setq treesit-auto-add-to-auto-mode-alist 'all)
   (setq global-treesit-auto-mode t))
-
-(use-package treesit-fold
-  :ensure t
-  :hook (prog-mode . global-treesit-fold-mode)
-  :config
-  (evil-define-key '(normal visual) 'global
-    "za" #'treesit-fold-toggle
-    "zc" #'treesit-fold-close
-    "zo" #'treesit-fold-open
-    "zC" #'treesit-fold-close-all
-    "zO" #'treesit-fold-open-all
-    "zR" #'treesit-fold-open-all
-    "zM" #'treesit-fold-close-all
-    "zr" #'treesit-fold-open-recursively
-    "zm" #'treesit-fold-close)
-  )
 
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
@@ -772,18 +689,18 @@
    :preview-key '(:debounce 0.4 any))
   (setq consult-narrow-key "<")
   (setq consult-buffer-sources
-   '(consult--source-project-buffer ; 1. Show project buffers first
-	 consult--source-buffer         ; 2. Then show all other buffers
-	 consult--source-recent-file
-	 consult--source-bookmark))
-(advice-add #'consult--buffer-filter :override
+		'(consult--source-project-buffer ; 1. Show project buffers first
+		  consult--source-buffer         ; 2. Then show all other buffers
+		  consult--source-recent-file
+		  consult--source-bookmark))
+  (advice-add #'consult--buffer-filter :override
               (lambda (buffer) (not (consult--project-buffer-p buffer))))
   (setq consult-fd-args
-   '((if (executable-find "fdfind" 'remote) "fdfind" "fd")
-	 "--color=never"
-	 ;; https://github.com/sharkdp/fd/issues/839
-	 "--hidden --exclude .git"
-	 (if (featurep :system 'windows) "--path-separator=/")))
+		'((if (executable-find "fdfind" 'remote) "fdfind" "fd")
+		  "--color=never"
+		  ;; https://github.com/sharkdp/fd/issues/839
+		  "--hidden --exclude .git"
+		  (if (featurep :system 'windows) "--path-separator=/")))
   )
 
 (use-package embark
@@ -791,7 +708,7 @@
   :defer t
   :bind
   (("C-q" . embark-act)
-   ("C-d" . embark-dwim)
+   ("M-d" . embark-dwim)
    ("C-h B" . embark-bindings))
   )
 
@@ -806,154 +723,137 @@
 ;;-----------------------------------------------------------------------------
 ;; Key Binders
 ;;-----------------------------------------------------------------------------
-(use-package general
-  :config
-  (general-evil-setup)
-  (general-create-definer start/leader-keys
-	:states '(normal insert visual motion emacs)
-	:keymaps 'override
-	:prefix "SPC"
-	:global-prefix "C-SPC")
+;; --- Standard Emacs replacement for general-define-key ---
 
-  (start/leader-keys
-	"." '(find-file :wk "Find file")
-	"P" '(projectile-command-map :wk "Projectile command map"))
+(defvar my-leader-map
+  (let ((map (make-sparse-keymap)))
+    ;; Top-level bindings
+    (define-key map (kbd ".") 'find-file)
+    (define-key map (kbd "P") 'projectile-command-map)
+    (define-key map (kbd "-") #'(lambda () (interactive) (dired default-directory)))
 
-  (start/leader-keys
-	"z" '(:ignore t :wk "Hide-Show")
-	"z a" '(hs-toggle-hiding :wk "Toggle fold")
-	"z c" '(hs-hide-block :wk "Fold block")
-	"z o" '(hs-show-block :wk "Reveal block")
-	"z R" '(hs-show-all :wk "Reveal all")
-	"z M" '(hs-hide-all :wk "Fold all")
-	)
+    ;; --- "z" (Hide-Show) sub-map ---
+    (let ((submap (make-sparse-keymap "Hide-Show")))
+      (define-key submap (kbd "a") 'hs-toggle-hiding)
+      (define-key submap (kbd "c") 'hs-hide-block)
+      (define-key submap (kbd "o") 'hs-show-block)
+      (define-key submap (kbd "R") 'hs-show-all)
+      (define-key submap (kbd "M") 'hs-hide-all)
+      (define-key map (kbd "Z") submap))
 
-  (start/leader-keys
-	"F" '(:ignore t :wk "Find")
-	"F c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :wk "Edit emacs config")
-	"F r" '(consult-recent-file :wk "Recent files")
-	"F f" '(consult-fd :wk "Fd search for files")
-	"F t" '(consult-ripgrep :wk "Ripgrep search in files")
-	"F l" '(consult-line :wk "Find line")
-	)
+    ;; --- "f" (Find) sub-map ---
+    (let ((submap (make-sparse-keymap "Find")))
+      (define-key submap (kbd "c") #'(lambda () (interactive) (find-file "~/.config/emacs/init.el")))
+      (define-key submap (kbd "r") 'consult-recent-file)
+      (define-key submap (kbd "f") 'consult-fd)
+      (define-key submap (kbd "t") 'consult-ripgrep)
+      (define-key submap (kbd "l") 'consult-line)
+      (define-key map (kbd "F") submap))
 
-  (start/leader-keys
-	"b" '(:ignore t :wk "Buffer Bookmarks")
-	"b b" '(consult-buffer :wk "Switch buffer")
-	"b k" '(kill-this-buffer :wk "Kill this buffer")
-	"b i" '(ibuffer :wk "Ibuffer")
-	"b n" '(next-buffer :wk "Next buffer")
-	"b p" '(previous-buffer :wk "Previous buffer")
-	"b r" '(revert-buffer :wk "Reload buffer")
-	"b j" '(consult-bookmark :wk "Bookmark jump"))
+    ;; --- "b" (Buffer Bookmarks) sub-map ---
+    (let ((submap (make-sparse-keymap "Buffer Bookmarks")))
+      (define-key submap (kbd "b") 'consult-buffer)
+      (define-key submap (kbd "k") 'kill-this-buffer)
+      (define-key submap (kbd "i") 'ibuffer)
+      (define-key submap (kbd "n") 'next-buffer)
+      (define-key submap (kbd "p") 'previous-buffer)
+      (define-key submap (kbd "r") 'revert-buffer)
+      (define-key submap (kbd "j") 'consult-bookmark)
+      (define-key map (kbd "B") submap))
 
-  (start/leader-keys
-	"G" '(:ignore t :wk "Git")
-	"G g" '(magit-status :wk "Magit status")
-	"G l" '(magit-log-current :wk "Current log")
-	"G d" '(magit-diff-buffer-file :wk "Diff current file")
-	"G D" '(diff-hl-show-hunk :wk "Diff hunk")
-	"G V" '(:ignore t :wk "VC")
-	"G V d" '(vc-dir :wk "VC directory")
-	"G V b" '(vc-annotate :wk "VC annotate buffer")
-	"G V =" '(vc-diff :wk "VC diff current file")
-	"G V D" '(vc-root-diff :wk "VC diff entire repository")
-	"G V v" '(vc-next-action :wk "Next VC action")
-	)
+    ;; --- "G" (Git) sub-map ---
+    (let ((submap (make-sparse-keymap "Git")))
+      (define-key submap (kbd "g") 'magit-status)
+      (define-key submap (kbd "l") 'magit-log-current)
+      (define-key submap (kbd "d") 'magit-diff-buffer-file)
+      (define-key submap (kbd "D") 'diff-hl-show-hunk)
+      ;; --- "G V" (VC) sub-sub-map ---
+      (let ((vc-submap (make-sparse-keymap "VC")))
+        (define-key vc-submap (kbd "d") 'vc-dir)
+        (define-key vc-submap (kbd "b") 'vc-annotate)
+        (define-key vc-submap (kbd "=") 'vc-diff)
+        (define-key vc-submap (kbd "D") 'vc-root-diff)
+        (define-key vc-submap (kbd "v") 'vc-next-action)
+        (define-key submap (kbd "V") vc-submap))
+      (define-key map (kbd "G") submap))
 
-  (start/leader-keys
-	"H" '(:ignore t :wk "Describe")
-	"H m" '(describe-mode :wk "Describe current mode")
-	"H f" '(describe-function :wk "Describe function")
-	"H v" '(describe-variable :wk "Describe variable")
-	"H k" '(describe-key :wk "Describe key")
-	)
+    ;; --- "H" (Describe) sub-map ---
+    (let ((submap (make-sparse-keymap "Describe")))
+      (define-key submap (kbd "m") 'describe-mode)
+      (define-key submap (kbd "f") 'describe-function)
+      (define-key submap (kbd "v") 'describe-variable)
+      (define-key submap (kbd "k") 'describe-key)
+      (define-key map (kbd "H") submap))
 
-  (start/leader-keys
-	"t" '(:ignore t :wk "Toggle")
-	"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-	"t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+    ;; --- "t" (Toggle) sub-map ---
+    (let ((submap (make-sparse-keymap "Toggle")))
+      (define-key submap (kbd "t") 'visual-line-mode)
+      (define-key submap (kbd "l") 'display-line-numbers-mode)
+      (define-key map (kbd "t") submap))
 
-  (start/leader-keys
-	"O" '(:ignore t :which-key "Org")
-	"O i" '(org-toggle-inline-images :wk "Toggle Inline Images")
+    ;; --- "O" (Org) sub-map ---
+    (let ((submap (make-sparse-keymap "Org")))
+      (define-key submap (kbd "i") 'org-toggle-inline-images)
+      ;; --- "O t" (TODO States) sub-sub-map ---
+      (let ((todo-submap (make-sparse-keymap "TODO States")))
+        (define-key todo-submap (kbd "t") 'org-todo)
+        (define-key todo-submap (kbd "d") #'(lambda () (interactive) (org-todo "DOING")))
+        (define-key todo-submap (kbd "h") #'(lambda () (interactive) (org-todo "HOLD")))
+        (define-key todo-submap (kbd "D") #'(lambda () (interactive) (org-todo "DONE")))
+        (define-key todo-submap (kbd "c") #'(lambda () (interactive) (org-todo "CANCELLED")))
+        (define-key todo-submap (kbd "m") #'(lambda () (interactive) (org-todo "MAYBE")))
+        (define-key submap (kbd "t") todo-submap))
+      ;; --- "O a" (Org Agenda) sub-sub-map ---
+      (let ((agenda-submap (make-sparse-keymap "Org Agenda")))
+        (define-key agenda-submap (kbd "c") 'org-capture)
+        (define-key agenda-submap (kbd "a") 'org-agenda)
+        (define-key submap (kbd "a") agenda-submap))
+      ;; --- "O d" (Denote) sub-sub-map ---
+      (let ((denote-submap (make-sparse-keymap "Denote")))
+        (define-key denote-submap (kbd "n") 'denote)
+        (define-key denote-submap (kbd "r") 'denote-rename-file)
+        (define-key denote-submap (kbd "l") 'denote-link)
+        (define-key denote-submap (kbd "b") 'denote-backlinks)
+        (define-key denote-submap (kbd "o") 'denote-open-or-create)
+        (define-key denote-submap (kbd "d") 'denote-dired)
+        (define-key denote-submap (kbd "g") 'denote-grep)
+        (define-key submap (kbd "d") denote-submap))
+      (define-key map (kbd "O") submap))
 
-	"O t" '(:ignore t :which-key "TODO States")
-	"O t t" '(org-todo :which-key "Set TODO")
-	"O t d" '((lambda () (interactive) (org-todo "DOING")) :which-key "Set DOING")
-	"O t h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "Set HOLD")
-	"O t D" '((lambda () (interactive) (org-todo "DONE")) :which-key "Set DONE")
-	"O t c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "Set CANCELLED")
-	"O t m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "Set MAYBE"))
+    ;; --- "l" (LSP) sub-map ---
+    (let ((submap (make-sparse-keymap "LSP")))
+      (define-key submap (kbd "a") 'eglot-code-actions)
+      (define-key submap (kbd "f") 'eglot-format-buffer)
+      (define-key submap (kbd "l") 'eglot-code-lens-action)
+      (define-key submap (kbd "n") 'eglot-rename)
+      (define-key submap (kbd "k") 'eldoc)
+      (define-key submap (kbd "I") 'eglot-events-buffer)
+      (define-key submap (kbd "d") 'xref-find-definitions)
+      (define-key submap (kbd "c") 'eglot-find-declaration)
+      (define-key submap (kbd "i") 'eglot-find-implementation)
+      (define-key submap (kbd "t") 'eglot-find-typeDefinition)
+      (define-key submap (kbd "r") 'xref-find-references)
+      ;; --- "l D" (Document) sub-sub-map ---
+      (let ((doc-submap (make-sparse-keymap "Document")))
+        (define-key doc-submap (kbd "s") 'consult-imenu)
+        (define-key doc-submap (kbd "d") 'consult-flymake)
+        (define-key submap (kbd "D") doc-submap))
+      ;; --- "l W" (Workspace) sub-sub-map ---
+      (let ((ws-submap (make-sparse-keymap "Workspace")))
+        (define-key ws-submap (kbd "a") 'projectile-add-known-project)
+        (define-key ws-submap (kbd "r") 'projectile-remove-known-project)
+        (define-key ws-submap (kbd "l") 'consult-project-buffer)
+        (define-key ws-submap (kbd "s") 'consult-lsp-file-symbols)
+        (define-key ws-submap (kbd "d") #'(lambda () (interactive) (consult-flymake t)))
+        (define-key submap (kbd "W") ws-submap))
+      (define-key map (kbd "l") submap))
+    
+    ;; Return the fully populated map
+    map))
 
-  (start/leader-keys
-	"O a" '(:ignore t :wk "Org Agenda")
-	"O a c" '(org-capture :wk "Capture")
-	"O a a" '(org-agenda :wk "Agenda")
+;; Finally, bind C-c in the global map to this new leader map
+(define-key global-map (kbd "C-c") my-leader-map)
 
-	"O d" '(:ignore t :wk "Denote")
-	"O d n" '(denote :wk "New File")
-	"O d r" '(denote-rename-file :wk "Rename")
-	"O d l" '(denote-link :wk "Insert Link")
-	"O d b" '(denote-backlinks :wk "Backlinks")
-	"O d o" '(denote-open-or-create :wk "Open")
-	"O d d" '(denote-dired :wk "Dired")
-	"O d g" '(denote-grep :wk "Grep"))
-	;; "O r" '(:ignore t :wk "Org Roam")
-	;; "O r l" '(org-roam-buffer-toggle :wk "Toggle Buffer")
-	;; "O r f" '(org-roam-node-find :wk "Find Node")
-	;; "O r i" '(org-roam-node-insert :wk "Insert Node")
-	;; "O r c" '(org-roam-capture :wk "Capture")
-	;; "O r g" '(org-roam-graph :wk "Graph")
-
-	;; "O d" '(:ignore t :wk "Org Roam Dailies")
-	;; "O d t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	;; "O d y" '(org-roam-dailies-capture-yesterday :wk "Capture Yesterday")
-	;; "O d d" '(org-roam-dailies-goto-date :wk "Go-to Date")
-	;; "O d T" '(org-roam-dailies-goto-today :wk "Go-to Today")
-	;; "O d Y" '(org-roam-dailies-goto-yesterday :wk "Go-to Yesterday"))
-
-  (start/leader-keys
-	"-" '((lambda () (interactive) (dired default-directory)) :wk "Open"))
-
-  (start/leader-keys
-	"L"  '(:ignore t :wk "LSP")
-	;; "L a" '(lsp-execute-code-action :wk "Code Action")
-	;; "L f" '(lsp-format-buffer :wk "Format Buffer")
-	;; "L l" '(lsp-lens-mode :wk "CodeLens Mode")
-	;; "L n" '(lsp-rename :wk "Rename")
-	;; "L k" '(lsp-describe-thing-at-point :wk "Hover Documentation")
-	;; "L I" '(lsp-describe-session :wk "LSP Info")
-	;; "L d" '(lsp-find-definition :wk "Definition")
-	;; "L c" '(lsp-find-declaration :wk "Declaration")
-	;; "L i" '(lsp-find-implementation :wk "Implementation")
-	;; "L t" '(lsp-find-typeDefinition :wk "Type Definition")
-	;; "L r" '(lsp-find-references :wk "References")
-	"L a" '(eglot-code-actions :wk "Code Action")
-	"L f" '(eglot-format-buffer :wk "Format Buffer")
-	"L l" '(eglot-code-lens-action :wk "CodeLens Action")
-	"L n" '(eglot-rename :wk "Rename")
-	"L k" '(eldoc :wk "Hover Documentation")
-	"L I" '(eglot-events-buffer :wk "LSP Info")
-	"L d" '(xref-find-definitions :wk "Definition")
-	"L c" '(eglot-find-declaration :wk "Declaration")
-	"L i" '(eglot-find-implementation :wk "Implementation")
-	"L t" '(eglot-find-typeDefinition :wk "Type Definition")
-	"L r" '(xref-find-references :wk "References")
-
-    ;; Document actions
-    "L D" '(:ignore t :wk "Document")
-    "L D s" '(consult-imenu :wk "Symbols")
-    "L D d" '(consult-flymake :wk "Diagnostics")
-
-    ;; Workspace actions
-    "L W" '(:ignore t :wk "Workspace")
-    "L W a" '(projectile-add-known-project :wk "Add Folder")
-    "L W r" '(projectile-remove-known-project :wk "Remove Folder")
-    "L W l" '(consult-project-buffer :wk "List Folders (Buffers)")
-    "L W s" '(consult-lsp-file-symbols :wk "Symbols")
-    "L W d" '((lambda () (interactive) (consult-flymake t)) :wk "Diagnostics (Project)"))
-  )
 
 ;;-----------------------------------------------------------------------------
 ;; Org-Mode
@@ -1075,16 +975,16 @@
 (font-lock-mode 1)
 
 (defun my-org-faces ()
-    (set-face-attribute 'org-document-title nil :height 2.0 :family "Iosevka Aile")
-    (set-face-attribute 'org-level-1 nil :height 1.8 :family "Iosevka Aile")
-    (set-face-attribute 'org-level-2 nil :height 1.6 :family "Iosevka Aile")
-    (set-face-attribute 'org-level-3 nil :height 1.4 :family "Iosevka Aile")
-    (set-face-attribute 'org-level-4 nil :height 1.2 :family "Iosevka Aile")
-    (set-face-attribute 'org-level-5 nil :height 1.1 :family "Iosevka Aile")
-    (set-face-attribute 'org-block nil :height 1.0 :family "IosevkaTerm Nerd Font")
-    (set-face-attribute 'org-code nil :height 1.0 :family "IosevkaTerm Nerd Font")
-    (set-face-attribute 'org-table nil :height 1.0 :family "IosevkaTerm Nerd Font")
-	)
+  (set-face-attribute 'org-document-title nil :height 2.0 :family "Iosevka Aile")
+  (set-face-attribute 'org-level-1 nil :height 1.8 :family "Iosevka Aile")
+  (set-face-attribute 'org-level-2 nil :height 1.6 :family "Iosevka Aile")
+  (set-face-attribute 'org-level-3 nil :height 1.4 :family "Iosevka Aile")
+  (set-face-attribute 'org-level-4 nil :height 1.2 :family "Iosevka Aile")
+  (set-face-attribute 'org-level-5 nil :height 1.1 :family "Iosevka Aile")
+  (set-face-attribute 'org-block nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'org-code nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'org-table nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  )
 (add-hook 'org-mode-hook #'my-org-faces)
 ;; (add-hook 'org-mode-hook #'variable-pitch-mode)
 
@@ -1151,4 +1051,102 @@
 
 (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
 
+
+;; -----
+(use-package meow
+  :ensure t)
+(defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (meow-motion-define-key
+   '("j" . meow-next)
+   '("k" . meow-prev)
+   '("<escape>" . ignore))
+  (meow-leader-define-key
+   ;; Use SPC (0-9) for digit arguments.
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("[" . meow-beginning-of-thing)
+   '("]" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-next-word)
+   '("E" . meow-next-symbol)
+   '("f" . meow-find)
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-next)
+   '("J" . meow-next-expand)
+   '("k" . meow-prev)
+   '("K" . meow-prev-expand)
+   '("l" . meow-right)
+   '("L" . meow-right-expand)
+   '("m" . meow-join)
+   '("n" . meow-search)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-yank)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   '("s" . meow-kill)
+   '("t" . meow-till)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   '("w" . meow-mark-word)
+   '("W" . meow-mark-symbol)
+   '("x" . meow-line)
+   '("X" . meow-goto-line)
+   '("y" . meow-save)
+   '("Y" . meow-sync-grab)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<left>"  . meow-left)
+   '("<right>" . meow-right)
+   '("<up>"    . meow-prev)
+   '("<down>"  . meow-next)
+   '("<S-left>"  . meow-left-expand)
+   '("<S-right>" . meow-right-expand)
+   '("<S-up>"    . meow-prev-expand)
+   '("<S-down>"  . meow-next-expand)
+   '("<escape>" . ignore)))
+(require 'meow)
+(meow-setup)
+(meow-global-mode 1)
 ;;; init.el ends here
+
