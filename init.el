@@ -376,7 +376,7 @@
 
 (add-hook 'eww-mode-hook 'variable-pitch-mode)
 
-(defun my/set-frame-fonts (frame)
+(defun my-set-frame-fonts (frame)
   "Set fonts for the given FRAME."
   (when (display-graphic-p frame)
     (with-selected-frame frame
@@ -399,9 +399,9 @@
                           :family "IosevkaTerm Nerd Font")
       )))
 
-(add-hook 'after-make-frame-functions #'my/set-frame-fonts)
+(add-hook 'after-make-frame-functions #'my-set-frame-fonts)
 (when (and (not (daemonp)) (display-graphic-p))
-  (my/set-frame-fonts (selected-frame)))
+  (my-set-frame-fonts (selected-frame)))
 
 ;; Set Nerd Font for symbols
 (when (member "Noto Color Emoji" (font-family-list))
@@ -531,14 +531,14 @@
               (when (get-buffer-window "*eldoc*")
                 (with-current-buffer "*eldoc*"
                   (setq my--eldoc-buffer-tracker t)))))
-(defun my/close-eldoc-buffer-if-left ()
+(defun my-close-eldoc-buffer-if-left ()
   "Close *eldoc* buffer if point is no longer in it."
   (unless (or (null (get-buffer "*eldoc*"))
               (eq (current-buffer) (get-buffer "*eldoc*")))
     (let ((win (get-buffer-window "*eldoc*")))
       (when win
         (quit-window t win)))))
-(add-hook 'post-command-hook #'my/close-eldoc-buffer-if-left)
+(add-hook 'post-command-hook #'my-close-eldoc-buffer-if-left)
 
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
@@ -672,7 +672,6 @@
 ;;-----------------------------------------------------------------------------
 ;; Search
 ;;-----------------------------------------------------------------------------
-
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
@@ -723,141 +722,6 @@
   :ensure t)
 
 ;;-----------------------------------------------------------------------------
-;; Key Binders
-;;-----------------------------------------------------------------------------
-;; --- Standard Emacs replacement for general-define-key ---
-
-(defvar my-leader-map
-  (let ((map (make-sparse-keymap)))
-    ;; Top-level bindings
-    (define-key map (kbd ".") 'find-file)
-    (define-key map (kbd "P") 'projectile-command-map)
-    (define-key map (kbd "-") #'(lambda () (interactive) (dired default-directory)))
-
-    ;; --- "z" (Hide-Show) sub-map ---
-    (let ((submap (make-sparse-keymap "Hide-Show")))
-      (define-key submap (kbd "a") 'hs-toggle-hiding)
-      (define-key submap (kbd "c") 'hs-hide-block)
-      (define-key submap (kbd "o") 'hs-show-block)
-      (define-key submap (kbd "R") 'hs-show-all)
-      (define-key submap (kbd "M") 'hs-hide-all)
-      (define-key map (kbd "Z") submap))
-
-    ;; --- "f" (Find) sub-map ---
-    (let ((submap (make-sparse-keymap "Find")))
-      (define-key submap (kbd "c") #'(lambda () (interactive) (find-file "~/.config/emacs/init.el")))
-      (define-key submap (kbd "r") 'consult-recent-file)
-      (define-key submap (kbd "f") 'consult-fd)
-      (define-key submap (kbd "t") 'consult-ripgrep)
-      (define-key submap (kbd "l") 'consult-line)
-      (define-key map (kbd "F") submap))
-
-    ;; --- "b" (Buffer Bookmarks) sub-map ---
-    (let ((submap (make-sparse-keymap "Buffer Bookmarks")))
-      (define-key submap (kbd "b") 'consult-buffer)
-      (define-key submap (kbd "k") 'kill-this-buffer)
-      (define-key submap (kbd "i") 'ibuffer)
-      (define-key submap (kbd "n") 'next-buffer)
-      (define-key submap (kbd "p") 'previous-buffer)
-      (define-key submap (kbd "r") 'revert-buffer)
-      (define-key submap (kbd "j") 'consult-bookmark)
-      (define-key map (kbd "B") submap))
-
-    ;; --- "G" (Git) sub-map ---
-    (let ((submap (make-sparse-keymap "Git")))
-      (define-key submap (kbd "g") 'magit-status)
-      (define-key submap (kbd "l") 'magit-log-current)
-      (define-key submap (kbd "d") 'magit-diff-buffer-file)
-      (define-key submap (kbd "D") 'diff-hl-show-hunk)
-      ;; --- "G V" (VC) sub-sub-map ---
-      (let ((vc-submap (make-sparse-keymap "VC")))
-        (define-key vc-submap (kbd "d") 'vc-dir)
-        (define-key vc-submap (kbd "b") 'vc-annotate)
-        (define-key vc-submap (kbd "=") 'vc-diff)
-        (define-key vc-submap (kbd "D") 'vc-root-diff)
-        (define-key vc-submap (kbd "v") 'vc-next-action)
-        (define-key submap (kbd "V") vc-submap))
-      (define-key map (kbd "G") submap))
-
-    ;; --- "H" (Describe) sub-map ---
-    (let ((submap (make-sparse-keymap "Describe")))
-      (define-key submap (kbd "m") 'describe-mode)
-      (define-key submap (kbd "f") 'describe-function)
-      (define-key submap (kbd "v") 'describe-variable)
-      (define-key submap (kbd "k") 'describe-key)
-      (define-key map (kbd "H") submap))
-
-    ;; --- "t" (Toggle) sub-map ---
-    (let ((submap (make-sparse-keymap "Toggle")))
-      (define-key submap (kbd "t") 'visual-line-mode)
-      (define-key submap (kbd "l") 'display-line-numbers-mode)
-      (define-key map (kbd "t") submap))
-
-    ;; --- "O" (Org) sub-map ---
-    (let ((submap (make-sparse-keymap "Org")))
-      (define-key submap (kbd "i") 'org-toggle-inline-images)
-      ;; --- "O t" (TODO States) sub-sub-map ---
-      (let ((todo-submap (make-sparse-keymap "TODO States")))
-        (define-key todo-submap (kbd "t") 'org-todo)
-        (define-key todo-submap (kbd "d") #'(lambda () (interactive) (org-todo "DOING")))
-        (define-key todo-submap (kbd "h") #'(lambda () (interactive) (org-todo "HOLD")))
-        (define-key todo-submap (kbd "D") #'(lambda () (interactive) (org-todo "DONE")))
-        (define-key todo-submap (kbd "c") #'(lambda () (interactive) (org-todo "CANCELLED")))
-        (define-key todo-submap (kbd "m") #'(lambda () (interactive) (org-todo "MAYBE")))
-        (define-key submap (kbd "t") todo-submap))
-      ;; --- "O a" (Org Agenda) sub-sub-map ---
-      (let ((agenda-submap (make-sparse-keymap "Org Agenda")))
-        (define-key agenda-submap (kbd "c") 'org-capture)
-        (define-key agenda-submap (kbd "a") 'org-agenda)
-        (define-key submap (kbd "a") agenda-submap))
-      ;; --- "O d" (Denote) sub-sub-map ---
-      (let ((denote-submap (make-sparse-keymap "Denote")))
-        (define-key denote-submap (kbd "n") 'denote)
-        (define-key denote-submap (kbd "r") 'denote-rename-file)
-        (define-key denote-submap (kbd "l") 'denote-link)
-        (define-key denote-submap (kbd "b") 'denote-backlinks)
-        (define-key denote-submap (kbd "o") 'denote-open-or-create)
-        (define-key denote-submap (kbd "d") 'denote-dired)
-        (define-key denote-submap (kbd "g") 'denote-grep)
-        (define-key submap (kbd "d") denote-submap))
-      (define-key map (kbd "O") submap))
-
-    ;; --- "l" (LSP) sub-map ---
-    (let ((submap (make-sparse-keymap "LSP")))
-      (define-key submap (kbd "a") 'eglot-code-actions)
-      (define-key submap (kbd "f") 'eglot-format-buffer)
-      (define-key submap (kbd "l") 'eglot-code-lens-action)
-      (define-key submap (kbd "n") 'eglot-rename)
-      (define-key submap (kbd "k") 'eldoc)
-      (define-key submap (kbd "I") 'eglot-events-buffer)
-      (define-key submap (kbd "d") 'xref-find-definitions)
-      (define-key submap (kbd "c") 'eglot-find-declaration)
-      (define-key submap (kbd "i") 'eglot-find-implementation)
-      (define-key submap (kbd "t") 'eglot-find-typeDefinition)
-      (define-key submap (kbd "r") 'xref-find-references)
-      ;; --- "l D" (Document) sub-sub-map ---
-      (let ((doc-submap (make-sparse-keymap "Document")))
-        (define-key doc-submap (kbd "s") 'consult-imenu)
-        (define-key doc-submap (kbd "d") 'consult-flymake)
-        (define-key submap (kbd "D") doc-submap))
-      ;; --- "l W" (Workspace) sub-sub-map ---
-      (let ((ws-submap (make-sparse-keymap "Workspace")))
-        (define-key ws-submap (kbd "a") 'projectile-add-known-project)
-        (define-key ws-submap (kbd "r") 'projectile-remove-known-project)
-        (define-key ws-submap (kbd "l") 'consult-project-buffer)
-        (define-key ws-submap (kbd "s") 'consult-lsp-file-symbols)
-        (define-key ws-submap (kbd "d") #'(lambda () (interactive) (consult-flymake t)))
-        (define-key submap (kbd "W") ws-submap))
-      (define-key map (kbd "l") submap))
-    
-    ;; Return the fully populated map
-    map))
-
-;; Finally, bind C-c in the global map to this new leader map
-(define-key global-map (kbd "C-c") my-leader-map)
-
-
-;;-----------------------------------------------------------------------------
 ;; Org-Mode
 ;;-----------------------------------------------------------------------------
 (use-package org
@@ -902,16 +766,16 @@
   (setq org-hide-emphasis-markers t)
   )
 
-(defun my/org-agenda-files-recursive (directory)
+(defun my-org-agenda-files-recursive (directory)
   "Recursively find all .org files in DIRECTORY."
   (directory-files-recursively directory "\\.org$"))
-(defun my/update-org-agenda-files (&rest _)
+(defun my-update-org-agenda-files (&rest _)
   "Update `org-agenda-files` to include all .org files in the directory."
-  (setq org-agenda-files (my/org-agenda-files-recursive "~/Dropbox/org/")))
+  (setq org-agenda-files (my-org-agenda-files-recursive "~/Dropbox/org/")))
 
-(advice-add 'org-agenda :before #'my/update-org-agenda-files)
+(advice-add 'org-agenda :before #'my-update-org-agenda-files)
 
-(defun my/kill-agenda-file-buffers ()
+(defun my-kill-agenda-file-buffers ()
   "Kill unmodified buffers visiting files listed in `org-agenda-files`."
   (interactive)
   (let ((killed-count 0)
@@ -1053,8 +917,9 @@
 
 (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
 
-
-;; -----
+;;-----------------------------------------------------------------------------
+;; Meow
+;;-----------------------------------------------------------------------------
 (use-package meow
   :ensure t)
 (defun meow-setup ()
@@ -1146,9 +1011,211 @@
    '("<S-right>" . meow-right-expand)
    '("<S-up>"    . meow-prev-expand)
    '("<S-down>"  . meow-next-expand)
+   '("S (" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "(" ")")))
+   '("S {" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "{" "}")))
+   '("S \"" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "\"" "\"")))
+   '("S [" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "[" "]")))
+   '("S <" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "<" ">")))
+   '("S '" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "`" "'")))
    '("<escape>" . ignore)))
 (require 'meow)
 (meow-setup)
 (meow-global-mode 1)
+
+;;-----------------------------------------------------------------------------
+;; General Keybindings
+;;-----------------------------------------------------------------------------
+(use-package general
+  :ensure t)
+(require 'general)
+(general-def
+  :prefix "C-c" ; Use C-c as the leader key
+  :non-normal-prefix "C-c" ; Also apply to non-normal states if using evil
+  ;; Top-level bindings under C-c
+  "." '(find-file :which-key "Find")
+  "P" '(projectile-command-map :which-key "Projectile")
+  "-" '((lambda () (interactive) (dired default-directory)) :which-key "Dired File")
+  ;; Avy bindings under C-c (as top-level under the prefix)
+  "C-s" 'avy-goto-char
+  "C-j" 'avy-goto-line
+  "C-k" 'avy-goto-line
+  "C-<up>" 'avy-goto-line
+  "C-<down>" 'avy-goto-line
+  )
+
+;; Define the "Z" (Hide-Show) submap under the C-c leader
+(general-def
+  :prefix "C-c Z" ; Prefix for hide-show commands
+  "a" 'hs-toggle-hiding
+  "c" 'hs-hide-block
+  "o" 'hs-show-block
+  "R" 'hs-show-all
+  "M" 'hs-hide-all)
+
+;; Define the "F" (Find) submap under the C-c leader
+(general-def
+  :prefix "C-c F" ; Prefix for find commands
+  "c" (lambda () (interactive) (find-file "~/.config/emacs/init.el"))
+  "r" 'consult-recent-file
+  "f" 'consult-fd
+  "t" 'consult-ripgrep
+  "l" 'consult-line)
+
+;; Define the "B" (Buffer Bookmarks) submap under the C-c leader
+(general-def
+  :prefix "C-c B" ; Prefix for buffer/bookmark commands
+  "b" 'consult-buffer
+  "k" 'kill-this-buffer
+  "i" 'ibuffer
+  "n" 'next-buffer
+  "p" 'previous-buffer
+  "r" 'revert-buffer
+  "j" 'consult-bookmark)
+
+;; Define the "G" (Git) submap under the C-c leader
+(general-def
+  :prefix "C-c G" ; Prefix for git commands
+  "g" 'magit-status
+  "l" 'magit-log-current
+  "d" 'magit-diff-buffer-file
+  "D" 'diff-hl-show-hunk)
+
+;; Define the "G V" (VC) sub-submap under the C-c G prefix
+(general-def
+  :prefix "C-c G V" ; Prefix for VC commands
+  "d" 'vc-dir
+  "b" 'vc-annotate
+  "=" 'vc-diff
+  "D" 'vc-root-diff
+  "v" 'vc-next-action)
+
+;; Define the "H" (Describe) submap under the C-c leader
+(general-def
+  :prefix "C-c H" ; Prefix for describe commands
+  "m" 'describe-mode
+  "f" 'describe-function
+  "v" 'describe-variable
+  "k" 'describe-key)
+
+;; Define the "t" (Toggle) submap under the C-c leader
+(general-def
+  :prefix "C-c t" ; Prefix for toggle commands
+  "t" 'visual-line-mode
+  "l" 'display-line-numbers-mode)
+
+;; Define the "O" (Org) submap under the C-c leader
+(general-def
+  :prefix "C-c O" ; Prefix for Org commands
+  "i" 'org-toggle-inline-images)
+
+;; Define the "O t" (TODO States) sub-submap under the C-c O prefix
+(general-def
+  :prefix "C-c O t" ; Prefix for Org TODO commands
+  "t" 'org-todo
+  "d" (lambda () (interactive) (org-todo "DOING"))
+  "h" (lambda () (interactive) (org-todo "HOLD"))
+  "D" (lambda () (interactive) (org-todo "DONE"))
+  "c" (lambda () (interactive) (org-todo "CANCELLED"))
+  "m" (lambda () (interactive) (org-todo "MAYBE")))
+
+;; Define the "O a" (Org Agenda) sub-submap under the C-c O prefix
+(general-def
+  :prefix "C-c O a" ; Prefix for Org Agenda commands
+  "c" 'org-capture
+  "a" 'org-agenda)
+
+;; Define the "O d" (Denote) sub-submap under the C-c O prefix
+(general-def
+  :prefix "C-c O d" ; Prefix for Denote commands
+  "n" 'denote
+  "r" 'denote-rename-file
+  "l" 'denote-link
+  "b" 'denote-backlinks
+  "o" 'denote-open-or-create
+  "d" 'denote-dired
+  "g" 'denote-grep)
+
+;; Define the "l" (LSP) submap under the C-c leader
+(general-def
+  :prefix "C-c l" ; Prefix for LSP commands
+  "a" 'eglot-code-actions
+  "f" 'eglot-format-buffer
+  "l" 'eglot-code-lens-action
+  "n" 'eglot-rename
+  "k" 'eldoc
+  "I" 'eglot-events-buffer
+  "d" 'xref-find-definitions
+  "c" 'eglot-find-declaration
+  "i" 'eglot-find-implementation
+  "t" 'eglot-find-typeDefinition
+  "r" 'xref-find-references)
+
+;; Define the "l D" (Document) sub-submap under the C-c l prefix
+(general-def
+  :prefix "C-c l D" ; Prefix for LSP Document commands
+  "s" 'consult-imenu
+  "d" 'consult-flymake)
+
+;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
+(general-def
+  :prefix "C-c l W" ; Prefix for LSP Workspace commands
+  "a" 'projectile-add-known-project
+  "r" 'projectile-remove-known-project
+  "l" 'consult-project-buffer
+  "s" 'consult-lsp-file-symbols
+  "d" (lambda () (interactive) (consult-flymake t)))
+
+;; Define global windmove bindings
+(general-def
+  "M-<down>" 'windmove-down
+  "M-<up>" 'windmove-up
+  "M-<left>" 'windmove-left
+  "M-<right>" 'windmove-right
+  "M-j" 'windmove-down
+  "M-k" 'windmove-up
+  "M-h" 'windmove-left
+  "M-l" 'windmove-right
+  "C-<next>" 'scroll-up-line
+  "C-<prior>" 'scroll-down-line
+  )
+
+;;-----------------------------------------------------------------------------
+;; Convenience functions
+;;-----------------------------------------------------------------------------
+(defun my-surround-region-pair (beg end left-char right-char)
+  "Surround the active region (BEG to END) with LEFT-CHAR and RIGHT-CHAR.
+This is a non-interactive helper function."
+  (let ((original-beg beg))
+    (goto-char end)
+    (insert right-char)
+    (goto-char beg)
+    (insert left-char)
+	(deactivate-mark)
+    (goto-char original-beg))
+  )
+
+(defun my-surround-region-prompt (beg end)
+  "Surround the active region (BEG to END) with prompted chars."
+  (interactive "r") ; <-- This is the main fix. "r" requires a region.
+  (let* ((chars (split-string (read-string "Surround with (e.g., (), [], {}, '', \"\"): ") "" t))
+         (left-char nil)
+         (right-char nil))
+    
+    (cond
+     ((= (length chars) 1) ; Single character
+      (let ((char (car chars)))
+        (cond
+         ((string= char "'") (setq left-char "`" right-char "'"))
+         ((string= char "\"") (setq left-char "\"" right-char "\""))
+         ((string= char "`") (setq left-char "`" right-char "'"))
+         ((string= char "<") (setq left-char "<" right-char ">"))
+         (t (user-error "Unknown single character alias: %s" char)))))
+     ((= (length chars) 2) ; Two characters
+      (setq left-char (car chars) right-char (cadr chars)))
+     (t (user-error "Please enter one or two characters (e.g., (), [], ', \")"))))
+  
+  (when (and left-char right-char)
+    (my-surround-region-pair beg end left-char right-char)))
+
 ;;; init.el ends here
 
