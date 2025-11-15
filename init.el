@@ -1029,73 +1029,67 @@
   :ensure t)
 (require 'general)
 (general-def
-  :prefix "C-c" ; Use C-c as the leader key
-  :non-normal-prefix "C-c" ; Also apply to non-normal states if using evil
-  ;; Top-level bindings under C-c
+  :prefix "C-c"
+  :non-normal-prefix "C-c" 
   "." '(find-file :which-key "Find")
   "P" '(projectile-command-map :which-key "Projectile")
   "-" '((lambda () (interactive) (dired default-directory)) :which-key "Dired File")
-  ;; Avy bindings under C-c (as top-level under the prefix)
-  "C-s" 'avy-goto-char
-  "C-j" 'avy-goto-line
-  "C-k" 'avy-goto-line
-  "C-<up>" 'avy-goto-line
-  "C-<down>" 'avy-goto-line
+  "C-s" '(avy-goto-char :which-key "Avy Char")
+  "C-j" '(avy-goto-line-below :which-key "Avy Line Below")
+  "C-k" '(avy-goto-line-above :which-key "Avy Line Above")
+  "C-<up>" '(avy-goto-line-above :which-key "Avy Line Above")
+  "C-<down>" '(avy-goto-line-below :which-key "Avy Line Below")
   )
 
 ;; Define the "Z" (Hide-Show) submap under the C-c leader
 (general-def
-  :prefix "C-c Z" ; Prefix for hide-show commands
-  "a" 'hs-toggle-hiding
-  "c" 'hs-hide-block
-  "o" 'hs-show-block
-  "R" 'hs-show-all
-  "M" 'hs-hide-all)
+  :prefix "C-c z" ; Prefix for hide-show commands
+  "a" '(hs-toggle-hiding :which-key "hs Toggle")
+  "c" '(hs-hide-block :which-key "hs Hide")
+  "o" '(hs-show-block :which-key "hs Show")
+  "R" '(hs-show-all :which-key "hs Show All")
+  "M" '(hs-hide-all :which-key "hs Hide All")
+  )
 
 ;; Define the "F" (Find) submap under the C-c leader
 (general-def
   :prefix "C-c F" ; Prefix for find commands
-  "c" (lambda () (interactive) (find-file "~/.config/emacs/init.el"))
-  "r" 'consult-recent-file
-  "f" 'consult-fd
-  "t" 'consult-ripgrep
-  "l" 'consult-line)
+  "c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :which-key "Emacs Config")
+  "r" '(consult-recent-file :which-key "Recent File (Consult)")
+  "f" '(consult-fd :which-key "Fd File (Consult)")
+  "t" '(consult-ripgrep :which-key "Rg Text (Consult)")
+  "l" '(consult-line :which-key "Find Line (Consult)")
+  )
 
 ;; Define the "B" (Buffer Bookmarks) submap under the C-c leader
 (general-def
   :prefix "C-c B" ; Prefix for buffer/bookmark commands
-  "b" 'consult-buffer
-  "k" 'kill-this-buffer
-  "i" 'ibuffer
-  "n" 'next-buffer
-  "p" 'previous-buffer
-  "r" 'revert-buffer
-  "j" 'consult-bookmark)
+  "b" '(consult-buffer :which-key "Switch Buffer (Consult)")
+  "k" '(kill-this-buffer :which-key "Kill Buffer")
+  "i" '(ibuffer :which-key "IBuffer")
+  "n" '(next-buffer :which-key "Next Buffer")
+  "p" '(previous-buffer :which-key "Previous Buffer")
+  "r" '(revert-buffer :which-key "Revert Buffer")
+  "j" '(consult-bookmark :which-key "Bookmarks (Consult")
+  )
 
 ;; Define the "G" (Git) submap under the C-c leader
 (general-def
   :prefix "C-c G" ; Prefix for git commands
-  "g" 'magit-status
-  "l" 'magit-log-current
-  "d" 'magit-diff-buffer-file
-  "D" 'diff-hl-show-hunk)
+  "g" '(magit-status :which-key "Magit Status")
+  "l" '(magit-log-current :which-key "Log Current (Magit)")
+  "d" '(magit-diff-buffer-file :which-key "Diff Buffer (Magit)")
+  "D" '(diff-hl-show-hunk) :which-key "Show Hunk (diffhl)"
+  )
 
 ;; Define the "G V" (VC) sub-submap under the C-c G prefix
 (general-def
   :prefix "C-c G V" ; Prefix for VC commands
-  "d" 'vc-dir
-  "b" 'vc-annotate
-  "=" 'vc-diff
-  "D" 'vc-root-diff
-  "v" 'vc-next-action)
-
-;; Define the "H" (Describe) submap under the C-c leader
-(general-def
-  :prefix "C-c H" ; Prefix for describe commands
-  "m" 'describe-mode
-  "f" 'describe-function
-  "v" 'describe-variable
-  "k" 'describe-key)
+  "d" '(vc-dir :which-key "VC Directory")
+  "b" '(vc-annotate :which-key "VC Annotate")
+  "=" '(vc-diff :which-key "VC Diff Buffer")
+  "D" '(vc-root-diff :which-key "VC CWD Diff")
+  "v" '(vc-next-action :which-key "VC Next Action"))
 
 ;; Define the "t" (Toggle) submap under the C-c leader
 (general-def
