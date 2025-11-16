@@ -25,16 +25,16 @@
 (defun load-config-file (file)
   (load (expand-file-name file my-config-dir)))
 
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-	(url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-	(eval-buffer)
-	(quelpa-self-upgrade)))
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(require 'quelpa-use-package)
+;; (unless (package-installed-p 'quelpa)
+;;   (with-temp-buffer
+;; 	(url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+;; 	(eval-buffer)
+;; 	(quelpa-self-upgrade)))
+;; (quelpa
+;;  '(quelpa-use-package
+;;    :fetcher git
+;;    :url "https://github.com/quelpa/quelpa-use-package.git"))
+;; (require 'quelpa-use-package)
 
 ;;-----------------------------------------------------------------------------
 ;; Add to search paths
@@ -208,17 +208,17 @@
 (use-package ibuffer-vc
   :ensure t)
 
-(use-package ibuffer-projectile
-  :ensure t
-  :hook (ibuffer . ibuffer-projectile-set-filter-groups)
-  :config
-  (setq ibuffer-projectile-prefix
-        (if (and (display-graphic-p) (require 'nerd-icons nil t))
-            (concat (nerd-icons-octicon "nf-oct-file_directory"
-										:face 'ibuffer-filter-group-name-face
-										:v-adjust -0.05)
-                    " ")
-          "Project: ")))
+;; (use-package ibuffer-projectile
+;;   :ensure t
+;;   :hook (ibuffer . ibuffer-projectile-set-filter-groups)
+;;   :config
+;;   (setq ibuffer-projectile-prefix
+;;         (if (and (display-graphic-p) (require 'nerd-icons nil t))
+;;             (concat (nerd-icons-octicon "nf-oct-file_directory"
+;; 										:face 'ibuffer-filter-group-name-face
+;; 										:v-adjust -0.05)
+;;                     " ")
+;;           "Project: ")))
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -311,7 +311,7 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package diminish)
+;; (use-package diminish)
 
 (use-package isearch
   :ensure nil
@@ -487,17 +487,17 @@
 ;;-----------------------------------------------------------------------------
 ;; Projectile
 ;;-----------------------------------------------------------------------------
-(use-package projectile
-  :init
-  (projectile-mode)
-  :custom
-  (projectile-run-use-comint-mode t)
-  (projectile-switch-project-action #'projectile-dired)
-  (projectile-project-search-path '("~/Documents/Projects/"
-									;; "~/Documents/work/"
-									)
-								  )
-  )
+;; (use-package projectile
+;;   :init
+;;   (projectile-mode)
+;;   :custom
+;;   (projectile-run-use-comint-mode t)
+;;   (projectile-switch-project-action #'projectile-dired)
+;;   (projectile-project-search-path '("~/Documents/Projects/"
+;; 									;; "~/Documents/work/"
+;; 									)
+;; 								  )
+;;   )
 
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
@@ -1022,6 +1022,15 @@
 (meow-setup)
 (meow-global-mode 1)
 
+(use-package multiple-cursors
+  :ensure t
+  :config
+  (require 'multiple-cursors)
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+
 ;;-----------------------------------------------------------------------------
 ;; General Keybindings
 ;;-----------------------------------------------------------------------------
@@ -1079,7 +1088,11 @@
   "g" '(magit-status :which-key "Magit Status")
   "l" '(magit-log-current :which-key "Log Current (Magit)")
   "d" '(magit-diff-buffer-file :which-key "Diff Buffer (Magit)")
-  "D" '(diff-hl-show-hunk) :which-key "Show Hunk (diffhl)"
+  "p" '(diff-hl-show-hunk :which-key "Show Hunk (diffhl)")
+  "s" '(diff-hl-stage-current-hunk :which-key "Stage Hunk (diffhl)")
+  "r" '(diff-hl-revert-hunk :which-key "Revert Hunk (diffhl)")
+  "]" '(diff-hl-next-hunk :which-key "Next Hunk (diffhl)")
+  "[" '(diff-hl-previous-hunk :which-key "Previous Hunk (diffhl)")
   )
 
 ;; Define the "G V" (VC) sub-submap under the C-c G prefix
@@ -1094,85 +1107,102 @@
 ;; Define the "t" (Toggle) submap under the C-c leader
 (general-def
   :prefix "C-c t" ; Prefix for toggle commands
-  "t" 'visual-line-mode
-  "l" 'display-line-numbers-mode)
+  "t" '(visual-line-mode :which-key "Visual Line")
+  "l" '(display-line-numbers-mode :which-key "Line Numbers"))
 
 ;; Define the "O" (Org) submap under the C-c leader
 (general-def
   :prefix "C-c O" ; Prefix for Org commands
-  "i" 'org-toggle-inline-images)
+  "i" '(org-toggle-inline-images :which-key "Toggle Inline Images"))
 
 ;; Define the "O t" (TODO States) sub-submap under the C-c O prefix
 (general-def
   :prefix "C-c O t" ; Prefix for Org TODO commands
   "t" 'org-todo
-  "d" (lambda () (interactive) (org-todo "DOING"))
-  "h" (lambda () (interactive) (org-todo "HOLD"))
-  "D" (lambda () (interactive) (org-todo "DONE"))
-  "c" (lambda () (interactive) (org-todo "CANCELLED"))
-  "m" (lambda () (interactive) (org-todo "MAYBE")))
+  "d" '((lambda () (interactive) (org-todo "DOING")) :which-key "DOING")
+  "h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "HOLD")
+  "D" '((lambda () (interactive) (org-todo "DONE")) :which-key "DONE")
+  "c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "CANCELLED")
+  "m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "MAYBE")
+  )
 
 ;; Define the "O a" (Org Agenda) sub-submap under the C-c O prefix
 (general-def
   :prefix "C-c O a" ; Prefix for Org Agenda commands
-  "c" 'org-capture
-  "a" 'org-agenda)
+  "c" '(org-capture :which-key "Capture")
+  "a" '(org-agenda :which-key "Agenda"))
 
 ;; Define the "O d" (Denote) sub-submap under the C-c O prefix
 (general-def
   :prefix "C-c O d" ; Prefix for Denote commands
-  "n" 'denote
-  "r" 'denote-rename-file
-  "l" 'denote-link
-  "b" 'denote-backlinks
-  "o" 'denote-open-or-create
-  "d" 'denote-dired
-  "g" 'denote-grep)
+  "n" '(denote :which-key "Denote")
+  "r" '(denote-rename-file :which-key "Denote Rename")
+  "l" '(denote-link :which-key "Denote Link")
+  "b" '(denote-backlinks :which-key "Denote Backlinks")
+  "o" '(denote-open-or-create :which-key "Denote Open/Create")
+  "d" '(denote-dired :which-key "Denote Dired")
+  "g" '(denote-grep :which-key "Denote Grep"))
 
 ;; Define the "l" (LSP) submap under the C-c leader
 (general-def
-  :prefix "C-c l" ; Prefix for LSP commands
-  "a" 'eglot-code-actions
-  "f" 'eglot-format-buffer
-  "l" 'eglot-code-lens-action
-  "n" 'eglot-rename
-  "k" 'eldoc
-  "I" 'eglot-events-buffer
-  "d" 'xref-find-definitions
-  "c" 'eglot-find-declaration
-  "i" 'eglot-find-implementation
-  "t" 'eglot-find-typeDefinition
-  "r" 'xref-find-references)
+  :prefix "C-c L" ; Prefix for LSP commands
+  "a" '(eglot-code-actions :which-key "Code Actions")
+  "f" '(eglot-format-buffer :which-key "Format Buffer")
+  "l" '(eglot-code-lens-action :which-key "Code-Lens Action")
+  "n" '(eglot-rename :which-key "LSP Rename")
+  "k" '(eldoc :which-key "LSP Documentation")
+  "I" '(eglot-events-buffer :which-key "LSP Info")
+  "d" '(xref-find-definitions :which-key "LSP Definition")
+  "c" '(eglot-find-declaration :which-key "LSP Declaration")
+  "i" '(eglot-find-implementation :which-key "LSP Implementation")
+  "t" '(eglot-find-typeDefinition :which-key "LSP Type Definition")
+  "r" '(xref-find-references :which-key "LSP References"))
 
-;; Define the "l D" (Document) sub-submap under the C-c l prefix
+;; Define the "L D" (Document) sub-submap under the C-c l 
 (general-def
-  :prefix "C-c l D" ; Prefix for LSP Document commands
-  "s" 'consult-imenu
-  "d" 'consult-flymake)
+  :prefix "C-c L D" ; Prefix for LSP Document commands
+  "s" '(consult-imenu :which-key "Document Symbols")
+  "d" '(consult-flymake :which-key "Document Diagnostics"))
 
 ;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
 (general-def
-  :prefix "C-c l W" ; Prefix for LSP Workspace commands
-  "a" 'projectile-add-known-project
-  "r" 'projectile-remove-known-project
-  "l" 'consult-project-buffer
-  "s" 'consult-lsp-file-symbols
-  "d" (lambda () (interactive) (consult-flymake t)))
+  :prefix "C-c L W" ; Prefix for LSP Workspace commands
+  ;; "a" 'projectile-add-known-project
+  ;; "r" 'projectile-remove-known-project
+  "s" '(consult-lsp-file-symbols :which-key "Workspace Symbols")
+  "d" '((lambda () (interactive) (consult-flymake t)) :which-key "Workspace Diagnostics"))
 
 ;; Define global windmove bindings
 (general-def
-  "M-<down>" 'windmove-down
-  "M-<up>" 'windmove-up
-  "M-<left>" 'windmove-left
-  "M-<right>" 'windmove-right
-  "M-j" 'windmove-down
-  "M-k" 'windmove-up
-  "M-h" 'windmove-left
-  "M-l" 'windmove-right
-  "C-<next>" 'scroll-up-line
-  "C-<prior>" 'scroll-down-line
+  "M-<down>" '(windmove-down :which-key "Window Move Down")
+  "M-<up>" '(windmove-up :which-key "Window Move Up")
+  "M-<left>" '(windmove-left :which-key "Window Move Left")
+  "M-<right>" '(windmove-right :which-key "Window Move Right")
+  "M-j" '(windmove-down :which-key "Window Move Down")
+  "M-k" '(windmove-up :which-key "Window Move Up")
+  "M-h" '(windmove-left :which-key "Window Move Left")
+  "M-l" '(windmove-right :which-key "Window Move Right")
+  "C-<next>" '(scroll-up-line :which-key "Scroll Up Line")
+  "C-<prior>" '(scroll-down-line :which-key "Scroll Down Line")
+  "C-k" '(scroll-up-line :which-key "Scroll Up Line")
+  "C-j" '(scroll-down-line :which-key "Scroll Down Line")
+  "C-S-K" '(pixel-scroll-interpolate-up :which-key "Page Up")
+  "C-S-J" '(pixel-scroll-interpolate-down :which-key "Page Down")
+  "M-S-<right>" '(enlarge-window-horizontally :which-key "Window Width Increase")
+  "M-S-<left>" '(shrink-window-horizontally :which-key "Window Width Decrease")
+  "M-S-<up>" '(enlarge-window :which-key "Window Height Decrease")
+  "M-S-<down>" '(shrink-window :which-key "Window Height Increase")
+  "M-L" '(enlarge-window-horizontally :which-key "Window Width Increase")
+  "M-H" '(shrink-window-horizontally :which-key "Window Width Decrease")
+  "M-J" '(enlarge-window :which-key "Window Height Decrease")
+  "M-K" '(shrink-window :which-key "Window Height Increase")
   )
 
+(general-def
+  :prefix "C-x"
+  "_" '(split-window-below :which-key "Split Below")
+  "|" '(split-window-right :which-key "Split Right")
+  )
 ;;-----------------------------------------------------------------------------
 ;; Convenience functions
 ;;-----------------------------------------------------------------------------
