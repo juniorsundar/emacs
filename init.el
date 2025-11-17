@@ -7,102 +7,12 @@
 ;;
 ;;; Code:
 
-(setq gc-cons-threshold #x40000000)
-(setq read-process-output-max (* 1024 1024 4))
-
-;;-----------------------------------------------------------------------------
-;; Set up use-package and add possibility for custom configs
-;;-----------------------------------------------------------------------------
-(require 'use-package-ensure)
-(setq use-package-always-ensure t)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-						 ("org" . "https://orgmode.org/elpa/")
-						 ("elpa" . "https://elpa.gnu.org/packages/")
-						 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-
-(defvar my-config-dir (expand-file-name "lisp" user-emacs-directory)
-  "Directory containing my configuration files.")
-(defun load-config-file (file)
-  (load (expand-file-name file my-config-dir)))
-
-;; (unless (package-installed-p 'quelpa)
-;;   (with-temp-buffer
-;; 	(url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-;; 	(eval-buffer)
-;; 	(quelpa-self-upgrade)))
-;; (quelpa
-;;  '(quelpa-use-package
-;;    :fetcher git
-;;    :url "https://github.com/quelpa/quelpa-use-package.git"))
-;; (require 'quelpa-use-package)
-
-;;-----------------------------------------------------------------------------
-;; Add to search paths
-;;----------------------------------------------------------------------------
-(dolist (path '("/usr/local/go/bin"
-                "/usr/local/bin"
-                "~/.local/bin"
-                "/usr/bin"))
-  (add-to-list 'exec-path (expand-file-name path)))
-
 ;;-----------------------------------------------------------------------------
 ;; Default Emacs Configurations
 ;;-----------------------------------------------------------------------------
 (use-package emacs
   :ensure nil
-  :custom
-  (frame-resize-pixelwise t)
-  (auto-save-default nil)                         ;; Disable automatic saving of buffers.
-  (create-lockfiles nil)                          ;; Prevent the creation of lock files when editing.
-  (delete-by-moving-to-trash t)                   ;; Move deleted files to the trash instead of permanently deleting them.
-  (delete-selection-mode t)                       ;; Enable replacing selected text with typed text.
-  (display-line-numbers-type 'relative)           ;; Use relative line numbering.
-  (global-auto-revert-non-file-buffers t)         ;; Automatically refresh non-file buffers.
-  (global-auto-revert-mode t)                     ;; Enable global auto-revert mode for files.
-  (history-length 25)                             ;; Set the length of the command history.
-  (inhibit-startup-screen t)                      ;; Disable the startup screen.
-  (initial-scratch-message "")                    ;; Clear the initial message in the *scratch* buffer.
-  (ispell-program-name "aspell")
-  (ispell-dictionary "en_US")                     ;; Set the default dictionary for spell checking.
-  (make-backup-files nil)                         ;; Disable creation of backup files.
-  (line-number-mode nil)
-  (pixel-scroll-precision-mode t)                 ;; Enable precise pixel scrolling.
-  (pixel-scroll-precision-use-momentum nil)       ;; Disable momentum scrolling.
-  (ring-bell-function 'ignore)                    ;; Disable the audible bell.
-  (split-width-threshold 300)                     ;; Prevent automatic window splitting.
-  (switch-to-buffer-obey-display-actions t)       ;; Make buffer switching respect display actions.
-  (tab-always-indent 'complete)                   ;; Make TAB key complete text instead of just indenting.
-  (tab-width 4)                                   ;; Set the tab width to 4 spaces.
-  (truncate-lines t)                              ;; Enable line truncation to avoid wrapping long lines.
-  (use-dialog-box nil)                            ;; Disable dialog boxes.
-  (use-short-answers t)                           ;; Use short answers (y/n).
-  (warning-minimum-level :emergency)              ;; Only show emergency warnings.
-  (mouse-wheel-progressive-speed nil)             ;; Disable progressive scrolling.
-  (scroll-conservatively 10)                      ;; Enable smooth scrolling.
-  (enable-recursive-minibuffers t)                ;; Allow recursive minibuffers.
-  (electric-pair-mode t)                          ;; Enable automatic parenthesis pairing.
-  (blink-cursor-mode nil)                         ;; Disable cursor blinking.
-  (xterm-mouse-mode 1)                            ;; Enable mouse support in terminal.
-  (recentf-mode t)                                ;; Enable recent file tracking.
-  (savehist-mode t)                               ;; Enable command history saving.
-  (save-place-mode t)                             ;; Enable saving of the last visited place in files.
-  (winner-mode t)                                 ;; Enable window configuration undo.
-  (file-name-shadow-mode t)                       ;; Enable shadowing of filenames for clarity.
-  (treesit-font-lock-level 4)                     ;; Advanced font locking with Treesit.
-
-  :init
-  (tool-bar-mode -1)                              ;; Disable the toolbar.
-  (menu-bar-mode -1)                              ;; Disable the menu bar.
-  (scroll-bar-mode -1)                            ;; Disable the scroll bar.
-  (global-hl-line-mode 1)                         ;; Highlight the current line.
-  (indent-tabs-mode -1)                           ;; Disable the use of tabs for indentation (use spaces).
-  (modify-coding-system-alist 'file "" 'utf-8)    ;; Set the default file encoding to UTF-8.
-
-  ;; Minibuffer Improvements
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt)) ;; Read-only minibuffer prompt.
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
+  :config
   ;; Welcome message
   (add-hook 'after-init-hook
             (lambda ()
@@ -147,8 +57,6 @@
   (prog-mode . display-line-numbers-mode)
   (emacs-lisp-mode . hs-minor-mode)
   )
-
-(savehist-mode)
 
 (use-package vterm
   :ensure t)
@@ -242,15 +150,16 @@
   (image-dired-thumb-size 150)
   :config
   (when (eq system-type 'darwin)
-	(let ((gls (executable-find "gls")))
-	  (when gls
-		(setq insert-directory-program gls)))))
-
-(add-hook 'dired-mode-hook
-          (lambda ()
-            (define-key dired-mode-map (kbd "-") #'dired-up-directory)))
+    (let ((gls (executable-find "gls")))
+      (when gls
+	(setq insert-directory-program gls))))
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (define-key dired-mode-map (kbd "-") #'dired-up-directory)))
+  )
 
 (use-package diredfl
+  :after dired
   :hook (dired-mode . diredfl-mode))
 
 (use-package flymake
@@ -309,6 +218,7 @@
 	 )))
 
 (use-package rainbow-delimiters
+  :ensure t
   :hook (prog-mode . rainbow-delimiters-mode))
 
 ;; (use-package diminish)
@@ -540,8 +450,18 @@
         (quit-window t win)))))
 (add-hook 'post-command-hook #'my-close-eldoc-buffer-if-left)
 
+(use-package yasnippet
+  :ensure t
+  :hook (prog-mode . yas-minor-mode)
+  :config
+  ;; You can also use (yas-global-mode 1) here instead of the hook
+  ;; if you want it on in *all* buffers, including non-prog-mode.
+  (message "YASnippet engine loaded."))
+
+;; This package just provides the snippet collection
 (use-package yasnippet-snippets
-  :hook (prog-mode . yas-minor-mode))
+  :ensure t
+  :after yasnippet)
 
 (use-package treesit-auto
   :ensure t
@@ -706,7 +626,6 @@
 
 (use-package embark
   :ensure t
-  :defer t
   :bind
   (("C-q" . embark-act)
    ("M-d" . embark-dwim)
@@ -1013,12 +932,6 @@
 	 '("<S-right>" . meow-right-expand)
 	 '("<S-up>"    . meow-prev-expand)
 	 '("<S-down>"  . meow-next-expand)
-	 '("S (" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "(" ")")))
-	 '("S {" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "{" "}")))
-	 '("S \"" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "\"" "\"")))
-	 '("S [" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "[" "]")))
-	 '("S <" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "<" ">")))
-	 '("S '" . (lambda (beg end) (interactive "r") (my-surround-region-pair beg end "`" "'")))
 	 '("<escape>" . ignore)))
   (require 'meow)
   (meow-setup)
@@ -1037,174 +950,184 @@
 ;; General Keybindings
 ;;-----------------------------------------------------------------------------
 (use-package general
-  :ensure t)
-(require 'general)
-(general-def
-  :prefix "C-c"
-  :non-normal-prefix "C-c" 
-  "." '(find-file :which-key "Find")
-  "P" '(projectile-command-map :which-key "Projectile")
-  "-" '((lambda () (interactive) (dired default-directory)) :which-key "Dired File")
-  "C-s" '(avy-goto-char :which-key "Avy Char")
-  "C-j" '(avy-goto-line-below :which-key "Avy Line Below")
-  "C-k" '(avy-goto-line-above :which-key "Avy Line Above")
-  "C-<up>" '(avy-goto-line-above :which-key "Avy Line Above")
-  "C-<down>" '(avy-goto-line-below :which-key "Avy Line Below")
-  )
+  :ensure t
+  :config
+  (require 'general)
+  (general-def
+    :prefix "C-c"
+    :non-normal-prefix "C-c" 
+    "." '(find-file :which-key "Find")
+    "P" '(projectile-command-map :which-key "Projectile")
+    "-" '((lambda () (interactive) (dired default-directory)) :which-key "Dired File")
+    "C-s" '(avy-goto-char :which-key "Avy Char")
+    "C-j" '(avy-goto-line-below :which-key "Avy Line Below")
+    "C-k" '(avy-goto-line-above :which-key "Avy Line Above")
+    "C-<up>" '(avy-goto-line-above :which-key "Avy Line Above")
+    "C-<down>" '(avy-goto-line-below :which-key "Avy Line Below")
+    )
 
-;; Define the "Z" (Hide-Show) submap under the C-c leader
-(general-def
-  :prefix "C-c z" ; Prefix for hide-show commands
-  "a" '(hs-toggle-hiding :which-key "hs Toggle")
-  "c" '(hs-hide-block :which-key "hs Hide")
-  "o" '(hs-show-block :which-key "hs Show")
-  "R" '(hs-show-all :which-key "hs Show All")
-  "M" '(hs-hide-all :which-key "hs Hide All")
-  )
+  ;; Define the "Z" (Hide-Show) submap under the C-c leader
+  (general-def
+    :prefix "C-c z" ; Prefix for hide-show commands
+    "a" '(hs-toggle-hiding :which-key "hs Toggle")
+    "c" '(hs-hide-block :which-key "hs Hide")
+    "o" '(hs-show-block :which-key "hs Show")
+    "R" '(hs-show-all :which-key "hs Show All")
+    "M" '(hs-hide-all :which-key "hs Hide All")
+    )
 
-;; Define the "F" (Find) submap under the C-c leader
-(general-def
-  :prefix "C-c F" ; Prefix for find commands
-  "c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :which-key "Emacs Config")
-  "r" '(consult-recent-file :which-key "Recent File (Consult)")
-  "f" '(consult-fd :which-key "Fd File (Consult)")
-  "t" '(consult-ripgrep :which-key "Rg Text (Consult)")
-  "l" '(consult-line :which-key "Find Line (Consult)")
-  )
+  ;; Define the "F" (Find) submap under the C-c leader
+  (general-def
+    :prefix "C-c F" ; Prefix for find commands
+    "c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :which-key "Emacs Config")
+    "r" '(consult-recent-file :which-key "Recent File (Consult)")
+    "f" '(consult-fd :which-key "Fd File (Consult)")
+    "t" '(consult-ripgrep :which-key "Rg Text (Consult)")
+    "l" '(consult-line :which-key "Find Line (Consult)")
+    )
 
-;; Define the "B" (Buffer Bookmarks) submap under the C-c leader
-(general-def
-  :prefix "C-c B" ; Prefix for buffer/bookmark commands
-  "b" '(consult-buffer :which-key "Switch Buffer (Consult)")
-  "k" '(kill-this-buffer :which-key "Kill Buffer")
-  "i" '(ibuffer :which-key "IBuffer")
-  "n" '(next-buffer :which-key "Next Buffer")
-  "p" '(previous-buffer :which-key "Previous Buffer")
-  "r" '(revert-buffer :which-key "Revert Buffer")
-  "j" '(consult-bookmark :which-key "Bookmarks (Consult")
-  )
+  ;; Define the "B" (Buffer Bookmarks) submap under the C-c leader
+  (general-def
+    :prefix "C-c B" ; Prefix for buffer/bookmark commands
+    "b" '(consult-buffer :which-key "Switch Buffer (Consult)")
+    "k" '(kill-this-buffer :which-key "Kill Buffer")
+    "i" '(ibuffer :which-key "IBuffer")
+    "n" '(next-buffer :which-key "Next Buffer")
+    "p" '(previous-buffer :which-key "Previous Buffer")
+    "r" '(revert-buffer :which-key "Revert Buffer")
+    "j" '(consult-bookmark :which-key "Bookmarks (Consult")
+    )
 
-;; Define the "G" (Git) submap under the C-c leader
-(general-def
-  :prefix "C-c G" ; Prefix for git commands
-  "g" '(magit-status :which-key "Magit Status")
-  "l" '(magit-log-current :which-key "Log Current (Magit)")
-  "d" '(magit-diff-buffer-file :which-key "Diff Buffer (Magit)")
-  "p" '(diff-hl-show-hunk :which-key "Show Hunk (diffhl)")
-  "s" '(diff-hl-stage-current-hunk :which-key "Stage Hunk (diffhl)")
-  "r" '(diff-hl-revert-hunk :which-key "Revert Hunk (diffhl)")
-  "]" '(diff-hl-next-hunk :which-key "Next Hunk (diffhl)")
-  "[" '(diff-hl-previous-hunk :which-key "Previous Hunk (diffhl)")
-  )
+  ;; Define the "G" (Git) submap under the C-c leader
+  (general-def
+    :prefix "C-c G" ; Prefix for git commands
+    "g" '(magit-status :which-key "Magit Status")
+    "l" '(magit-log-current :which-key "Log Current (Magit)")
+    "d" '(magit-diff-buffer-file :which-key "Diff Buffer (Magit)")
+    "p" '(diff-hl-show-hunk :which-key "Show Hunk (diffhl)")
+    "s" '(diff-hl-stage-current-hunk :which-key "Stage Hunk (diffhl)")
+    "r" '(diff-hl-revert-hunk :which-key "Revert Hunk (diffhl)")
+    "]" '(diff-hl-next-hunk :which-key "Next Hunk (diffhl)")
+    "[" '(diff-hl-previous-hunk :which-key "Previous Hunk (diffhl)")
+    )
 
-;; Define the "G V" (VC) sub-submap under the C-c G prefix
-(general-def
-  :prefix "C-c G V" ; Prefix for VC commands
-  "d" '(vc-dir :which-key "VC Directory")
-  "b" '(vc-annotate :which-key "VC Annotate")
-  "=" '(vc-diff :which-key "VC Diff Buffer")
-  "D" '(vc-root-diff :which-key "VC CWD Diff")
-  "v" '(vc-next-action :which-key "VC Next Action"))
+  ;; Define the "G V" (VC) sub-submap under the C-c G prefix
+  (general-def
+    :prefix "C-c G V" ; Prefix for VC commands
+    "d" '(vc-dir :which-key "VC Directory")
+    "b" '(vc-annotate :which-key "VC Annotate")
+    "=" '(vc-diff :which-key "VC Diff Buffer")
+    "D" '(vc-root-diff :which-key "VC CWD Diff")
+    "v" '(vc-next-action :which-key "VC Next Action"))
 
-;; Define the "t" (Toggle) submap under the C-c leader
-(general-def
-  :prefix "C-c t" ; Prefix for toggle commands
-  "t" '(visual-line-mode :which-key "Visual Line")
-  "l" '(display-line-numbers-mode :which-key "Line Numbers"))
+  ;; Define the "t" (Toggle) submap under the C-c leader
+  (general-def
+    :prefix "C-c t" ; Prefix for toggle commands
+    "t" '(visual-line-mode :which-key "Visual Line")
+    "l" '(display-line-numbers-mode :which-key "Line Numbers"))
 
-;; Define the "O" (Org) submap under the C-c leader
-(general-def
-  :prefix "C-c O" ; Prefix for Org commands
-  "i" '(org-toggle-inline-images :which-key "Toggle Inline Images"))
+  ;; Define the "O" (Org) submap under the C-c leader
+  (general-def
+    :prefix "C-c O" ; Prefix for Org commands
+    "i" '(org-toggle-inline-images :which-key "Toggle Inline Images"))
 
-;; Define the "O t" (TODO States) sub-submap under the C-c O prefix
-(general-def
-  :prefix "C-c O t" ; Prefix for Org TODO commands
-  "t" 'org-todo
-  "d" '((lambda () (interactive) (org-todo "DOING")) :which-key "DOING")
-  "h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "HOLD")
-  "D" '((lambda () (interactive) (org-todo "DONE")) :which-key "DONE")
-  "c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "CANCELLED")
-  "m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "MAYBE")
-  )
+  ;; Define the "O t" (TODO States) sub-submap under the C-c O prefix
+  (general-def
+    :prefix "C-c O t" ; Prefix for Org TODO commands
+    "t" 'org-todo
+    "d" '((lambda () (interactive) (org-todo "DOING")) :which-key "DOING")
+    "h" '((lambda () (interactive) (org-todo "HOLD")) :which-key "HOLD")
+    "D" '((lambda () (interactive) (org-todo "DONE")) :which-key "DONE")
+    "c" '((lambda () (interactive) (org-todo "CANCELLED")) :which-key "CANCELLED")
+    "m" '((lambda () (interactive) (org-todo "MAYBE")) :which-key "MAYBE")
+    )
 
-;; Define the "O a" (Org Agenda) sub-submap under the C-c O prefix
-(general-def
-  :prefix "C-c O a" ; Prefix for Org Agenda commands
-  "c" '(org-capture :which-key "Capture")
-  "a" '(org-agenda :which-key "Agenda"))
+  ;; Define the "O a" (Org Agenda) sub-submap under the C-c O prefix
+  (general-def
+    :prefix "C-c O a" ; Prefix for Org Agenda commands
+    "c" '(org-capture :which-key "Capture")
+    "a" '(org-agenda :which-key "Agenda"))
 
-;; Define the "O d" (Denote) sub-submap under the C-c O prefix
-(general-def
-  :prefix "C-c O d" ; Prefix for Denote commands
-  "n" '(denote :which-key "Denote")
-  "r" '(denote-rename-file :which-key "Denote Rename")
-  "l" '(denote-link :which-key "Denote Link")
-  "b" '(denote-backlinks :which-key "Denote Backlinks")
-  "o" '(denote-open-or-create :which-key "Denote Open/Create")
-  "d" '(denote-dired :which-key "Denote Dired")
-  "g" '(denote-grep :which-key "Denote Grep"))
+  ;; Define the "O d" (Denote) sub-submap under the C-c O prefix
+  (general-def
+    :prefix "C-c O d" ; Prefix for Denote commands
+    "n" '(denote :which-key "Denote")
+    "r" '(denote-rename-file :which-key "Denote Rename")
+    "l" '(denote-link :which-key "Denote Link")
+    "b" '(denote-backlinks :which-key "Denote Backlinks")
+    "o" '(denote-open-or-create :which-key "Denote Open/Create")
+    "d" '(denote-dired :which-key "Denote Dired")
+    "g" '(denote-grep :which-key "Denote Grep"))
 
-;; Define the "l" (LSP) submap under the C-c leader
-(general-def
-  :prefix "C-c L" ; Prefix for LSP commands
-  "a" '(eglot-code-actions :which-key "Code Actions")
-  "f" '(eglot-format-buffer :which-key "Format Buffer")
-  "l" '(eglot-code-lens-action :which-key "Code-Lens Action")
-  "n" '(eglot-rename :which-key "LSP Rename")
-  "k" '(eldoc :which-key "LSP Documentation")
-  "I" '(eglot-events-buffer :which-key "LSP Info")
-  "d" '(xref-find-definitions :which-key "LSP Definition")
-  "c" '(eglot-find-declaration :which-key "LSP Declaration")
-  "i" '(eglot-find-implementation :which-key "LSP Implementation")
-  "t" '(eglot-find-typeDefinition :which-key "LSP Type Definition")
-  "r" '(xref-find-references :which-key "LSP References"))
+  ;; Define the "l" (LSP) submap under the C-c leader
+  (general-def
+    :prefix "C-c L" ; Prefix for LSP commands
+    "a" '(eglot-code-actions :which-key "Code Actions")
+    "f" '(eglot-format-buffer :which-key "Format Buffer")
+    "l" '(eglot-code-lens-action :which-key "Code-Lens Action")
+    "n" '(eglot-rename :which-key "LSP Rename")
+    "k" '(eldoc :which-key "LSP Documentation")
+    "I" '(eglot-events-buffer :which-key "LSP Info")
+    "d" '(xref-find-definitions :which-key "LSP Definition")
+    "c" '(eglot-find-declaration :which-key "LSP Declaration")
+    "i" '(eglot-find-implementation :which-key "LSP Implementation")
+    "t" '(eglot-find-typeDefinition :which-key "LSP Type Definition")
+    "r" '(xref-find-references :which-key "LSP References"))
 
-;; Define the "L D" (Document) sub-submap under the C-c l 
-(general-def
-  :prefix "C-c L D" ; Prefix for LSP Document commands
-  "s" '(consult-imenu :which-key "Document Symbols")
-  "d" '(consult-flymake :which-key "Document Diagnostics"))
+  ;; Define the "L D" (Document) sub-submap under the C-c l 
+  (general-def
+    :prefix "C-c L D" ; Prefix for LSP Document commands
+    "s" '(consult-imenu :which-key "Document Symbols")
+    "d" '(consult-flymake :which-key "Document Diagnostics"))
 
-;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
-(general-def
-  :prefix "C-c L W" ; Prefix for LSP Workspace commands
-  ;; "a" 'projectile-add-known-project
-  ;; "r" 'projectile-remove-known-project
-  "s" '(consult-lsp-file-symbols :which-key "Workspace Symbols")
-  "d" '((lambda () (interactive) (consult-flymake t)) :which-key "Workspace Diagnostics"))
+  ;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
+  (general-def
+    :prefix "C-c L W" ; Prefix for LSP Workspace commands
+    ;; "a" 'projectile-add-known-project
+    ;; "r" 'projectile-remove-known-project
+    "s" '(consult-lsp-file-symbols :which-key "Workspace Symbols")
+    "d" '((lambda () (interactive) (consult-flymake t)) :which-key "Workspace Diagnostics"))
 
-;; Define global windmove bindings
-(general-def
-  "M-<down>" '(windmove-down :which-key "Window Move Down")
-  "M-<up>" '(windmove-up :which-key "Window Move Up")
-  "M-<left>" '(windmove-left :which-key "Window Move Left")
-  "M-<right>" '(windmove-right :which-key "Window Move Right")
-  "M-j" '(windmove-down :which-key "Window Move Down")
-  "M-k" '(windmove-up :which-key "Window Move Up")
-  "M-h" '(windmove-left :which-key "Window Move Left")
-  "M-l" '(windmove-right :which-key "Window Move Right")
-  "C-<next>" '(scroll-up-line :which-key "Scroll Up Line")
-  "C-<prior>" '(scroll-down-line :which-key "Scroll Down Line")
-  "C-j" '(scroll-up-line :which-key "Scroll Up Line")
-  "C-k" '(scroll-down-line :which-key "Scroll Down Line")
-  "C-S-K" '(pixel-scroll-interpolate-up :which-key "Page Up")
-  "C-S-J" '(pixel-scroll-interpolate-down :which-key "Page Down")
-  "M-S-<right>" '(enlarge-window-horizontally :which-key "Window Width Increase")
-  "M-S-<left>" '(shrink-window-horizontally :which-key "Window Width Decrease")
-  "M-S-<up>" '(enlarge-window :which-key "Window Height Decrease")
-  "M-S-<down>" '(shrink-window :which-key "Window Height Increase")
-  "M-L" '(enlarge-window-horizontally :which-key "Window Width Increase")
-  "M-H" '(shrink-window-horizontally :which-key "Window Width Decrease")
-  "M-J" '(enlarge-window :which-key "Window Height Decrease")
-  "M-K" '(shrink-window :which-key "Window Height Increase")
-  )
+  ;; Define global windmove bindings
+  (general-def
+    "M-<down>" '(windmove-down :which-key "Window Move Down")
+    "M-<up>" '(windmove-up :which-key "Window Move Up")
+    "M-<left>" '(windmove-left :which-key "Window Move Left")
+    "M-<right>" '(windmove-right :which-key "Window Move Right")
+    "M-j" '(windmove-down :which-key "Window Move Down")
+    "M-k" '(windmove-up :which-key "Window Move Up")
+    "M-h" '(windmove-left :which-key "Window Move Left")
+    "M-l" '(windmove-right :which-key "Window Move Right")
+    "C-<next>" '(scroll-up-line :which-key "Scroll Up Line")
+    "C-<prior>" '(scroll-down-line :which-key "Scroll Down Line")
+    "C-j" '(scroll-up-line :which-key "Scroll Up Line")
+    "C-k" '(scroll-down-line :which-key "Scroll Down Line")
+    "C-S-K" '(scroll-down-command :which-key "Page Up")
+    "C-S-J" '(scroll-up-command :which-key "Page Down")
+    "M-S-<right>" '(enlarge-window-horizontally :which-key "Window Width Increase")
+    "M-S-<left>" '(shrink-window-horizontally :which-key "Window Width Decrease")
+    "M-S-<up>" '(enlarge-window :which-key "Window Height Decrease")
+    "M-S-<down>" '(shrink-window :which-key "Window Height Increase")
+    "M-L" '(enlarge-window-horizontally :which-key "Window Width Increase")
+    "M-H" '(shrink-window-horizontally :which-key "Window Width Decrease")
+    "M-J" '(enlarge-window :which-key "Window Height Decrease")
+    "M-K" '(shrink-window :which-key "Window Height Increase")
+    )
 
-(general-def
-  :prefix "C-x"
-  "_" '(split-window-below :which-key "Split Below")
-  "|" '(split-window-right :which-key "Split Right")
-  )
+  (general-def
+    :prefix "C-c"
+    "S ("  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "(" ")"))
+    "S {"  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "{" "}"))
+    "S \"" '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "\"" "\""))
+    "S ["  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "[" "]"))
+    "S <"  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "<" ">"))
+    "S '"  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "`" "'")))
+
+  (general-def
+    :prefix "C-x"
+    "_" '(split-window-below :which-key "Split Below")
+    "|" '(split-window-right :which-key "Split Right")
+    ))
 ;;-----------------------------------------------------------------------------
 ;; Convenience functions
 ;;-----------------------------------------------------------------------------
@@ -1216,32 +1139,9 @@ This is a non-interactive helper function."
     (insert right-char)
     (goto-char beg)
     (insert left-char)
-	(deactivate-mark)
+    (deactivate-mark)
     (goto-char original-beg))
   )
-
-(defun my-surround-region-prompt (beg end)
-  "Surround the active region (BEG to END) with prompted chars."
-  (interactive "r") ; <-- This is the main fix. "r" requires a region.
-  (let* ((chars (split-string (read-string "Surround with (e.g., (), [], {}, '', \"\"): ") "" t))
-         (left-char nil)
-         (right-char nil))
-    
-    (cond
-     ((= (length chars) 1) ; Single character
-      (let ((char (car chars)))
-        (cond
-         ((string= char "'") (setq left-char "`" right-char "'"))
-         ((string= char "\"") (setq left-char "\"" right-char "\""))
-         ((string= char "`") (setq left-char "`" right-char "'"))
-         ((string= char "<") (setq left-char "<" right-char ">"))
-         (t (user-error "Unknown single character alias: %s" char)))))
-     ((= (length chars) 2) ; Two characters
-      (setq left-char (car chars) right-char (cadr chars)))
-     (t (user-error "Please enter one or two characters (e.g., (), [], ', \")"))))
-  
-  (when (and left-char right-char)
-    (my-surround-region-pair beg end left-char right-char)))
 
 ;;; init.el ends here
 
