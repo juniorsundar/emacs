@@ -250,6 +250,7 @@
 ;; Theme
 ;;-----------------------------------------------------------------------------
 (add-to-list 'default-frame-alist '(alpha-background . 100)) ;; For all new frames henceforth
+
 (use-package doom-themes
   :ensure t
   :custom
@@ -266,6 +267,8 @@
 (use-package spacious-padding
   :ensure t
   :if (display-graphic-p)
+  :custom
+  (spacious-padding-subtle-frame-lines t)
   :config
   (spacious-padding-mode t)
   )
@@ -382,7 +385,7 @@
   :init (doom-modeline-mode 1)
   :custom
   (doom-modeline-height 25)
-  (doom-modeline-bar-width 5)
+  (doom-modeline-bar-width 0.1)
   (doom-modeline-buffer-name t)
   (doom-modeline-vcs-max-length 25)
   (doom-modeline-persp-name t)
@@ -393,7 +396,9 @@
   (doom-modeline-project-detection 'project)
   (doom-modeline-icon t)
   (doom-modeline-buffer-encoding nil)
-  (doom-modeline-enable-word-count t))
+  (doom-modeline-enable-word-count t)
+  )
+
 ;;-----------------------------------------------------------------------------
 ;; Projectile
 ;;-----------------------------------------------------------------------------
