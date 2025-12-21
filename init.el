@@ -296,7 +296,7 @@
   "Set fonts for the given FRAME."
   (when (display-graphic-p frame)
     (with-selected-frame frame
-      (set-face-font 'default "IosevkaTerm Nerd Font")
+      (set-face-font 'default "Aporetic Sans Mono")
       (set-face-font 'variable-pitch "Iosevka Aile")
       (copy-face 'default 'fixed-pitch)
 
@@ -327,7 +327,7 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "IosevkaTerm Nerd Font")
+                    :family "Aporetic Sans Mono")
 
 (add-hook 'ibuffer-mode-hook (lambda () (display-line-numbers-mode -1)))
 
