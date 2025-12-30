@@ -296,8 +296,8 @@
   "Set fonts for the given FRAME."
   (when (display-graphic-p frame)
     (with-selected-frame frame
-      (set-face-font 'default "Aporetic Sans Mono")
-      (set-face-font 'variable-pitch "Iosevka Aile")
+      (set-face-font 'default "Lilex Nerd Font Mono")
+      (set-face-font 'variable-pitch "IBM Plex Sans")
       (copy-face 'default 'fixed-pitch)
 
       (set-face-attribute 'default nil :height 130)
@@ -312,7 +312,7 @@
       (set-face-attribute 'italic nil
                           :underline nil
                           :slant 'italic
-                          :family "IosevkaTerm Nerd Font")
+                          :family "Lilex Nerd Font Mono")
       )))
 
 (add-hook 'after-make-frame-functions #'my-set-frame-fonts)
@@ -327,7 +327,7 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "Aporetic Sans Mono")
+                    :family "Lilex Nerd Font Mono")
 
 (add-hook 'ibuffer-mode-hook (lambda () (display-line-numbers-mode -1)))
 
