@@ -156,7 +156,7 @@
   (which-key-sort-uppercase-first nil)
   (which-key-add-column-padding 1)
   (which-key-min-display-lines 6)
-  (which-key-idle-delay 0.0)
+  (which-key-idle-delay 1.0)
   (which-key-max-description-length 25)
   (which-key-allow-imprecise-window-fit nil)) ;; Fixes which-key window slipping out in Emacs Daemon
 
