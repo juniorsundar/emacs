@@ -118,17 +118,13 @@
   ;; Define the "l" (LSP) submap under the C-c leader
   (general-def
     :prefix "C-c L" ; Prefix for LSP commands
-    "a" '(eglot-code-actions :which-key "Code Actions")
-    "f" '(eglot-format-buffer :which-key "Format Buffer")
-    "l" '(eglot-code-lens-action :which-key "Code-Lens Action")
-    "n" '(eglot-rename :which-key "LSP Rename")
-    "k" '(eldoc :which-key "LSP Documentation")
-    "I" '(eglot-events-buffer :which-key "LSP Info")
-    "d" '(xref-find-definitions :which-key "LSP Definition")
-    "c" '(eglot-find-declaration :which-key "LSP Declaration")
-    "i" '(eglot-find-implementation :which-key "LSP Implementation")
-    "t" '(eglot-find-typeDefinition :which-key "LSP Type Definition")
-    "r" '(xref-find-references :which-key "LSP References"))
+    "k" '(lsp-ui-doc-glance :which-key "LSP Documentation")
+    "f" '(lsp-format-buffer :which-key "Format Buffer")
+    "d" '(lsp-find-definition :which-key "LSP Definition")
+    "r" '(lsp-find-references :which-key "LSP References")
+    "c" '(lsp-find-declaration :which-key "LSP Declaration")
+    "i" '(lsp-find-implementation :which-key "LSP Implementation")
+    )
 
   ;; Define the "L D" (Document) sub-submap under the C-c l 
   (general-def
