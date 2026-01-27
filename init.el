@@ -168,7 +168,7 @@
 (use-package flymake
   :ensure nil
   :defer t
-  :hook ((prog-mode text-mode) . flymake-mode)
+  :hook ((prog-mode) . flymake-mode)
   :custom
   (flymake-margin-indicators-string
    '((error "!»" compilation-error) (warning "»" compilation-warning)
@@ -244,6 +244,13 @@
               ("C-c s l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
               ("C-c s n" . smerge-next)        ;; Move to the next conflict.
               ("C-c s p" . smerge-previous)))  ;; Move to the previous conflict.
+
+(use-package recentf
+  :ensure nil
+  :config
+  (recentf-mode 1)
+  (setq recentf-max-saved-items 200) ;; Increase the limit
+  (setq recentf-exclude '("/tmp/" "/ssh:"))) ;; Exclude noise
 ;;-----------------------------------------------------------------------------
 ;; Evil
 ;;-----------------------------------------------------------------------------
@@ -424,23 +431,23 @@
   :config
   (direnv-mode))
 
-(use-package eglot
-  :ensure nil
-  :hook ((go-ts-mode . eglot-ensure)
-         (python-ts-mode . eglot-ensure)
-         (zig-ts-mode . eglot-ensure)
-         (rust-ts-mode . eglot-ensure)
-		 )
-  :custom
-  (eglot-autoshutdown t)
-  (eldoc-echo-area-use-multiline-p nil)
-  (eglot-code-action-suggestion nil)
-  :config
-  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
-  (setq eglot-inlay-hints-mode nil)
-  (setq eglot-code-action-indicator "")
-  (setq eglot-code-action-indications '(mode-line))
-  )
+;; (use-package eglot
+;;   :ensure nil
+;;   :hook ((go-ts-mode . eglot-ensure)
+;;          (python-ts-mode . eglot-ensure)
+;;          (zig-ts-mode . eglot-ensure)
+;;          (rust-ts-mode . eglot-ensure)
+;; 		 )
+;;   :custom
+;;   (eglot-autoshutdown t)
+;;   (eldoc-echo-area-use-multiline-p nil)
+;;   (eglot-code-action-suggestion nil)
+;;   :config
+;;   (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+;;   (setq eglot-inlay-hints-mode nil)
+;;   (setq eglot-code-action-indicator "")
+;;   (setq eglot-code-action-indications '(mode-line))
+;;   )
 
 (defvar-local my--eldoc-buffer-tracker nil
   "Buffer-local variable to track if this buffer showed eldoc docs.")
@@ -478,6 +485,46 @@
   :config
   (setq treesit-auto-add-to-auto-mode-alist 'all)
   (setq global-treesit-auto-mode t))
+
+(use-package lsp-mode
+  :init
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-c L")
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	 (rust-mode . lsp)
+         (rust-ts-mode . lsp)
+         (lsp-mode . lsp-enable-which-key-integration))
+  :commands (lsp lsp-deferred)
+
+  :config
+  (setq lsp-enable-snippet t)
+  (setq lsp-enable-folding t)
+  (setq lsp-semantic-tokens-enable t)
+  (setq lsp-enable-imenu t)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable t)
+  (setq lsp-modeline-workspace-status-enable t)
+  (setq lsp-enable-symbol-highlighting t)
+  (setq lsp-enable-links t)
+  (setq lsp-enable-indentation t)
+  (setq lsp-enable-on-type-formatting t)
+  (setq lsp-before-save-edits t)
+  (setq lsp-format-buffer-on-save nil)
+  (setq lsp-format-buffer-on-save-list '(python-mode rust-mode))
+  (setq lsp-diagnostics-provider :flymake)
+  (setq lsp-diagnostic-clean-after-change t)
+  )
+
+(defun my/lsp-flymake-only ()
+  "Ensure only LSP diagnostics are used in Flymake."
+  (setq-local flymake-diagnostic-functions '(lsp-diagnostics-flymake-backend)))
+(add-hook 'lsp-mode-hook #'my/lsp-flymake-only)
+;; optionally
+;; (use-package lsp-ui :commands lsp-ui-mode)
+
+;; (use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
@@ -624,8 +671,8 @@
 		  consult--source-buffer         ; 2. Then show all other buffers
 		  consult--source-recent-file
 		  consult--source-bookmark))
-  (advice-add #'consult--buffer-filter :override
-              (lambda (buffer) (not (consult--project-buffer-p buffer))))
+  ;; (advice-add #'consult--buffer-filter :override
+  ;;             (lambda (buffer) (not (consult--project-buffer-p buffer))))
   (setq consult-fd-args
 		'((if (executable-find "fdfind" 'remote) "fdfind" "fd")
 		  "--color=never"
