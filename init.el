@@ -19,5 +19,6 @@
 (require 'init-project)
 (require 'init-org)
 (require 'init-keys)
+(require 'init-ai)
 
 ;;; init.el ends here
