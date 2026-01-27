@@ -84,14 +84,14 @@
 		  consult--source-buffer         ; 2. Then show all other buffers
 		  consult--source-recent-file
 		  consult--source-bookmark))
-  ;; (advice-add #'consult--buffer-filter :override
-  ;;             (lambda (buffer) (not (consult--project-buffer-p buffer))))
-  ;; (setq consult-fd-args
-  ;; 		`((if (executable-find "fdfind" 'remote) "fdfind" "fd")
-  ;; 		  "--color=never"
-  ;; 		  ;; https://github.com/sharkdp/fd/issues/839
-  ;; 		  "--hidden --exclude .git"
-  ;; 		  ,@(if (featurep :system 'windows) '("--path-separator=/"))))
+  (advice-add #'consult--buffer-filter :override
+              (lambda (buffer) (not (consult--project-buffer-p buffer))))
+  (setq consult-fd-args
+		`((if (executable-find "fdfind" 'remote) "fdfind" "fd")
+		  "--color=never"
+		  ;; https://github.com/sharkdp/fd/issues/839
+		  "--hidden --exclude .git"
+		  ,@(if (featurep :system 'windows) '("--path-separator=/"))))
   )
 
 (use-package embark

@@ -63,10 +63,11 @@
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c L")
+  (setq lsp-keymap-prefix "C-c C-c L")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	 (rust-mode . lsp)
-         (rust-ts-mode . lsp)
+         (rust-ts-mode . lsp-deferred)
+         (rust-mode . lsp-deferred)
+         (nix-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
 
@@ -85,10 +86,17 @@
   (setq lsp-enable-on-type-formatting t)
   (setq lsp-before-save-edits t)
   (setq lsp-format-buffer-on-save nil)
-  (setq lsp-format-buffer-on-save-list '(python-mode rust-mode))
+  (setq lsp-format-buffer-on-save-list '(python-mode rust-mode rust-ts-mode))
   (setq lsp-diagnostics-provider :flymake)
   (setq lsp-diagnostic-clean-after-change t)
+  (setq lsp-completion-provider :none) ;; Using Corfu via CAPF
   )
+
+(use-package lsp-ui
+  :ensure t
+  :bind (:map lsp-ui-mode-map
+              ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
+              ([remap xref-find-references] . #'lsp-ui-peek-find-references)))
 
 (defun my/lsp-flymake-only ()
   "Ensure only LSP diagnostics are used in Flymake."
@@ -118,7 +126,6 @@
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 
 (use-package nix-mode)
-(add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
 
 (use-package lua-mode)
 (add-to-list 'major-mode-remap-alist '(lua-mode . lua-ts-mode))
