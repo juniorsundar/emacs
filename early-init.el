@@ -31,7 +31,6 @@
 (setq delete-selection-mode t)
 (setq display-line-numbers-type 'relative)
 (setq global-auto-revert-non-file-buffers t)
-(setq global-auto-revert-mode t)
 (setq history-length 25)
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
