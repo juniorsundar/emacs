@@ -120,9 +120,21 @@
 ;;-----------------------------------------------------------------------------
 (use-package markdown-mode)
 (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
-;; (add-hook 'markdown-ts-mode-hook 'variable-pitch-mode)
 (add-hook 'markdown-ts-mode-hook 'visual-line-mode)
 (add-hook 'markdown-ts-mode-hook (lambda () (display-line-numbers-mode -1)))
+
+(font-lock-mode 1)
+(defun my-markdown-faces ()
+  (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family "IBM Plex Sans")
+  (set-face-attribute 'markdown-ts-heading-2 nil :height 1.6 :family "IBM Plex Sans")
+  (set-face-attribute 'markdown-ts-heading-3 nil :height 1.4 :family "IBM Plex Sans")
+  (set-face-attribute 'markdown-ts-heading-4 nil :height 1.2 :family "IBM Plex Sans")
+  (set-face-attribute 'markdown-ts-heading-5 nil :height 1.1 :family "IBM Plex Sans")
+  (set-face-attribute 'markdown-code-face nil :height 1.0 :family "Lilex Nerd Font")
+  (set-face-attribute 'markdown-inline-code-face nil :height 1.0 :family "Lilex Nerd Font")
+  (set-face-attribute 'markdown-table-face nil :height 1.0 :family "Lilex Nerd Font")
+  )
+(add-hook 'markdown-ts-mode-hook #'my-markdown-faces)
 
 (use-package python-mode)
 (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
