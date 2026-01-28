@@ -1,4 +1,1 @@
-[submodule "lisp/catppuccin-theme"]
-    path = lisp/catppuccin-theme
-    url = https://github.com/juniorsundar/catppuccin.emacs
-    branch = main
+
