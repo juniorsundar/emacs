@@ -104,17 +104,6 @@
     "c" '(org-capture :which-key "Capture")
     "a" '(org-agenda :which-key "Agenda"))
 
-  ;; Define the "O d" (Denote) sub-submap under the C-c O prefix
-  (general-def
-    :prefix "C-c O d" ; Prefix for Denote commands
-    "n" '(denote :which-key "Denote")
-    "r" '(denote-rename-file :which-key "Denote Rename")
-    "l" '(denote-link :which-key "Denote Link")
-    "b" '(denote-backlinks :which-key "Denote Backlinks")
-    "o" '(denote-open-or-create :which-key "Denote Open/Create")
-    "d" '(denote-dired :which-key "Denote Dired")
-    "g" '(denote-grep :which-key "Denote Grep"))
-
   ;; Define the "l" (LSP) submap under the C-c leader
   (general-def
     :prefix "C-c L" ; Prefix for LSP commands

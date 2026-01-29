@@ -123,27 +123,17 @@
 
 (defun my-org-faces ()
   (set-face-attribute 'org-document-title nil :height 2.0 :family "IBM Plex Sans")
-  (set-face-attribute 'org-level-1 nil :height 1.8 :family "IBM Plex Sans")
-  (set-face-attribute 'org-level-2 nil :height 1.6 :family "IBM Plex Sans")
-  (set-face-attribute 'org-level-3 nil :height 1.4 :family "IBM Plex Sans")
-  (set-face-attribute 'org-level-4 nil :height 1.2 :family "IBM Plex Sans")
-  (set-face-attribute 'org-level-5 nil :height 1.1 :family "IBM Plex Sans")
+  ;; (set-face-attribute 'org-level-1 nil :height 1.5 :family "IBM Plex Sans")
+  ;; (set-face-attribute 'org-level-2 nil :height 1.4 :family "IBM Plex Sans")
+  ;; (set-face-attribute 'org-level-3 nil :height 1.3 :family "IBM Plex Sans")
+  ;; (set-face-attribute 'org-level-4 nil :height 1.2 :family "IBM Plex Sans")
+  ;; (set-face-attribute 'org-level-5 nil :height 1.1 :family "IBM Plex Sans")
   (set-face-attribute 'org-block nil :height 1.0 :family "Lilex Nerd Font")
   (set-face-attribute 'org-code nil :height 1.0 :family "Lilex Nerd Font")
   (set-face-attribute 'org-table nil :height 1.0 :family "Lilex Nerd Font")
   )
 (add-hook 'org-mode-hook #'my-org-faces)
 ;; (add-hook 'org-mode-hook #'variable-pitch-mode)
-
-(use-package denote
-  :ensure t
-  :hook (dired-mode . denote-dired-mode)
-  :config
-  (setq denote-directory (expand-file-name "~/Dropbox/org/pages/"))
-  (denote-rename-buffer-mode 1))
-
-(use-package denote-org
-  :ensure t)
 
 (use-package toc-org
   :commands toc-org-enable
