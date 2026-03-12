@@ -90,25 +90,9 @@
   (setq lsp-diagnostics-provider :flymake)
   (setq lsp-diagnostic-clean-after-change t)
   (setq lsp-completion-provider :none) ;; Using Corfu via CAPF
+  (setq lsp-eldoc-enable-hover t)
+  (setq lsp-eldoc-render-all nil)
   )
-
-(use-package lsp-ui
-  :ensure t
-  :bind (:map lsp-ui-mode-map
-              ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
-              ([remap xref-find-references] . #'lsp-ui-peek-find-references)
-              ("M-i" . #'lsp-ui-doc-focus-frame))
-  :config
-  (setq lsp-ui-doc-position 'at-point)
-
-  (defun my/lsp-ui-doc-quit ()
-    (interactive)
-    (lsp-ui-doc-unfocus-frame)
-    (lsp-ui-doc-hide))
-
-  (with-eval-after-load 'lsp-ui-doc
-    (define-key lsp-ui-doc-frame-mode-map "q" #'my/lsp-ui-doc-quit)
-    (define-key lsp-ui-doc-frame-mode-map (kbd "C-g") #'my/lsp-ui-doc-quit)))
 
 (defun my/lsp-flymake-only ()
   "Ensure only LSP diagnostics are used in Flymake."
