@@ -7,18 +7,7 @@
 ;;
 ;;; Code:
 
-;; Add lisp/ directory to load-path
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
-;; Load modules
-(require 'init-core)
-(require 'init-ui)
-(require 'init-editor)
-(require 'init-completion)
-(require 'init-dev)
-(require 'init-project)
-(require 'init-org)
-(require 'init-keys)
-(require 'init-ai)
+;; Load the literate configuration
+(org-babel-load-file (expand-file-name "config.org" user-emacs-directory))
 
 ;;; init.el ends here
