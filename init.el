@@ -53,6 +53,7 @@
   (global-set-key (kbd "C--") 'text-scale-decrease)
   (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
   (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
   ;; Enable global-auto-revert-mode
   (global-auto-revert-mode 1)
@@ -271,8 +272,8 @@
   "Set fonts for the given FRAME."
   (when (display-graphic-p frame)
     (with-selected-frame frame
-      (set-face-font 'default "Lilex Nerd Font Mono")
-      (set-face-font 'variable-pitch "IBM Plex Sans")
+      (set-face-font 'default "IosevkaTerm Nerd Font")
+      (set-face-font 'variable-pitch "Iosevka Aile")
       (copy-face 'default 'fixed-pitch)
 
       (set-face-attribute 'default nil :height 130)
@@ -287,7 +288,7 @@
       (set-face-attribute 'italic nil
                           :underline nil
                           :slant 'italic
-                          :family "Lilex Nerd Font Mono")
+                          :family "IosevkaTerm Nerd Font")
       )))
 
 (add-hook 'after-make-frame-functions #'my-set-frame-fonts)
@@ -302,7 +303,7 @@
 (set-face-attribute 'italic nil
                     :underline nil
                     :slant 'italic
-                    :family "Lilex Nerd Font Mono")
+                    :family "IosevkaTerm Nerd Font")
 
 (add-hook 'ibuffer-mode-hook (lambda () (display-line-numbers-mode -1)))
 
@@ -649,17 +650,20 @@ This is a non-interactive helper function."
 (use-package vterm
   :ensure t)
 
-(use-package flymake
-  :ensure nil
-  :defer t
-  :hook ((prog-mode) . flymake-mode)
-  :custom
-  (flymake-margin-indicators-string
-   '((error "!»" compilation-error) (warning "»" compilation-warning)
-	 (note "»" compilation-info)))
-  (flymake-fringe-indicator-position 'right-fringe)
-  )
+;; (use-package flymake
+;;   :ensure nil
+;;   :defer t
+;;   :hook ((prog-mode) . flymake-mode)
+;;   :custom
+;;   (flymake-margin-indicators-string
+;;    '((error "!»" compilation-error) (warning "»" compilation-warning)
+;; 	 (note "»" compilation-info)))
+;;   (flymake-fringe-indicator-position 'right-fringe)
+;;   )
 
+(use-package flycheck
+  :ensure t
+  :hook ((prog-mode) . flymake-mode))
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
@@ -753,14 +757,14 @@ This is a non-interactive helper function."
 
 (font-lock-mode 1)
 (defun my-markdown-faces ()
-  (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family "IBM Plex Sans")
-  (set-face-attribute 'markdown-ts-heading-2 nil :height 1.6 :family "IBM Plex Sans")
-  (set-face-attribute 'markdown-ts-heading-3 nil :height 1.4 :family "IBM Plex Sans")
-  (set-face-attribute 'markdown-ts-heading-4 nil :height 1.2 :family "IBM Plex Sans")
-  (set-face-attribute 'markdown-ts-heading-5 nil :height 1.1 :family "IBM Plex Sans")
-  (set-face-attribute 'markdown-code-face nil :height 1.0 :family "Lilex Nerd Font")
-  (set-face-attribute 'markdown-inline-code-face nil :height 1.0 :family "Lilex Nerd Font")
-  (set-face-attribute 'markdown-table-face nil :height 1.0 :family "Lilex Nerd Font")
+  (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family "Iosevka Aile")
+  (set-face-attribute 'markdown-ts-heading-2 nil :height 1.6 :family "Iosevka Aile")
+  (set-face-attribute 'markdown-ts-heading-3 nil :height 1.4 :family "Iosevka Aile")
+  (set-face-attribute 'markdown-ts-heading-4 nil :height 1.2 :family "Iosevka Aile")
+  (set-face-attribute 'markdown-ts-heading-5 nil :height 1.1 :family "Iosevka Aile")
+  (set-face-attribute 'markdown-code-face nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'markdown-inline-code-face nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'markdown-table-face nil :height 1.0 :family "IosevkaTerm Nerd Font")
   )
 (add-hook 'markdown-ts-mode-hook #'my-markdown-faces)
 
@@ -966,15 +970,15 @@ This is a non-interactive helper function."
 (font-lock-mode 1)
 
 (defun my-org-faces ()
-  (set-face-attribute 'org-document-title nil :height 2.0 :family "IBM Plex Sans")
-  ;; (set-face-attribute 'org-level-1 nil :height 1.5 :family "IBM Plex Sans")
-  ;; (set-face-attribute 'org-level-2 nil :height 1.4 :family "IBM Plex Sans")
-  ;; (set-face-attribute 'org-level-3 nil :height 1.3 :family "IBM Plex Sans")
-  ;; (set-face-attribute 'org-level-4 nil :height 1.2 :family "IBM Plex Sans")
-  ;; (set-face-attribute 'org-level-5 nil :height 1.1 :family "IBM Plex Sans")
-  (set-face-attribute 'org-block nil :height 1.0 :family "Lilex Nerd Font")
-  (set-face-attribute 'org-code nil :height 1.0 :family "Lilex Nerd Font")
-  (set-face-attribute 'org-table nil :height 1.0 :family "Lilex Nerd Font")
+  (set-face-attribute 'org-document-title nil :height 2.0 :family "Iosevka Aile")
+  ;; (set-face-attribute 'org-level-1 nil :height 1.5 :family "Iosevka Aile")
+  ;; (set-face-attribute 'org-level-2 nil :height 1.4 :family "Iosevka Aile")
+  ;; (set-face-attribute 'org-level-3 nil :height 1.3 :family "Iosevka Aile")
+  ;; (set-face-attribute 'org-level-4 nil :height 1.2 :family "Iosevka Aile")
+  ;; (set-face-attribute 'org-level-5 nil :height 1.1 :family "Iosevka Aile")
+  (set-face-attribute 'org-block nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'org-code nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'org-table nil :height 1.0 :family "IosevkaTerm Nerd Font")
   )
 (add-hook 'org-mode-hook #'my-org-faces)
 ;; (add-hook 'org-mode-hook #'variable-pitch-mode)
@@ -1126,7 +1130,7 @@ This is a non-interactive helper function."
   ;; Define the "l" (LSP) submap under the C-c leader
   (general-def
     :prefix "C-c L" ; Prefix for LSP commands
-    "k" '(lsp-ui-doc-glance :which-key "LSP Documentation")
+    "k" '(lsp-describe-thing-at-point :which-key "LSP Documentation")
     "f" '(lsp-format-buffer :which-key "Format Buffer")
     "d" '(lsp-find-definition :which-key "LSP Definition")
     "r" '(lsp-find-references :which-key "LSP References")
