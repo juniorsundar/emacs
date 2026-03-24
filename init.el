@@ -596,7 +596,6 @@ This is a non-interactive helper function."
 ;; Search
 ;;-----------------------------------------------------------------------------
 (use-package consult
-  :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   (setq register-preview-delay 0.5
 	register-preview-function #'consult-register-format)
@@ -636,9 +635,7 @@ This is a non-interactive helper function."
   )
 
 (use-package embark-consult
-  :ensure t
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+  :ensure t)
 
 (provide 'init-completion)
 ;;; init-completion.el ends here
