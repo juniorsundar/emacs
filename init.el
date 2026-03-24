@@ -214,13 +214,6 @@
   (ignore-errors (apply orig-fun args)))
 (advice-add 'hack-dir-local-variables :around #'my-suppress-dir-locals-error)
 
-(provide 'init-core)
-;;; init-core.el ends here
-
-;;; init-ui.el --- UI, Theme and Fonts Configurations -*- lexical-binding: t -*-
-
-;;; Code:
-
 (use-package rainbow-delimiters
   :ensure t
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -378,13 +371,6 @@
   (doom-modeline-enable-word-count t)
   )
 
-(provide 'init-ui)
-;;; init-ui.el ends here
-
-;;; init-editor.el --- Editing Configurations (Evil/Meow) -*- lexical-binding: t -*-
-
-;;; Code:
-
 (use-package smerge-mode
   :ensure nil
   :defer t
@@ -528,13 +514,6 @@ This is a non-interactive helper function."
     (goto-char original-beg))
   )
 
-(provide 'init-editor)
-;;; init-editor.el ends here
-
-;;; init-completion.el --- Completion Configurations (Corfu, Vertico, etc.) -*- lexical-binding: t -*-
-
-;;; Code:
-
 ;; -----------------------------------------------------------------------------
 ;; Completions
 ;;-----------------------------------------------------------------------------
@@ -547,7 +526,7 @@ This is a non-interactive helper function."
   (corfu-quit-at-boundary 'separator)   ;; Never quit at completion boundary
   (corfu-preview-current nil)    ;; Disable current candidate preview
   (corfu-popupinfo-mode t)       ;; Enable popup information
-  (corfu-popupinfo-delay 0.5)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
+  (corfu-popupinfo-delay 0.1)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
   (completion-ignore-case t)
   :init
   (global-corfu-mode))
@@ -636,13 +615,6 @@ This is a non-interactive helper function."
 
 (use-package embark-consult
   :ensure t)
-
-(provide 'init-completion)
-;;; init-completion.el ends here
-
-;;; init-dev.el --- Development Tools, Languages, LSP -*- lexical-binding: t -*-
-
-;;; Code:
 
 (use-package vterm
   :ensure t)
@@ -820,13 +792,6 @@ This is a non-interactive helper function."
                                   (unknown . "?")
                                   (ignored . "i"))))
 
-(provide 'init-dev)
-;;; init-dev.el ends here
-
-;;; init-project.el --- Project Management (Projectile) -*- lexical-binding: t -*-
-
-;;; Code:
-
 (use-package projectile
   :ensure t
   :init
@@ -839,13 +804,6 @@ This is a non-interactive helper function."
 (use-package consult-projectile
   :ensure t
   :after (consult projectile))
-
-(provide 'init-project)
-;;; init-project.el ends here
-
-;;; init-org.el --- Org-Mode and Denote -*- lexical-binding: t -*-
-
-;;; Code:
 
 ;;-----------------------------------------------------------------------------
 ;; Org-Mode
@@ -1014,13 +972,6 @@ This is a non-interactive helper function."
   )
 
 (add-hook 'org-mode-hook (lambda () (display-line-numbers-mode -1)))
-
-(provide 'init-org)
-;;; init-org.el ends here
-
-;;; init-keys.el --- General Keybindings -*- lexical-binding: t -*-
-
-;;; Code:
 
 ;;-----------------------------------------------------------------------------
 ;; General Keybindings
@@ -1196,6 +1147,5 @@ This is a non-interactive helper function."
     ))
 
 (provide 'init-keys)
-;;; init-keys.el ends here
 
 ;;; init.el ends here
