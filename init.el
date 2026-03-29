@@ -707,6 +707,7 @@ This is a non-interactive helper function."
          (rust-ts-mode . lsp-deferred)
          (rust-mode . lsp-deferred)
          (nix-mode . lsp-deferred)
+         (lua-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
 
@@ -768,6 +769,7 @@ This is a non-interactive helper function."
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 
 (use-package nix-mode)
+(add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
 
 (use-package lua-mode)
 (add-to-list 'major-mode-remap-alist '(lua-mode . lua-ts-mode))
@@ -792,7 +794,7 @@ This is a non-interactive helper function."
          (after-save . diff-hl-update)
          (vc-dir-mode . diff-hl-dir-mode))
   :init
-  (global-diff-hl-mode 1)
+  (global-diff-hl-mode nil)
   :config
   (diff-hl-flydiff-mode 1)
   (diff-hl-margin-mode 1)
