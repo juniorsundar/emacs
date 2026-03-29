@@ -31,7 +31,6 @@
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
 
-  :config
   (defun skip-these-buffers (_window buffer _bury-or-kill)
     "Skip buffers matching the pattern when switching."
     (string-match "\\*[^*]+\\*" (buffer-name buffer)))
@@ -125,19 +124,13 @@
   (dired-dwim-target t)                                      ;; Enable "do what I mean" for target directories.
   (dired-guess-shell-alist-user
    '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open") ;; Open image files with `feh' or the default viewer.
-     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv'.
+     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open") ;; Open audio and video files with `mpv`.
      (".*" "open" "xdg-open")))                              ;; Default opening command for other files.
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-auto-revert-buffer #'dired-buffer-stale-p)
   (dired-recursive-copies  'always)
   (dired-recursive-deletes 'top)
   (dired-create-destination-dirs 'ask)
-  (image-dired-dir (concat doom-cache-dir "image-dired/"))
-  (image-dired-db-file (concat image-dired-dir "db.el"))
-  (image-dired-gallery-dir (concat image-dired-dir "gallery/"))
-  (image-dired-temp-image-file (concat image-dired-dir "temp-image"))
-  (image-dired-temp-rotate-image-file (concat image-dired-dir "temp-rotate-image"))
-  (image-dired-thumb-size 150)
   :config
   (when (eq system-type 'darwin)
     (let ((gls (executable-find "gls")))
@@ -146,6 +139,14 @@
   (add-hook 'dired-mode-hook
             (lambda ()
               (define-key dired-mode-map (kbd "-") #'dired-up-directory)))
+  ;; Image-dired paths - use user's emacs directory for cache
+  (let ((cache-dir (locate-user-emacs-file "cache/image-dired/")))
+    (setq image-dired-dir cache-dir)
+    (setq image-dired-db-file (concat cache-dir "db.el"))
+    (setq image-dired-gallery-dir (concat cache-dir "gallery/"))
+    (setq image-dired-temp-image-file (concat cache-dir "temp-image"))
+    (setq image-dired-temp-rotate-image-file (concat cache-dir "temp-rotate-image")))
+  (setq image-dired-thumb-size 150)
   )
 
 (use-package diredfl
@@ -232,7 +233,6 @@
   :config
   (load-theme 'doom-one t)
   (doom-themes-visual-bell-config)
-  (doom-themes-neotree-config)
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
 
@@ -247,13 +247,39 @@
 ;;-----------------------------------------------------------------------------
 ;; Fonts
 ;;-----------------------------------------------------------------------------
+;; Centralized font configuration - edit these variables to change fonts globally
+(defcustom my/font-fixed-family "Lilex Nerd Font"
+  "Monospace font family for code and fixed-pitch text."
+  :type 'string
+  :group 'fonts)
+
+(defcustom my/font-variable-family "IBM Plex Sans"
+  "Proportional font family for headings and variable-pitch text."
+  :type 'string
+  :group 'fonts)
+
+(defcustom my/font-emoji-family "Noto Color Emoji"
+  "Emoji font family."
+  :type 'string
+  :group 'fonts)
+
+(defcustom my/font-fixed-height 100
+  "Height for fixed-pitch faces (monospace)."
+  :type 'integer
+  :group 'fonts)
+
+(defcustom my/font-variable-height 120
+  "Height for variable-pitch faces (proportional)."
+  :type 'integer
+  :group 'fonts)
+
 (defun fixed-pitch-mode ()
   (interactive)
   (buffer-face-mode -1))
 (defun variable-pitch-mode ()
   (interactive)
   (buffer-face-mode t))
-(defun toggle-pitch (&optional arg)
+(defun toggle-pitch ()
   "Switch between the `fixed-pitch' face and the `variable-pitch' face"
   (interactive)
   (buffer-face-toggle 'variable-pitch))
@@ -261,52 +287,43 @@
 
 (add-hook 'eww-mode-hook 'variable-pitch-mode)
 
-(defun my-set-frame-fonts (frame)
-  "Set fonts for the given FRAME."
+(defun my/set-font-for-frame (frame)
+  "Apply centralized font settings to FRAME."
   (when (display-graphic-p frame)
     (with-selected-frame frame
-      (set-face-font 'default "IosevkaTerm Nerd Font")
-      (set-face-font 'variable-pitch "Iosevka Aile")
+      ;; Set base faces
+      (set-face-attribute 'default nil :family my/font-fixed-family :height my/font-fixed-height)
+      (set-face-attribute 'variable-pitch nil :family my/font-variable-family :height my/font-variable-height)
       (copy-face 'default 'fixed-pitch)
 
-      (set-face-attribute 'default nil :height 130)
-      (set-face-attribute 'variable-pitch nil :height 130)
-
+      ;; Enable buffer-face-mode for variable-pitch support
       (buffer-face-mode)
 
-      (when (member "Noto Color Emoji" (font-family-list))
+      ;; Set up emoji font
+      (when (member my/font-emoji-family (font-family-list))
         (set-fontset-font
-         t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
+         t 'symbol (font-spec :family my/font-emoji-family) nil 'prepend))
 
+      ;; Set italic face to use fixed-pitch family
       (set-face-attribute 'italic nil
                           :underline nil
                           :slant 'italic
-                          :family "IosevkaTerm Nerd Font")
-      )))
+                          :family my/font-fixed-family))))
 
-(add-hook 'after-make-frame-functions #'my-set-frame-fonts)
+(add-hook 'after-make-frame-functions #'my/set-font-for-frame)
 (when (and (not (daemonp)) (display-graphic-p))
-  (my-set-frame-fonts (selected-frame)))
-
-;; Set Nerd Font for symbols
-(when (member "Noto Color Emoji" (font-family-list))
-  (set-fontset-font
-   t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
-
-(set-face-attribute 'italic nil
-                    :underline nil
-                    :slant 'italic
-                    :family "IosevkaTerm Nerd Font")
+  (my/set-font-for-frame (selected-frame)))
 
 (add-hook 'ibuffer-mode-hook (lambda () (display-line-numbers-mode -1)))
 
 (use-package all-the-icons
   :ensure t
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode))
+  :if (display-graphic-p))
 
 (use-package all-the-icons-dired
-  :ensure t)
+  :ensure t
+  :after all-the-icons
+  :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package all-the-icons-ibuffer
   :ensure t
@@ -314,7 +331,9 @@
 
 (use-package nerd-icons-corfu
   :ensure t
-  :after (:all corfu))
+  :after (:all corfu)
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (use-package ligature
   :config
@@ -521,15 +540,20 @@ This is a non-interactive helper function."
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-prefix 1)          ;; Minimum length of prefix for auto completion.
+  (corfu-auto-prefix 2)          ;; Minimum length of prefix for auto completion.
+  (corfu-auto-delay 0.2)         ;; Debounce delay before triggering completion.
   (corfu-separator ?\s)          ;; Orderless field separator, Use M-SPC to enter separator
   (corfu-quit-at-boundary 'separator)   ;; Never quit at completion boundary
   (corfu-preview-current nil)    ;; Disable current candidate preview
-  (corfu-popupinfo-mode t)       ;; Enable popup information
-  (corfu-popupinfo-delay 0.1)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
   (completion-ignore-case t)
+  :config
+  (corfu-popupinfo-mode 1)       ;; Enable popup information
+  (setq corfu-popupinfo-delay 0.1) ;; Show popupinfo after 0.1s
   :init
   (global-corfu-mode))
+(add-hook 'text-mode-hook
+          (lambda ()
+            (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t)))
 
 (use-package cape
   :after corfu
@@ -616,23 +640,25 @@ This is a non-interactive helper function."
 (use-package embark-consult
   :ensure t)
 
+(use-package consult-flycheck
+  :ensure t
+  :after (consult flycheck))
+
 (use-package vterm
   :ensure t)
 
-;; (use-package flymake
-;;   :ensure nil
-;;   :defer t
-;;   :hook ((prog-mode) . flymake-mode)
-;;   :custom
-;;   (flymake-margin-indicators-string
-;;    '((error "!»" compilation-error) (warning "»" compilation-warning)
-;; 	 (note "»" compilation-info)))
-;;   (flymake-fringe-indicator-position 'right-fringe)
-;;   )
-
 (use-package flycheck
   :ensure t
-  :hook ((prog-mode) . flymake-mode))
+  :custom
+  (flycheck-indication-mode 'right-fringe)
+  :hook (prog-mode . flycheck-mode)
+  :config
+  (add-hook 'prog-mode-hook (lambda () (flymake-mode -1))))
+
+(use-package flymake
+  :ensure nil
+  :custom
+  (flymake-fringe-indicator-position 'right-fringe))
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
@@ -704,17 +730,12 @@ This is a non-interactive helper function."
   (setq lsp-before-save-edits t)
   (setq lsp-format-buffer-on-save nil)
   (setq lsp-format-buffer-on-save-list '(python-mode rust-mode rust-ts-mode))
-  (setq lsp-diagnostics-provider :flymake)
+  (setq lsp-diagnostics-provider :flycheck)
   (setq lsp-diagnostic-clean-after-change t)
   (setq lsp-completion-provider :none) ;; Using Corfu via CAPF
   (setq lsp-eldoc-enable-hover t)
   (setq lsp-eldoc-render-all nil)
   )
-
-(defun my/lsp-flymake-only ()
-  "Ensure only LSP diagnostics are used in Flymake."
-  (setq-local flymake-diagnostic-functions '(lsp-diagnostics-flymake-backend)))
-(add-hook 'lsp-mode-hook #'my/lsp-flymake-only)
 
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
@@ -726,14 +747,14 @@ This is a non-interactive helper function."
 
 (font-lock-mode 1)
 (defun my-markdown-faces ()
-  (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family "Iosevka Aile")
-  (set-face-attribute 'markdown-ts-heading-2 nil :height 1.6 :family "Iosevka Aile")
-  (set-face-attribute 'markdown-ts-heading-3 nil :height 1.4 :family "Iosevka Aile")
-  (set-face-attribute 'markdown-ts-heading-4 nil :height 1.2 :family "Iosevka Aile")
-  (set-face-attribute 'markdown-ts-heading-5 nil :height 1.1 :family "Iosevka Aile")
-  (set-face-attribute 'markdown-code-face nil :height 1.0 :family "IosevkaTerm Nerd Font")
-  (set-face-attribute 'markdown-inline-code-face nil :height 1.0 :family "IosevkaTerm Nerd Font")
-  (set-face-attribute 'markdown-table-face nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family my/font-variable-family)
+  (set-face-attribute 'markdown-ts-heading-2 nil :height 1.6 :family my/font-variable-family)
+  (set-face-attribute 'markdown-ts-heading-3 nil :height 1.4 :family my/font-variable-family)
+  (set-face-attribute 'markdown-ts-heading-4 nil :height 1.2 :family my/font-variable-family)
+  (set-face-attribute 'markdown-ts-heading-5 nil :height 1.1 :family my/font-variable-family)
+  (set-face-attribute 'markdown-code-face nil :height 1.0 :family my/font-fixed-family)
+  (set-face-attribute 'markdown-inline-code-face nil :height 1.0 :family my/font-fixed-family)
+  (set-face-attribute 'markdown-table-face nil :height 1.0 :family my/font-fixed-family)
   )
 (add-hook 'markdown-ts-mode-hook #'my-markdown-faces)
 
@@ -925,15 +946,15 @@ This is a non-interactive helper function."
 (font-lock-mode 1)
 
 (defun my-org-faces ()
-  (set-face-attribute 'org-document-title nil :height 2.0 :family "Iosevka Aile")
-  ;; (set-face-attribute 'org-level-1 nil :height 1.5 :family "Iosevka Aile")
-  ;; (set-face-attribute 'org-level-2 nil :height 1.4 :family "Iosevka Aile")
-  ;; (set-face-attribute 'org-level-3 nil :height 1.3 :family "Iosevka Aile")
-  ;; (set-face-attribute 'org-level-4 nil :height 1.2 :family "Iosevka Aile")
-  ;; (set-face-attribute 'org-level-5 nil :height 1.1 :family "Iosevka Aile")
-  (set-face-attribute 'org-block nil :height 1.0 :family "IosevkaTerm Nerd Font")
-  (set-face-attribute 'org-code nil :height 1.0 :family "IosevkaTerm Nerd Font")
-  (set-face-attribute 'org-table nil :height 1.0 :family "IosevkaTerm Nerd Font")
+  (set-face-attribute 'org-document-title nil :height 2.0 :family my/font-variable-family)
+  ;; (set-face-attribute 'org-level-1 nil :height 1.5 :family my/font-variable-family)
+  ;; (set-face-attribute 'org-level-2 nil :height 1.4 :family my/font-variable-family)
+  ;; (set-face-attribute 'org-level-3 nil :height 1.3 :family my/font-variable-family)
+  ;; (set-face-attribute 'org-level-4 nil :height 1.2 :family my/font-variable-family)
+  ;; (set-face-attribute 'org-level-5 nil :height 1.1 :family my/font-variable-family)
+  (set-face-attribute 'org-block nil :height 1.0 :family my/font-fixed-family)
+  (set-face-attribute 'org-code nil :height 1.0 :family my/font-fixed-family)
+  (set-face-attribute 'org-table nil :height 1.0 :family my/font-fixed-family)
   )
 (add-hook 'org-mode-hook #'my-org-faces)
 ;; (add-hook 'org-mode-hook #'variable-pitch-mode)
@@ -1145,7 +1166,5 @@ This is a non-interactive helper function."
     "_" '(split-window-below :which-key "Split Below")
     "|" '(split-window-right :which-key "Split Right")
     ))
-
-(provide 'init-keys)
 
 ;;; init.el ends here
