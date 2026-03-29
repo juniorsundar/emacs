@@ -58,7 +58,7 @@
   (global-auto-revert-mode 1)
 
   :hook
-  (prog-mode . display-line-numbers-mode)
+  ;; (prog-mode . display-line-numbers-mode)
   (emacs-lisp-mode . hs-minor-mode)
   )
 
@@ -304,11 +304,8 @@
         (set-fontset-font
          t 'symbol (font-spec :family my/font-emoji-family) nil 'prepend))
 
-      ;; Set italic face to use fixed-pitch family
-      (set-face-attribute 'italic nil
-                          :underline nil
-                          :slant 'italic
-                          :family my/font-fixed-family))))
+      (set-face-attribute 'font-lock-comment-face nil :slant 'italic)
+      )))
 
 (add-hook 'after-make-frame-functions #'my/set-font-for-frame)
 (when (and (not (daemonp)) (display-graphic-p))
@@ -536,10 +533,6 @@ This is a non-interactive helper function."
 ;; -----------------------------------------------------------------------------
 ;; Completions
 ;;-----------------------------------------------------------------------------
-;; (use-package ispell
-;;   :ensure nil
-;;   :custom
-;;   (ispell-alternate-dictionary "/etc/profiles/per-user/juniorsundar/share/dict/words.txt"))
 
 (use-package corfu
   :custom
@@ -555,11 +548,7 @@ This is a non-interactive helper function."
   :init
   (global-corfu-mode)
   :config
-  (corfu-popupinfo-mode 1)
-  ;; (add-hook 'text-mode-hook
-  ;;           (lambda ()
-  ;;             (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t)))
-  )
+  (corfu-popupinfo-mode 1))
 
 (use-package cape
   :after corfu
