@@ -536,24 +536,30 @@ This is a non-interactive helper function."
 ;; -----------------------------------------------------------------------------
 ;; Completions
 ;;-----------------------------------------------------------------------------
+;; (use-package ispell
+;;   :ensure nil
+;;   :custom
+;;   (ispell-alternate-dictionary "/etc/profiles/per-user/juniorsundar/share/dict/words.txt"))
+
 (use-package corfu
   :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-prefix 2)          ;; Minimum length of prefix for auto completion.
-  (corfu-auto-delay 0.2)         ;; Debounce delay before triggering completion.
-  (corfu-separator ?\s)          ;; Orderless field separator, Use M-SPC to enter separator
-  (corfu-quit-at-boundary 'separator)   ;; Never quit at completion boundary
-  (corfu-preview-current nil)    ;; Disable current candidate preview
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.2)
+  (corfu-separator ?\s)
+  (corfu-quit-at-boundary 'separator)
+  (corfu-preview-current nil)
+  (corfu-popupinfo-delay 0.1)
   (completion-ignore-case t)
-  :config
-  (corfu-popupinfo-mode 1)       ;; Enable popup information
-  (setq corfu-popupinfo-delay 0.1) ;; Show popupinfo after 0.1s
   :init
-  (global-corfu-mode))
-(add-hook 'text-mode-hook
-          (lambda ()
-            (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t)))
+  (global-corfu-mode)
+  :config
+  (corfu-popupinfo-mode 1)
+  ;; (add-hook 'text-mode-hook
+  ;;           (lambda ()
+  ;;             (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t)))
+  )
 
 (use-package cape
   :after corfu
@@ -571,7 +577,8 @@ This is a non-interactive helper function."
   ;;(add-to-list 'completion-at-point-functions #'cape-tex) ;; Complete Unicode char from TeX command, e.g. \hbar
   ;;(add-to-list 'completion-at-point-functions #'cape-sgml) ;; Complete Unicode char from SGML entity, e.g., &alpha
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
-  )
+  :config
+  (advice-add 'dabbrev-capf :override #'ignore))
 
 (use-package orderless
   :custom

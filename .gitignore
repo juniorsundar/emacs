@@ -75,3 +75,4 @@ quelpa
 /elpaca/
 /*.eld
 /.agent-shell/
+flycheck_init.el
