@@ -640,8 +640,10 @@ This is a non-interactive helper function."
   :ensure t
   :after (consult flycheck))
 
-(use-package vterm
-  :ensure t)
+(use-package ghostel
+  :vc (:url "https://github.com/dakra/ghostel"
+	    :lisp-dir "lisp"
+	    :rev :newest))
 
 (use-package flycheck
   :ensure t
@@ -754,25 +756,6 @@ This is a non-interactive helper function."
   (set-face-attribute 'markdown-table-face nil :height 1.0 :family my/font-fixed-family)
   )
 (add-hook 'markdown-ts-mode-hook #'my-markdown-faces)
-
-(use-package python-mode)
-(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
-(require 'python)
-
-(use-package go-mode)
-(add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode))
-
-(use-package zig-mode)
-(add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode))
-
-(use-package rust-mode)
-(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-
-(use-package nix-mode)
-(add-to-list 'major-mode-remap-alist '(nix-mode . nix-ts-mode))
-
-(use-package lua-mode)
-(add-to-list 'major-mode-remap-alist '(lua-mode . lua-ts-mode))
 
 ;;-----------------------------------------------------------------------------
 ;; Git Integration
