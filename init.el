@@ -540,22 +540,44 @@ This is a non-interactive helper function."
 (use-package embark-consult
   :ensure t)
 
-(use-package consult-flycheck
-  :ensure t
-  :after (consult flycheck))
-
 (use-package ghostel
   :vc (:url "https://github.com/dakra/ghostel"
 	    :lisp-dir "lisp"
-	    :rev :newest))
-
-(use-package flycheck
-  :ensure t
-  :custom
-  (flycheck-indication-mode 'right-fringe)
-  :hook (prog-mode . flycheck-mode)
+	    :rev :newest)
   :config
-  (add-hook 'prog-mode-hook (lambda () (flymake-mode -1))))
+  (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
+
+  (defun my/ghostel-project-buffers (orig-fun project)
+    (let* ((root (ignore-errors (file-truename (project-root project))))
+           (by-dir (and root
+                        (cl-remove-if-not
+                         (lambda (b)
+                           (when (buffer-live-p b)
+                             (with-current-buffer b
+                               (and default-directory
+                                    (not (file-remote-p default-directory))
+                                    (string-prefix-p
+                                     root (file-truename default-directory))))))
+                         (buffer-list))))
+           (by-identity (and (featurep 'ghostel)
+                             (ignore-errors (ghostel--project-buffers)))))
+      (seq-union (funcall orig-fun project)
+                 (seq-union by-dir by-identity))))
+  (advice-add #'project-buffers :around #'my/ghostel-project-buffers))
+
+;;-----------------------------------------------------------------------------
+;; Flymake (built-in diagnostics)
+;;-----------------------------------------------------------------------------
+(use-package flymake
+  :ensure nil
+  :hook (prog-mode . flymake-mode)
+  :custom
+  (flymake-indicator-type 'fringes)
+  (flymake-fringe-indicator-position 'right-fringe)
+  (flymake-margin-indicator-position 'right-margin)
+  (flymake-error-bitmap '(flymake-double-exclamation-mark flymake-error-fringe))
+  (flymake-warning-bitmap '(exclamation-mark flymake-warning-fringe))
+  (flymake-note-bitmap '(exclamation-mark flymake-note-fringe)))
 
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
@@ -629,7 +651,7 @@ This is a non-interactive helper function."
   (setq lsp-before-save-edits t)
   (setq lsp-format-buffer-on-save nil)
   (setq lsp-format-buffer-on-save-list '(python-mode rust-mode rust-ts-mode))
-  (setq lsp-diagnostics-provider :flycheck)
+  (setq lsp-diagnostics-provider :flymake)
   (setq lsp-diagnostic-clean-after-change t)
   (setq lsp-completion-provider :none) ;; Using Corfu via CAPF
   (setq lsp-eldoc-enable-hover t)
@@ -789,13 +811,13 @@ This is a non-interactive helper function."
   (general-def
     :prefix "C-c L D" ; Prefix for LSP Document commands
     "s" '(consult-imenu :which-key "Document Symbols")
-    "d" '(consult-flycheck :which-key "Document Diagnostics"))
+    "d" '(consult-flymake :which-key "Document Diagnostics"))
 
   ;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
   (general-def
     :prefix "C-c L W" ; Prefix for LSP Workspace commands
     "s" '(consult-lsp-file-symbols :which-key "Workspace Symbols")
-    "d" '((lambda () (interactive) (consult-flycheck)) :which-key "Workspace Diagnostics"))
+    "d" '((lambda () (interactive) (consult-flymake)) :which-key "Workspace Diagnostics"))
 
   ;; Define global windmove bindings
   (general-def
