@@ -694,19 +694,6 @@ This is a non-interactive helper function."
                                   (unknown . "?")
                                   (ignored . "i"))))
 
-(use-package projectile
-  :ensure t
-  :init
-  (projectile-mode +1)
-  :config
-  ;; Recommended settings for Projectile
-  (setq projectile-project-search-path '("~/Documents" "~/dotfiles" "~/Documents/Projects/"))
-  (setq projectile-enable-caching t))
-
-(use-package consult-projectile
-  :ensure t
-  :after (consult projectile))
-
 ;;-----------------------------------------------------------------------------
 ;; General Keybindings
 ;;-----------------------------------------------------------------------------
@@ -718,7 +705,6 @@ This is a non-interactive helper function."
     :prefix "C-c"
     :non-normal-prefix "C-c" 
     "." '(find-file :which-key "Find")
-    "P" '(projectile-command-map :which-key "Projectile")
     "-" '((lambda () (interactive) (dired default-directory)) :which-key "Dired File")
     "C-s" '(avy-goto-char :which-key "Avy Char")
     "C-j" '(avy-goto-line-below :which-key "Avy Line Below")
@@ -808,16 +794,9 @@ This is a non-interactive helper function."
   ;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
   (general-def
     :prefix "C-c L W" ; Prefix for LSP Workspace commands
-    ;; "a" 'projectile-add-known-project
-    ;; "r" 'projectile-remove-known-project
     "s" '(consult-lsp-file-symbols :which-key "Workspace Symbols")
     "d" '((lambda () (interactive) (consult-flycheck)) :which-key "Workspace Diagnostics"))
 
-
-  (general-def 
-    :prefix "C-c P"
-    "p" '(consult-projectile :which-key "Consult Projectile"))
-  
   ;; Define global windmove bindings
   (general-def
     "M-<down>" '(windmove-down :which-key "Window Move Down")
