@@ -405,19 +405,20 @@
 ;; Evil (Avy is often used with evil/meow)
 ;;-----------------------------------------------------------------------------
 (use-package avy
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package wgrep
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package multiple-cursors
   :ensure t
-  :config
-  (require 'multiple-cursors)
-  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+  :defer t
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C-<" . mc/mark-all-like-this)))
 
 ;;-----------------------------------------------------------------------------
 ;; Convenience functions
@@ -538,14 +539,18 @@ This is a non-interactive helper function."
   )
 
 (use-package embark-consult
-  :ensure t)
+  :ensure t
+  :after embark)
 
 (use-package ghostel
+  :defer t
   :vc (:url "https://github.com/dakra/ghostel"
 	    :lisp-dir "lisp"
 	    :rev :newest)
+  :init
+  (with-eval-after-load 'project
+    (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t))
   :config
-  (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
 
   (defun my/ghostel-project-buffers (orig-fun project)
     (let* ((root (ignore-errors (file-truename (project-root project))))
@@ -661,7 +666,8 @@ This is a non-interactive helper function."
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
 ;;-----------------------------------------------------------------------------
-(use-package markdown-mode)
+(use-package markdown-mode
+  :defer t)
 (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
 (add-hook 'markdown-ts-mode-hook 'visual-line-mode)
 (add-hook 'markdown-ts-mode-hook (lambda () (display-line-numbers-mode -1)))
@@ -683,7 +689,8 @@ This is a non-interactive helper function."
 ;; Git Integration
 ;;-----------------------------------------------------------------------------
 (use-package transient
-  :ensure t)
+  :ensure t
+  :defer t)
 (use-package magit
   :ensure t
   :after transient
@@ -698,9 +705,8 @@ This is a non-interactive helper function."
   :hook ((find-file . diff-hl-mode)
          (after-save . diff-hl-update)
          (vc-dir-mode . diff-hl-dir-mode))
-  :init
-  (global-diff-hl-mode nil)
   :config
+  (global-diff-hl-mode 1)
   (diff-hl-flydiff-mode 1)
   (diff-hl-margin-mode 1)
   (add-hook 'diff-hl-mode-hook
