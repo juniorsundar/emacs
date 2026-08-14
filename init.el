@@ -533,8 +533,8 @@ This is a non-interactive helper function."
 (use-package embark
   :ensure t
   :bind
-  (("C-q" . embark-act)
-   ("M-d" . embark-dwim)
+  (("C-c E a" . embark-act)
+   ("C-c E d" . embark-dwim)
    ("C-h B" . embark-bindings))
   )
 
@@ -666,12 +666,6 @@ This is a non-interactive helper function."
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
 ;;-----------------------------------------------------------------------------
-(use-package markdown-mode
-  :defer t)
-(add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
-(add-hook 'markdown-ts-mode-hook 'visual-line-mode)
-(add-hook 'markdown-ts-mode-hook (lambda () (display-line-numbers-mode -1)))
-
 (font-lock-mode 1)
 (defun my-markdown-faces ()
   (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family my/font-variable-family)
@@ -831,16 +825,14 @@ This is a non-interactive helper function."
     "M-<up>" '(windmove-up :which-key "Window Move Up")
     "M-<left>" '(windmove-left :which-key "Window Move Left")
     "M-<right>" '(windmove-right :which-key "Window Move Right")
-    "M-j" '(windmove-down :which-key "Window Move Down")
-    "M-k" '(windmove-up :which-key "Window Move Up")
-    "M-h" '(windmove-left :which-key "Window Move Left")
-    "M-l" '(windmove-right :which-key "Window Move Right")
+    "M-C-j" '(windmove-down :which-key "Window Move Down")
+    "M-C-k" '(windmove-up :which-key "Window Move Up")
+    "M-C-h" '(windmove-left :which-key "Window Move Left")
+    "M-C-l" '(windmove-right :which-key "Window Move Right")
     "C-<next>" '(scroll-up-line :which-key "Scroll Up Line")
     "C-<prior>" '(scroll-down-line :which-key "Scroll Down Line")
-    "C-j" '(scroll-up-line :which-key "Scroll Up Line")
-    "C-k" '(scroll-down-line :which-key "Scroll Down Line")
-    "C-S-K" '(scroll-down-command :which-key "Page Up")
-    "C-S-J" '(scroll-up-command :which-key "Page Down")
+    "C-M-j" '(scroll-up-line :which-key "Scroll Up Line")
+    "C-M-k" '(scroll-down-line :which-key "Scroll Down Line")
     "M-S-<right>" '(enlarge-window-horizontally :which-key "Window Width Increase")
     "M-S-<left>" '(shrink-window-horizontally :which-key "Window Width Decrease")
     "M-S-<up>" '(enlarge-window :which-key "Window Height Decrease")
