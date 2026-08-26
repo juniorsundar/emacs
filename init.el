@@ -413,7 +413,9 @@
   (evil-define-key 'normal 'global (kbd "C-w <left>") #'windmove-left)
   (evil-define-key 'normal 'global (kbd "C-w <down>") #'windmove-down)
   (evil-define-key 'normal 'global (kbd "C-w <up>") #'windmove-up)
-  (evil-define-key 'normal 'global (kbd "C-w <right>") #'windmove-right))
+  (evil-define-key 'normal 'global (kbd "C-w <right>") #'windmove-right)
+  ;; Close only the current emacsclient frame; leave the daemon running.
+  (evil-define-key 'normal 'global (kbd "ZZ") #'delete-frame))
 
 (use-package evil-surround
   :ensure t
