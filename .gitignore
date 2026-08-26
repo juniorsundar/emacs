@@ -76,3 +76,4 @@ quelpa
 /*.eld
 /.agent-shell/
 flycheck_init.el
+/.pi/
