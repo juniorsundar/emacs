@@ -734,6 +734,23 @@
   :config
   (evil-define-key 'normal diff-hl-mode-map (kbd "[c") #'diff-hl-previous-hunk)
   (evil-define-key 'normal diff-hl-mode-map (kbd "]c") #'diff-hl-next-hunk)
+  (defun my/diff-hl-preview-enable-evil-keys (&rest _)
+    (let ((preview (get-buffer diff-hl-show-hunk-buffer-name)))
+      (when preview
+        (with-current-buffer preview
+          (dolist (state '(normal motion))
+            (evil-local-set-key state (kbd "[c") #'diff-hl-show-hunk-previous)
+            (evil-local-set-key state (kbd "]c") #'diff-hl-show-hunk-next)
+            (evil-local-set-key state (kbd "n") #'diff-hl-show-hunk-next)
+            (evil-local-set-key state (kbd "p") #'diff-hl-show-hunk-previous)
+            (evil-local-set-key state (kbd "r") #'diff-hl-show-hunk-revert-hunk)
+            (evil-local-set-key state (kbd "c") #'diff-hl-show-hunk-copy-original-text)
+            (evil-local-set-key state (kbd "S") #'diff-hl-show-hunk-stage-hunk))))))
+  (with-eval-after-load 'diff-hl-show-hunk
+    (advice-remove #'diff-hl-show-hunk-inline-popup
+                   #'my/diff-hl-preview-enable-evil-keys)
+    (advice-add #'diff-hl-show-hunk-inline-popup :after
+                #'my/diff-hl-preview-enable-evil-keys))
   (global-diff-hl-mode 1)
   (diff-hl-flydiff-mode 1)
   (diff-hl-margin-mode 1)
@@ -792,8 +809,6 @@
     "g p" '(diff-hl-show-hunk :which-key "show hunk")
     "g s" '(diff-hl-stage-current-hunk :which-key "stage hunk")
     "g r" '(diff-hl-revert-hunk :which-key "revert hunk")
-    "g ]" '(diff-hl-next-hunk :which-key "next hunk")
-    "g [" '(diff-hl-previous-hunk :which-key "previous hunk")
     "g v" '(:ignore t :which-key "version control")
     "g v d" '(vc-dir :which-key "directory")
     "g v b" '(vc-annotate :which-key "annotate")
