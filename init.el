@@ -575,7 +575,9 @@ This is a non-interactive helper function."
 ;;-----------------------------------------------------------------------------
 (use-package flymake
   :ensure nil
-  :hook (prog-mode . flymake-mode)
+  ;; lsp-mode enables Flymake for LSP-managed buffers.  Do not enable it in
+  ;; every prog-mode buffer, which would also run standalone checkers such as
+  ;; `rust-ts-flymake` alongside the language server.
   :custom
   (flymake-indicator-type 'fringes)
   (flymake-fringe-indicator-position 'right-fringe)
@@ -587,9 +589,21 @@ This is a non-interactive helper function."
 ;;-----------------------------------------------------------------------------
 ;; LSP and Language Modes
 ;;-----------------------------------------------------------------------------
-(use-package direnv
+(use-package envrc
+  :init
+  ;; envrc disables TRAMP support unless explicitly enabled.
+  (setq envrc-remote t)
+  :hook (after-init . envrc-global-mode)
   :config
-  (direnv-mode))
+  (add-to-list 'envrc-supported-tramp-methods "sshx"))
+
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (add-to-list 'tramp-remote-path "~/.nix-profile/bin"))
+
+;; (use-package direnv
+;;   :config
+;;   (direnv-mode))
 
 (defvar-local my--eldoc-buffer-tracker nil
   "Buffer-local variable to track if this buffer showed eldoc docs.")
@@ -661,6 +675,14 @@ This is a non-interactive helper function."
   (setq lsp-completion-provider :none) ;; Using Corfu via CAPF
   (setq lsp-eldoc-enable-hover t)
   (setq lsp-eldoc-render-all nil)
+
+  (defun my-lsp-use-only-flymake-backend ()
+    (when (memq 'lsp-diagnostics--flymake-backend
+                flymake-diagnostic-functions)
+      (setq-local flymake-diagnostic-functions
+                  '(lsp-diagnostics--flymake-backend))))
+  ;; Append so lsp-mode has first installed its own Flymake backend.
+  (add-hook 'lsp-configure-hook #'my-lsp-use-only-flymake-backend t)
   )
 
 ;;-----------------------------------------------------------------------------
