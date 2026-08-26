@@ -87,4 +87,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
 ;;; early-init.el ends here

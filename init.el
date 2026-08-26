@@ -527,7 +527,7 @@
    consult-bookmark consult-recent-file consult-xref
    consult-source-bookmark consult-source-file-register
    consult-source-recent-file consult-source-project-recent-file
-   :preview-key '(:debounce 0.4 any))
+   :preview-key '(:debounce 0.2 any))
   (setq consult-narrow-key "<")
   (setq consult-buffer-sources
 	'(consult-source-project-buffer ; 1. Show project buffers first
@@ -631,6 +631,26 @@
       (when win
         (quit-window t win)))))
 (add-hook 'post-command-hook #'my-close-eldoc-buffer-if-left)
+
+(defvar my--lsp-help-just-opened nil
+  "Non-nil when lsp-mode displayed *lsp-help* during the current command.")
+
+(with-eval-after-load 'lsp-mode
+  (advice-add 'lsp--display-contents :after
+              (lambda (&rest _)
+                (setq my--lsp-help-just-opened t))))
+
+(defun my-close-lsp-help-buffer-if-left ()
+  "Close *lsp-help* after a subsequent command outside its window."
+  (cond
+   ((eq (current-buffer) (get-buffer "*lsp-help*"))
+    (setq my--lsp-help-just-opened nil))
+   (my--lsp-help-just-opened
+    (setq my--lsp-help-just-opened nil))
+   (t
+    (when-let* ((window (get-buffer-window "*lsp-help*")))
+      (quit-window t window)))))
+(add-hook 'post-command-hook #'my-close-lsp-help-buffer-if-left)
 
 (use-package yasnippet
   :ensure t
@@ -785,6 +805,15 @@
     "a" '(:ignore t :which-key "actions")
     "a a" '(embark-act :which-key "act")
     "a d" '(embark-dwim :which-key "DWIM")
+    "i" '(:ignore t :which-key "Pi tmux")
+    "i a" '(pi-tmux-attach :which-key "attach")
+    "i d" '(pi-tmux-detach :which-key "detach")
+    "i f" '(pi-tmux-focus :which-key "focus")
+    "i r" '(pi-tmux-send-region :which-key "send region")
+    "i c" '(pi-tmux-send-context :which-key "send context")
+    "i p" '(pi-tmux-send-text :which-key "send prompt")
+
+    "p" '(:keymap project-prefix-map :which-key "project")
 
     "b" '(:ignore t :which-key "buffers")
     "b b" '(consult-buffer :which-key "switch buffer")
@@ -893,5 +922,7 @@
     :prefix "C-x"
     "_" '(split-window-below :which-key "split below")
     "|" '(split-window-right :which-key "split right")))
+
+(require 'pi-tmux-sessions)
 
 ;;; init.el ends here
