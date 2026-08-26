@@ -46,6 +46,7 @@ Their content helped me to create this configuration.
 
 -   Package Manager: Package.el with Use-package (built in)
 -   [Evil mode](https://github.com/emacs-evil/evil): An extensible vi/vim layer
+-   [Evil Collection](https://github.com/emacs-evil/evil-collection): Evil bindings for Emacs modes, including Magit and Ediff
 -   [General](https://github.com/noctuid/general.el): Keybindings
 -   [Gruvbox-theme](https://github.com/greduan/emacs-theme-gruvbox): Color scheme
 -   [Doom-modeline](https://github.com/seagle0128/doom-modeline): Prettier, more useful modeline
@@ -170,10 +171,15 @@ Change or install JetBrains Mono font
 
 ## 2. Open the configuration file
 
-1.  Hit Space-f-c to open the config file at $HOME/.config/emacs
+1.  In an Evil normal, visual, or motion state, press `SPC f c` to open the config file at `$HOME/.config/emacs`.
+
+    The Space leader groups commands by purpose: `SPC f` (find), `SPC b`
+    (buffers), `SPC g` (Git), `SPC l` (LSP), `SPC w` (windows), `SPC s`
+    (merge/surround), `SPC t` (toggles), and `SPC z` (folding).  Which-key
+    shows the available commands after each prefix.
 
 > **Note**
-> If you use Windows you need to change the path (hit C-x C-f, find the config file and in general region replace the path)
+> If you use Windows you need to change the path (use `C-x C-f`, find the config file and in general region replace the path)
 
 2.  Now you can Edit and add more configuration.
 

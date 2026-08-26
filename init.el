@@ -383,7 +383,7 @@
   (doom-modeline-vcs-max-length 25)
   (doom-modeline-persp-name t)
   (doom-modeline-persp-icon t)
-  (doom-modeline-modal nil)
+  (doom-modeline-modal t)
   (doom-modeline-percent-position nil)
   (doom-modeline-buffer-file-name-style 'buffer-name)
   (doom-modeline-project-detection 'project)
@@ -394,16 +394,46 @@
 
 (use-package smerge-mode
   :ensure nil
-  :defer t
-  :bind (:map smerge-mode-map
-              ("C-c s u" . smerge-keep-upper)  ;; Keep the changes from the upper version.
-              ("C-c s l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
-              ("C-c s n" . smerge-next)        ;; Move to the next conflict.
-              ("C-c s p" . smerge-previous)))  ;; Move to the previous conflict.
+  :defer t)
 
 ;;-----------------------------------------------------------------------------
-;; Evil (Avy is often used with evil/meow)
+;; Evil
 ;;-----------------------------------------------------------------------------
+(use-package evil
+  :ensure t
+  :init
+  (defvar evil-mode-buffers nil)
+  (setq evil-want-integration t
+        evil-want-keybinding nil
+        evil-want-C-u-scroll t
+        evil-undo-system 'undo-redo)
+  :config
+  (evil-mode 1)
+  ;; Match the existing windmove commands with Vim-style C-w arrow variants.
+  (evil-define-key 'normal 'global (kbd "C-w <left>") #'windmove-left)
+  (evil-define-key 'normal 'global (kbd "C-w <down>") #'windmove-down)
+  (evil-define-key 'normal 'global (kbd "C-w <up>") #'windmove-up)
+  (evil-define-key 'normal 'global (kbd "C-w <right>") #'windmove-right))
+
+(use-package evil-surround
+  :ensure t
+  :after evil
+  :config
+  (global-evil-surround-mode 1))
+
+(use-package evil-snipe
+  :ensure t
+  :after evil
+  :config
+  ;; Keep Evil's native f/F/t/T motions; Snipe adds two-character s/S motions.
+  (evil-snipe-mode 1))
+
+(use-package evil-collection
+  :ensure t
+  :after evil
+  :config
+  (evil-collection-init))
+
 (use-package avy
   :ensure t
   :defer t)
@@ -417,23 +447,7 @@
   :defer t
   :bind (("C-S-c C-S-c" . mc/edit-lines)
          ("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)))
-
-;;-----------------------------------------------------------------------------
-;; Convenience functions
-;;-----------------------------------------------------------------------------
-(defun my-surround-region-pair (beg end left-char right-char)
-  "Surround the active region (BEG to END) with LEFT-CHAR and RIGHT-CHAR.
-This is a non-interactive helper function."
-  (let ((original-beg beg))
-    (goto-char end)
-    (insert right-char)
-    (goto-char beg)
-    (insert left-char)
-    (deactivate-mark)
-    (goto-char original-beg))
-  )
+         ("C-<" . mc/mark-previous-like-this)))
 
 ;; -----------------------------------------------------------------------------
 ;; Completions
@@ -533,10 +547,7 @@ This is a non-interactive helper function."
 (use-package embark
   :ensure t
   :bind
-  (("C-c E a" . embark-act)
-   ("C-c E d" . embark-dwim)
-   ("C-h B" . embark-bindings))
-  )
+  (("C-h B" . embark-bindings)))
 
 (use-package embark-consult
   :ensure t
@@ -644,8 +655,7 @@ This is a non-interactive helper function."
 
 (use-package lsp-mode
   :init
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c C-c L")
+  (setq lsp-keymap-prefix "C-l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          (rust-ts-mode . lsp-deferred)
          (rust-mode . lsp-deferred)
@@ -722,6 +732,8 @@ This is a non-interactive helper function."
          (after-save . diff-hl-update)
          (vc-dir-mode . diff-hl-dir-mode))
   :config
+  (evil-define-key 'normal diff-hl-mode-map (kbd "[c") #'diff-hl-previous-hunk)
+  (evil-define-key 'normal diff-hl-mode-map (kbd "]c") #'diff-hl-next-hunk)
   (global-diff-hl-mode 1)
   (diff-hl-flydiff-mode 1)
   (diff-hl-margin-mode 1)
@@ -739,145 +751,132 @@ This is a non-interactive helper function."
                                   (ignored . "i"))))
 
 ;;-----------------------------------------------------------------------------
-;; General Keybindings
+;; Leader and global keybindings
 ;;-----------------------------------------------------------------------------
 (use-package general
   :ensure t
   :config
-  (require 'general)
-  (general-def
-    :prefix "C-c"
-    :non-normal-prefix "C-c" 
-    "." '(find-file :which-key "Find")
-    "-" '((lambda () (interactive) (dired default-directory)) :which-key "Dired File")
-    "C-s" '(avy-goto-char :which-key "Avy Char")
-    "C-j" '(avy-goto-line-below :which-key "Avy Line Below")
-    "C-k" '(avy-goto-line-above :which-key "Avy Line Above")
-    "C-<up>" '(avy-goto-line-above :which-key "Avy Line Above")
-    "C-<down>" '(avy-goto-line-below :which-key "Avy Line Below")
-    )
+  (general-create-definer my/leader-def
+    :states '(normal visual)
+    :prefix "SPC")
 
-  ;; Define the "Z" (Hide-Show) submap under the C-c leader
-  (general-def
-    :prefix "C-c z" ; Prefix for hide-show commands
-    "a" '(hs-toggle-hiding :which-key "hs Toggle")
-    "c" '(hs-hide-block :which-key "hs Hide")
-    "o" '(hs-show-block :which-key "hs Show")
-    "R" '(hs-show-all :which-key "hs Show All")
-    "M" '(hs-hide-all :which-key "hs Hide All")
-    )
+  ;; All former C-c bindings live under the Space leader in Evil states.
+  (my/leader-def
+    "." '(find-file :which-key "find file")
+    "-" '((lambda () (interactive) (dired default-directory)) :which-key "dired here")
 
-  ;; Define the "F" (Find) submap under the C-c leader
-  (general-def
-    :prefix "C-c F" ; Prefix for find commands
-    "c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :which-key "Emacs Config")
-    "r" '(consult-recent-file :which-key "Recent File (Consult)")
-    "f" '(consult-fd :which-key "Fd File (Consult)")
-    "t" '(consult-ripgrep :which-key "Rg Text (Consult)")
-    "l" '(consult-line :which-key "Find Line (Consult)")
-    )
+    "a" '(:ignore t :which-key "actions")
+    "a a" '(embark-act :which-key "act")
+    "a d" '(embark-dwim :which-key "DWIM")
 
-  ;; Define the "B" (Buffer Bookmarks) submap under the C-c leader
-  (general-def
-    :prefix "C-c B" ; Prefix for buffer/bookmark commands
-    "b" '(consult-buffer :which-key "Switch Buffer (Consult)")
-    "k" '(kill-this-buffer :which-key "Kill Buffer")
-    "i" '(ibuffer :which-key "IBuffer")
-    "n" '(next-buffer :which-key "Next Buffer")
-    "p" '(previous-buffer :which-key "Previous Buffer")
-    "r" '(revert-buffer :which-key "Revert Buffer")
-    "j" '(consult-bookmark :which-key "Bookmarks (Consult")
-    )
+    "b" '(:ignore t :which-key "buffers")
+    "b b" '(consult-buffer :which-key "switch buffer")
+    "b k" '(kill-this-buffer :which-key "kill buffer")
+    "b i" '(ibuffer :which-key "ibuffer")
+    "b n" '(next-buffer :which-key "next buffer")
+    "b p" '(previous-buffer :which-key "previous buffer")
+    "b r" '(revert-buffer :which-key "revert buffer")
+    "b j" '(consult-bookmark :which-key "bookmarks")
 
-  ;; Define the "G" (Git) submap under the C-c leader
-  (general-def
-    :prefix "C-c G" ; Prefix for git commands
-    "g" '(magit-status :which-key "Magit Status")
-    "l" '(magit-log-current :which-key "Log Current (Magit)")
-    "d" '(magit-diff-buffer-file :which-key "Diff Buffer (Magit)")
-    "p" '(diff-hl-show-hunk :which-key "Show Hunk (diffhl)")
-    "s" '(diff-hl-stage-current-hunk :which-key "Stage Hunk (diffhl)")
-    "r" '(diff-hl-revert-hunk :which-key "Revert Hunk (diffhl)")
-    "]" '(diff-hl-next-hunk :which-key "Next Hunk (diffhl)")
-    "[" '(diff-hl-previous-hunk :which-key "Previous Hunk (diffhl)")
-    )
+    "f" '(:ignore t :which-key "find")
+    "f c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :which-key "Emacs config")
+    "f r" '(consult-recent-file :which-key "recent file")
+    "f f" '(consult-fd :which-key "find file")
+    "f t" '(consult-ripgrep :which-key "find text")
+    "f l" '(consult-line :which-key "find line")
 
-  ;; Define the "G V" (VC) sub-submap under the C-c G prefix
-  (general-def
-    :prefix "C-c G V" ; Prefix for VC commands
-    "d" '(vc-dir :which-key "VC Directory")
-    "b" '(vc-annotate :which-key "VC Annotate")
-    "=" '(vc-diff :which-key "VC Diff Buffer")
-    "D" '(vc-root-diff :which-key "VC CWD Diff")
-    "v" '(vc-next-action :which-key "VC Next Action"))
+    "g" '(:ignore t :which-key "git")
+    "g g" '(magit-status :which-key "status")
+    "g l" '(magit-log-current :which-key "log current")
+    "g d" '(magit-diff-buffer-file :which-key "diff current")
+    "g p" '(diff-hl-show-hunk :which-key "show hunk")
+    "g s" '(diff-hl-stage-current-hunk :which-key "stage hunk")
+    "g r" '(diff-hl-revert-hunk :which-key "revert hunk")
+    "g ]" '(diff-hl-next-hunk :which-key "next hunk")
+    "g [" '(diff-hl-previous-hunk :which-key "previous hunk")
+    "g v" '(:ignore t :which-key "version control")
+    "g v d" '(vc-dir :which-key "directory")
+    "g v b" '(vc-annotate :which-key "annotate")
+    "g v =" '(vc-diff :which-key "diff current")
+    "g v D" '(vc-root-diff :which-key "diff project")
+    "g v v" '(vc-next-action :which-key "next action")
 
-  ;; Define the "t" (Toggle) submap under the C-c leader
-  (general-def
-    :prefix "C-c t" ; Prefix for toggle commands
-    "t" '(visual-line-mode :which-key "Visual Line")
-    "l" '(display-line-numbers-mode :which-key "Line Numbers"))
+    "j" '(:ignore t :which-key "jump")
+    "j c" '(avy-goto-char :which-key "character")
+    "j j" '(avy-goto-line-below :which-key "line below")
+    "j k" '(avy-goto-line-above :which-key "line above")
 
+    "l" '(:ignore t :which-key "LSP")
+    "l k" '(lsp-describe-thing-at-point :which-key "documentation")
+    "l f" '(lsp-format-buffer :which-key "format buffer")
+    "l d" '(lsp-find-definition :which-key "definition")
+    "l r" '(lsp-find-references :which-key "references")
+    "l c" '(lsp-find-declaration :which-key "declaration")
+    "l i" '(lsp-find-implementation :which-key "implementation")
+    "l D" '(:ignore t :which-key "document")
+    "l D s" '(consult-imenu :which-key "document symbols")
+    "l D d" '(consult-flymake :which-key "document diagnostics")
+    "l w" '(:ignore t :which-key "workspace")
+    "l w s" '(consult-lsp-file-symbols :which-key "workspace symbols")
+    "l w d" '(consult-flymake :which-key "workspace diagnostics")
 
-  ;; Define the "l" (LSP) submap under the C-c leader
-  (general-def
-    :prefix "C-c L" ; Prefix for LSP commands
-    "k" '(lsp-describe-thing-at-point :which-key "LSP Documentation")
-    "f" '(lsp-format-buffer :which-key "Format Buffer")
-    "d" '(lsp-find-definition :which-key "LSP Definition")
-    "r" '(lsp-find-references :which-key "LSP References")
-    "c" '(lsp-find-declaration :which-key "LSP Declaration")
-    "i" '(lsp-find-implementation :which-key "LSP Implementation")
-    )
+    "m" '(:ignore t :which-key "multiple cursors")
+    "m a" '(mc/mark-all-like-this :which-key "mark all like this")
 
-  ;; Define the "L D" (Document) sub-submap under the C-c l 
-  (general-def
-    :prefix "C-c L D" ; Prefix for LSP Document commands
-    "s" '(consult-imenu :which-key "Document Symbols")
-    "d" '(consult-flymake :which-key "Document Diagnostics"))
+    "s" '(:ignore t :which-key "merge and surround")
+    "s u" '(smerge-keep-upper :which-key "keep upper")
+    "s l" '(smerge-keep-lower :which-key "keep lower")
+    "s n" '(smerge-next :which-key "next conflict")
+    "s p" '(smerge-previous :which-key "previous conflict")
 
-  ;; Define the "l W" (Workspace) sub-submap under the C-c l prefix
-  (general-def
-    :prefix "C-c L W" ; Prefix for LSP Workspace commands
-    "s" '(consult-lsp-file-symbols :which-key "Workspace Symbols")
-    "d" '((lambda () (interactive) (consult-flymake)) :which-key "Workspace Diagnostics"))
+    "t" '(:ignore t :which-key "toggles")
+    "t t" '(visual-line-mode :which-key "visual line")
+    "t l" '(display-line-numbers-mode :which-key "line numbers")
 
-  ;; Define global windmove bindings
-  (general-def
-    "M-<down>" '(windmove-down :which-key "Window Move Down")
-    "M-<up>" '(windmove-up :which-key "Window Move Up")
-    "M-<left>" '(windmove-left :which-key "Window Move Left")
-    "M-<right>" '(windmove-right :which-key "Window Move Right")
-    "M-C-j" '(windmove-down :which-key "Window Move Down")
-    "M-C-k" '(windmove-up :which-key "Window Move Up")
-    "M-C-h" '(windmove-left :which-key "Window Move Left")
-    "M-C-l" '(windmove-right :which-key "Window Move Right")
-    "C-<next>" '(scroll-up-line :which-key "Scroll Up Line")
-    "C-<prior>" '(scroll-down-line :which-key "Scroll Down Line")
-    "C-M-j" '(scroll-up-line :which-key "Scroll Up Line")
-    "C-M-k" '(scroll-down-line :which-key "Scroll Down Line")
-    "M-S-<right>" '(enlarge-window-horizontally :which-key "Window Width Increase")
-    "M-S-<left>" '(shrink-window-horizontally :which-key "Window Width Decrease")
-    "M-S-<up>" '(enlarge-window :which-key "Window Height Decrease")
-    "M-S-<down>" '(shrink-window :which-key "Window Height Increase")
-    "M-L" '(enlarge-window-horizontally :which-key "Window Width Increase")
-    "M-H" '(shrink-window-horizontally :which-key "Window Width Decrease")
-    "M-J" '(enlarge-window :which-key "Window Height Decrease")
-    "M-K" '(shrink-window :which-key "Window Height Increase")
-    )
+    "w" '(:ignore t :which-key "windows")
+    "w h" '(windmove-left :which-key "move left")
+    "w j" '(windmove-down :which-key "move down")
+    "w k" '(windmove-up :which-key "move up")
+    "w l" '(windmove-right :which-key "move right")
+    "w H" '(shrink-window-horizontally :which-key "shrink width")
+    "w J" '(shrink-window :which-key "shrink height")
+    "w K" '(enlarge-window :which-key "enlarge height")
+    "w L" '(enlarge-window-horizontally :which-key "enlarge width")
+    "w s" '(split-window-below :which-key "split below")
+    "w v" '(split-window-right :which-key "split right")
+    "w d" '(delete-window :which-key "delete window")
+    "w o" '(delete-other-windows :which-key "delete others")
+    "w w" '(other-window :which-key "other window")
+
+    "z" '(:ignore t :which-key "folding")
+    "z a" '(hs-toggle-hiding :which-key "toggle")
+    "z c" '(hs-hide-block :which-key "hide block")
+    "z o" '(hs-show-block :which-key "show block")
+    "z R" '(hs-show-all :which-key "show all")
+    "z M" '(hs-hide-all :which-key "hide all"))
+
+  ;; Magit uses Evil's motion state.  Reuse the normal-state leader map there
+  ;; so the Space commands remain available in Magit and other motion buffers.
+  (evil-define-key 'motion 'global (kbd "SPC")
+    (lookup-key evil-normal-state-map (kbd "SPC")))
 
   (general-def
-    :prefix "C-c"
-    "S ("  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "(" ")"))
-    "S {"  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "{" "}"))
-    "S \"" '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "\"" "\""))
-    "S ["  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "[" "]"))
-    "S <"  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "<" ">"))
-    "S '"  '(lambda (beg end) (interactive "r") (my-surround-region-pair beg end "`" "'")))
+    "C-<next>" '(scroll-up-line :which-key "scroll up line")
+    "C-<prior>" '(scroll-down-line :which-key "scroll down line")
+    "C-M-j" '(scroll-up-line :which-key "scroll up line")
+    "C-M-k" '(scroll-down-line :which-key "scroll down line")
+    "M-S-<right>" '(enlarge-window-horizontally :which-key "window width increase")
+    "M-S-<left>" '(shrink-window-horizontally :which-key "window width decrease")
+    "M-S-<up>" '(enlarge-window :which-key "window height increase")
+    "M-S-<down>" '(shrink-window :which-key "window height decrease")
+    "M-L" '(enlarge-window-horizontally :which-key "window width increase")
+    "M-H" '(shrink-window-horizontally :which-key "window width decrease")
+    "M-J" '(enlarge-window :which-key "window height increase")
+    "M-K" '(shrink-window :which-key "window height decrease"))
 
   (general-def
     :prefix "C-x"
-    "_" '(split-window-below :which-key "Split Below")
-    "|" '(split-window-right :which-key "Split Right")
-    ))
+    "_" '(split-window-below :which-key "split below")
+    "|" '(split-window-right :which-key "split right")))
 
 ;;; init.el ends here
