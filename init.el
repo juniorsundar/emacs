@@ -423,13 +423,6 @@
   :config
   (global-evil-surround-mode 1))
 
-(use-package evil-snipe
-  :ensure t
-  :after evil
-  :config
-  ;; Keep Evil's native f/F/t/T motions; Snipe adds two-character s/S motions.
-  (evil-snipe-mode 1))
-
 (use-package evil-collection
   :ensure t
   :after evil
@@ -674,6 +667,12 @@
   :config
   (setq treesit-auto-add-to-auto-mode-alist 'all)
   (setq global-treesit-auto-mode t))
+
+(use-package treesit-fold
+  :ensure t
+  :after evil
+  :config
+  (global-treesit-fold-mode 1))
 
 (use-package lsp-mode
   :init
