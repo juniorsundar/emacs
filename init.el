@@ -665,8 +665,8 @@
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (setq treesit-auto-add-to-auto-mode-alist 'all)
-  (setq global-treesit-auto-mode t))
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode 1))
 
 (use-package treesit-fold
   :ensure t
