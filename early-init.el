@@ -12,6 +12,10 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(window-divider-mode 1)
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 1
+      window-divider-default-right-width 1)
 (global-hl-line-mode 1)
 (indent-tabs-mode -1)
 (modify-coding-system-alist 'file "" 'utf-8)
@@ -28,7 +32,7 @@
 (setq auto-save-default nil)
 (setq create-lockfiles nil)
 (setq delete-by-moving-to-trash t)
-(setq delete-selection-mode t)
+(delete-selection-mode 1)
 (setq display-line-numbers-type 'relative)
 (setq global-auto-revert-non-file-buffers t)
 (setq history-length 25)
@@ -38,7 +42,7 @@
 (setq ispell-dictionary "en_US")
 (setq make-backup-files nil)
 (setq line-number-mode nil)
-(setq pixel-scroll-precision-mode t)
+(pixel-scroll-precision-mode 1)
 (setq pixel-scroll-precision-use-momentum nil)
 (setq ring-bell-function 'ignore)
 (setq split-width-threshold 300)
@@ -52,15 +56,16 @@
 (setq mouse-wheel-progressive-speed nil)
 (setq scroll-conservatively 10)
 (setq enable-recursive-minibuffers t)
-(setq electric-pair-mode t)
-(setq blink-cursor-mode nil)
-(setq xterm-mouse-mode 1)
-(setq recentf-mode t)
-(setq savehist-mode t)
-(setq save-place-mode t)
-(setq winner-mode t)
-(setq file-name-shadow-mode t)
+(electric-pair-mode 1)
+(blink-cursor-mode -1)
+(recentf-mode 1)
+(savehist-mode 1)
+(save-place-mode 1)
+(winner-mode 1)
+(file-name-shadow-mode 1)
+(repeat-mode 1)
 (setq treesit-font-lock-level 4)
+(setq elisp-fontify-semantically t)
 
 ;; --- Path Setup ---
 ;; Set paths early so Emacs can find 'git' for elpaca
@@ -86,7 +91,5 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
-
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;;; early-init.el ends here

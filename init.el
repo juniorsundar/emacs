@@ -3,7 +3,7 @@
 ;;
 ;; Author: Junior Sundar
 ;; Version: 0.1.0
-;; Package-Requires: ((Emacs "30.0"))
+;; Package-Requires: ((Emacs "31.0"))
 ;;
 ;;; Code:
 
@@ -158,6 +158,7 @@
   :hook (dired-mode . diredfl-mode))
 
 (use-package which-key
+  :ensure nil
   :init
   (which-key-mode 1)
   :diminish
@@ -245,8 +246,21 @@
   :if (display-graphic-p)
   :custom
   (spacious-padding-subtle-frame-lines t)
+  (spacious-padding-widths '( :internal-border-width 15
+                              :header-line-width 4
+                              :mode-line-width 6
+                              :tab-width 4
+                              :right-divider-width 1
+                              :scroll-bar-width 0
+                              :fringe-width 8))
   :config
   (spacious-padding-mode t)
+  (add-hook 'after-init-hook
+            (lambda ()
+              (set-face-foreground 'window-divider "#555555")
+              (set-face-foreground 'window-divider-first-pixel "#555555")
+              (set-face-foreground 'window-divider-last-pixel "#555555"))
+            100)
   )
 ;;-----------------------------------------------------------------------------
 ;; Fonts
@@ -406,6 +420,8 @@
   (setq evil-want-integration t
         evil-want-keybinding nil
         evil-want-C-u-scroll t
+        evil-split-window-below t
+        evil-vsplit-window-right t
         evil-undo-system 'undo-redo)
   :config
   (evil-mode 1)
@@ -576,6 +592,19 @@
                  (seq-union by-dir by-identity))))
   (advice-add #'project-buffers :around #'my/ghostel-project-buffers))
 
+(use-package perspective
+  :ensure t
+  :custom
+  (persp-mode-prefix-key nil)
+  :init
+  (persp-mode)
+  :config
+  (defun my/project-perspective (orig-fun project-root)
+    "Switch to a perspective named after PROJECT-ROOT before opening it."
+    (persp-switch (directory-file-name project-root))
+    (funcall orig-fun project-root))
+  (advice-add 'project-switch-project :around #'my/project-perspective))
+
 ;;-----------------------------------------------------------------------------
 ;; Flymake (built-in diagnostics)
 ;;-----------------------------------------------------------------------------
@@ -679,9 +708,8 @@
   (setq lsp-keymap-prefix "C-l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          (rust-ts-mode . lsp-deferred)
-         (rust-mode . lsp-deferred)
-         (nix-mode . lsp-deferred)
-         (lua-mode . lsp-deferred)
+         (nix-ts-mode . lsp-deferred)
+         (lua-ts-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
 
@@ -878,20 +906,7 @@
     "t t" '(visual-line-mode :which-key "visual line")
     "t l" '(display-line-numbers-mode :which-key "line numbers")
 
-    "w" '(:ignore t :which-key "windows")
-    "w h" '(windmove-left :which-key "move left")
-    "w j" '(windmove-down :which-key "move down")
-    "w k" '(windmove-up :which-key "move up")
-    "w l" '(windmove-right :which-key "move right")
-    "w H" '(shrink-window-horizontally :which-key "shrink width")
-    "w J" '(shrink-window :which-key "shrink height")
-    "w K" '(enlarge-window :which-key "enlarge height")
-    "w L" '(enlarge-window-horizontally :which-key "enlarge width")
-    "w s" '(split-window-below :which-key "split below")
-    "w v" '(split-window-right :which-key "split right")
-    "w d" '(delete-window :which-key "delete window")
-    "w o" '(delete-other-windows :which-key "delete others")
-    "w w" '(other-window :which-key "other window")
+    "W" '(perspective-map :which-key "perspective")
 
     "z" '(:ignore t :which-key "folding")
     "z a" '(hs-toggle-hiding :which-key "toggle")
