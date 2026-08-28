@@ -746,6 +746,21 @@
 ;;-----------------------------------------------------------------------------
 
 
+(use-package markdown-mode
+  :ensure nil
+  :mode ("\\.md\\'" "\\.markdown\\'")
+  :config
+  ;; Heading faces — variable-pitch with descending sizes
+  (set-face-attribute 'markdown-header-face-1 nil :height 1.6)
+  (set-face-attribute 'markdown-header-face-2 nil :height 1.4)
+  (set-face-attribute 'markdown-header-face-3 nil :height 1.25)
+  (set-face-attribute 'markdown-header-face-4 nil :height 1.15)
+  (set-face-attribute 'markdown-header-face-5 nil :height 1.1)
+  (set-face-attribute 'markdown-header-face-6 nil :height 1.05)
+
+  (setq markdown-command "pandoc")
+  )
+
 ;;-----------------------------------------------------------------------------
 ;; Git Integration
 ;;-----------------------------------------------------------------------------

@@ -77,3 +77,4 @@ quelpa
 /.agent-shell/
 flycheck_init.el
 /.pi/
+/.perspective
