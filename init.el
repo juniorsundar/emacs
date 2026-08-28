@@ -431,7 +431,8 @@
   (evil-define-key 'normal 'global (kbd "C-w <up>") #'windmove-up)
   (evil-define-key 'normal 'global (kbd "C-w <right>") #'windmove-right)
   ;; Close only the current emacsclient frame; leave the daemon running.
-  (evil-define-key 'normal 'global (kbd "ZZ") #'delete-frame))
+  (evil-define-key 'normal 'global (kbd "ZZ") #'delete-frame)
+  (evil-define-key 'normal grep-mode-map (kbd "e") #'grep-change-to-grep-edit-mode))
 
 (use-package evil-surround
   :ensure t
@@ -446,10 +447,6 @@
   (evil-collection-init))
 
 (use-package avy
-  :ensure t
-  :defer t)
-
-(use-package wgrep
   :ensure t
   :defer t)
 
@@ -747,18 +744,7 @@
 ;;-----------------------------------------------------------------------------
 ;; Language Modes
 ;;-----------------------------------------------------------------------------
-(font-lock-mode 1)
-(defun my-markdown-faces ()
-  (set-face-attribute 'markdown-ts-heading-1 nil :height 1.8 :family my/font-variable-family)
-  (set-face-attribute 'markdown-ts-heading-2 nil :height 1.6 :family my/font-variable-family)
-  (set-face-attribute 'markdown-ts-heading-3 nil :height 1.4 :family my/font-variable-family)
-  (set-face-attribute 'markdown-ts-heading-4 nil :height 1.2 :family my/font-variable-family)
-  (set-face-attribute 'markdown-ts-heading-5 nil :height 1.1 :family my/font-variable-family)
-  (set-face-attribute 'markdown-code-face nil :height 1.0 :family my/font-fixed-family)
-  (set-face-attribute 'markdown-inline-code-face nil :height 1.0 :family my/font-fixed-family)
-  (set-face-attribute 'markdown-table-face nil :height 1.0 :family my/font-fixed-family)
-  )
-(add-hook 'markdown-ts-mode-hook #'my-markdown-faces)
+
 
 ;;-----------------------------------------------------------------------------
 ;; Git Integration
