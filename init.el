@@ -111,15 +111,25 @@
   ;; (evil-define-key 'normal ibuffer-mode-map "q" #'kill-current-buffer)
   )
 
-(use-package ibuffer-vc
-  :ensure t
-  :config
-  (add-hook 'ibuffer-hook
-	    (lambda ()
-	      (ibuffer-vc-set-filter-groups-by-vc-root)
-	      (unless (eq ibuffer-sorting-mode 'alphabetic)
-		(ibuffer-do-sort-by-alphabetic))))
-  )
+;; Group ibuffer entries by VC root using built-in `vc-root-dir'.
+(defun my/ibuffer-vc-filter-groups ()
+  "Generate ibuffer filter groups keyed by VC root directory."
+  (let ((roots (make-hash-table :test 'equal)))
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (when-let* ((file (or buffer-file-name default-directory))
+                    (root (ignore-errors (vc-root-dir))))
+          (puthash (abbreviate-file-name root) t roots))))
+    (mapcar (lambda (root) (list root `(directory . ,root)))
+            (sort (hash-table-keys roots) #'string<))))
+
+(add-hook 'ibuffer-hook
+          (lambda ()
+            (setq ibuffer-filter-groups
+                  (append (my/ibuffer-vc-filter-groups)
+                          '(("Other" (name . ".*")))))
+            (unless (eq ibuffer-sorting-mode 'alphabetic)
+              (ibuffer-do-sort-by-alphabetic))))
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -243,7 +253,6 @@
 
 (use-package spacious-padding
   :ensure t
-  :if (display-graphic-p)
   :custom
   (spacious-padding-subtle-frame-lines t)
   (spacious-padding-widths '( :internal-border-width 15
@@ -254,13 +263,28 @@
                               :scroll-bar-width 0
                               :fringe-width 8))
   :config
-  (spacious-padding-mode t)
-  (add-hook 'after-init-hook
-            (lambda ()
-              (set-face-foreground 'window-divider "#555555")
-              (set-face-foreground 'window-divider-first-pixel "#555555")
-              (set-face-foreground 'window-divider-last-pixel "#555555"))
-            100)
+  (defun my/fix-window-divider-faces (&rest _)
+    "Make window dividers visible after spacious-padding hides them."
+    (set-face-attribute 'window-divider nil :foreground "#555555" :background "#555555" :inherit nil)
+    (set-face-attribute 'window-divider-first-pixel nil :foreground "#555555" :background "#555555" :inherit nil)
+    (set-face-attribute 'window-divider-last-pixel nil :foreground "#555555" :background "#555555" :inherit nil))
+
+  ;; Override divider faces every time spacious-padding resets them
+  (advice-add 'spacious-padding-set-faces :after #'my/fix-window-divider-faces)
+
+  (defun my/enable-spacious-padding (frame)
+    "Enable spacious-padding-mode when a graphical frame is available."
+    (when (display-graphic-p frame)
+      (spacious-padding-mode 1)
+      (window-divider-mode 1)
+      ;; Only need to do this once
+      (remove-hook 'after-make-frame-functions #'my/enable-spacious-padding)))
+
+  (if (display-graphic-p)
+      ;; Non-daemon: activate immediately
+      (my/enable-spacious-padding (selected-frame))
+    ;; Daemon: activate when first GUI client connects
+    (add-hook 'after-make-frame-functions #'my/enable-spacious-padding))
   )
 ;;-----------------------------------------------------------------------------
 ;; Fonts
@@ -291,19 +315,12 @@
   :type 'integer
   :group 'fonts)
 
-(defun fixed-pitch-mode ()
-  (interactive)
-  (buffer-face-mode -1))
-(defun variable-pitch-mode ()
-  (interactive)
-  (buffer-face-mode t))
 (defun toggle-pitch ()
-  "Switch between the `fixed-pitch' face and the `variable-pitch' face"
+  "Switch between the `fixed-pitch' face and the `variable-pitch' face."
   (interactive)
   (buffer-face-toggle 'variable-pitch))
-(buffer-face-mode)
 
-(add-hook 'eww-mode-hook 'variable-pitch-mode)
+(add-hook 'eww-mode-hook #'variable-pitch-mode)
 
 (defun my/set-font-for-frame (frame)
   "Apply centralized font settings to FRAME."
@@ -313,9 +330,6 @@
       (set-face-attribute 'default nil :family my/font-fixed-family :height my/font-fixed-height)
       (set-face-attribute 'variable-pitch nil :family my/font-variable-family :height my/font-variable-height)
       (copy-face 'default 'fixed-pitch)
-
-      ;; Enable buffer-face-mode for variable-pitch support
-      (buffer-face-mode)
 
       ;; Set up emoji font
       (when (member my/font-emoji-family (font-family-list))
@@ -592,10 +606,14 @@
 (use-package perspective
   :ensure t
   :custom
-  (persp-mode-prefix-key nil)
+  (persp-suppress-no-prefix-key-warning t)
+  (persp-state-default-file (locate-user-emacs-file ".perspective"))
   :init
   (persp-mode)
   :config
+  ;; Auto-save perspectives on exit
+  (add-hook 'kill-emacs-hook #'persp-state-save)
+
   (defun my/project-perspective (orig-fun project-root)
     "Switch to a perspective named after PROJECT-ROOT before opening it."
     (persp-switch (directory-file-name project-root))
@@ -686,13 +704,15 @@
   :ensure t
   :after yasnippet)
 
-(use-package treesit-auto
-  :ensure t
-  :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode 1))
+;;  Emacs 31 built-in: `treesit-major-mode-remap-alist' auto-remaps classic
+;;  modes to their tree-sitter equivalents when the grammar is available.
+;;  `treesit-ensure-installed' + `treesit-auto-install-grammar' replace
+;;  the external `treesit-auto' package.
+(with-eval-after-load 'treesit
+  (setq treesit-auto-install-grammar 'prompt)
+  ;; Activate all built-in major-mode → ts-mode remappings.
+  (dolist (entry treesit-major-mode-remap-alist)
+    (add-to-list 'major-mode-remap-alist entry)))
 
 (use-package treesit-fold
   :ensure t
@@ -820,125 +840,211 @@
 ;;-----------------------------------------------------------------------------
 ;; Leader and global keybindings
 ;;-----------------------------------------------------------------------------
-(use-package general
-  :ensure t
-  :config
-  (general-create-definer my/leader-def
-    :states '(normal visual)
-    :prefix "SPC")
+;; ---- Sub-keymaps ----
+(defvar-keymap my/actions-map :doc "Actions")
+(keymap-set my/actions-map "a" #'embark-act)
+(keymap-set my/actions-map "d" #'embark-dwim)
 
-  ;; All former C-c bindings live under the Space leader in Evil states.
-  (my/leader-def
-    "." '(find-file :which-key "find file")
-    "-" '((lambda () (interactive) (dired default-directory)) :which-key "dired here")
+(defvar-keymap my/pi-tmux-map :doc "Pi tmux")
+(keymap-set my/pi-tmux-map "a" #'pi-tmux-attach)
+(keymap-set my/pi-tmux-map "d" #'pi-tmux-detach)
+(keymap-set my/pi-tmux-map "f" #'pi-tmux-focus)
+(keymap-set my/pi-tmux-map "r" #'pi-tmux-send-region)
+(keymap-set my/pi-tmux-map "c" #'pi-tmux-send-context)
+(keymap-set my/pi-tmux-map "p" #'pi-tmux-send-text)
 
-    "a" '(:ignore t :which-key "actions")
-    "a a" '(embark-act :which-key "act")
-    "a d" '(embark-dwim :which-key "DWIM")
-    "i" '(:ignore t :which-key "Pi tmux")
-    "i a" '(pi-tmux-attach :which-key "attach")
-    "i d" '(pi-tmux-detach :which-key "detach")
-    "i f" '(pi-tmux-focus :which-key "focus")
-    "i r" '(pi-tmux-send-region :which-key "send region")
-    "i c" '(pi-tmux-send-context :which-key "send context")
-    "i p" '(pi-tmux-send-text :which-key "send prompt")
+(defvar-keymap my/buffer-map :doc "Buffers")
+(keymap-set my/buffer-map "b" #'consult-buffer)
+(keymap-set my/buffer-map "k" #'kill-this-buffer)
+(keymap-set my/buffer-map "i" #'ibuffer)
+(keymap-set my/buffer-map "n" #'next-buffer)
+(keymap-set my/buffer-map "p" #'previous-buffer)
+(keymap-set my/buffer-map "r" #'revert-buffer)
+(keymap-set my/buffer-map "j" #'consult-bookmark)
 
-    "p" '(:keymap project-prefix-map :which-key "project")
+(defvar-keymap my/find-map :doc "Find")
+(keymap-set my/find-map "c" (lambda () (interactive) (find-file "~/.config/emacs/init.el")))
+(keymap-set my/find-map "r" #'consult-recent-file)
+(keymap-set my/find-map "f" #'consult-fd)
+(keymap-set my/find-map "t" #'consult-ripgrep)
+(keymap-set my/find-map "l" #'consult-line)
 
-    "b" '(:ignore t :which-key "buffers")
-    "b b" '(consult-buffer :which-key "switch buffer")
-    "b k" '(kill-this-buffer :which-key "kill buffer")
-    "b i" '(ibuffer :which-key "ibuffer")
-    "b n" '(next-buffer :which-key "next buffer")
-    "b p" '(previous-buffer :which-key "previous buffer")
-    "b r" '(revert-buffer :which-key "revert buffer")
-    "b j" '(consult-bookmark :which-key "bookmarks")
+(defvar-keymap my/git-vc-map :doc "Version control")
+(keymap-set my/git-vc-map "d" #'vc-dir)
+(keymap-set my/git-vc-map "b" #'vc-annotate)
+(keymap-set my/git-vc-map "=" #'vc-diff)
+(keymap-set my/git-vc-map "D" #'vc-root-diff)
+(keymap-set my/git-vc-map "v" #'vc-next-action)
 
-    "f" '(:ignore t :which-key "find")
-    "f c" '((lambda () (interactive) (find-file "~/.config/emacs/init.el")) :which-key "Emacs config")
-    "f r" '(consult-recent-file :which-key "recent file")
-    "f f" '(consult-fd :which-key "find file")
-    "f t" '(consult-ripgrep :which-key "find text")
-    "f l" '(consult-line :which-key "find line")
+(defvar-keymap my/git-map :doc "Git")
+(keymap-set my/git-map "g" #'magit-status)
+(keymap-set my/git-map "l" #'magit-log-current)
+(keymap-set my/git-map "d" #'magit-diff-buffer-file)
+(keymap-set my/git-map "p" #'diff-hl-show-hunk)
+(keymap-set my/git-map "s" #'diff-hl-stage-current-hunk)
+(keymap-set my/git-map "r" #'diff-hl-revert-hunk)
+(keymap-set my/git-map "v" my/git-vc-map)
 
-    "g" '(:ignore t :which-key "git")
-    "g g" '(magit-status :which-key "status")
-    "g l" '(magit-log-current :which-key "log current")
-    "g d" '(magit-diff-buffer-file :which-key "diff current")
-    "g p" '(diff-hl-show-hunk :which-key "show hunk")
-    "g s" '(diff-hl-stage-current-hunk :which-key "stage hunk")
-    "g r" '(diff-hl-revert-hunk :which-key "revert hunk")
-    "g v" '(:ignore t :which-key "version control")
-    "g v d" '(vc-dir :which-key "directory")
-    "g v b" '(vc-annotate :which-key "annotate")
-    "g v =" '(vc-diff :which-key "diff current")
-    "g v D" '(vc-root-diff :which-key "diff project")
-    "g v v" '(vc-next-action :which-key "next action")
+(defvar-keymap my/jump-map :doc "Jump")
+(keymap-set my/jump-map "c" #'avy-goto-char)
+(keymap-set my/jump-map "j" #'avy-goto-line-below)
+(keymap-set my/jump-map "k" #'avy-goto-line-above)
 
-    "j" '(:ignore t :which-key "jump")
-    "j c" '(avy-goto-char :which-key "character")
-    "j j" '(avy-goto-line-below :which-key "line below")
-    "j k" '(avy-goto-line-above :which-key "line above")
+(defvar-keymap my/lsp-doc-map :doc "Document")
+(keymap-set my/lsp-doc-map "s" #'consult-imenu)
+(keymap-set my/lsp-doc-map "d" #'consult-flymake)
 
-    "l" '(:ignore t :which-key "LSP")
-    "l k" '(lsp-describe-thing-at-point :which-key "documentation")
-    "l f" '(lsp-format-buffer :which-key "format buffer")
-    "l d" '(lsp-find-definition :which-key "definition")
-    "l r" '(lsp-find-references :which-key "references")
-    "l c" '(lsp-find-declaration :which-key "declaration")
-    "l i" '(lsp-find-implementation :which-key "implementation")
-    "l D" '(:ignore t :which-key "document")
-    "l D s" '(consult-imenu :which-key "document symbols")
-    "l D d" '(consult-flymake :which-key "document diagnostics")
-    "l w" '(:ignore t :which-key "workspace")
-    "l w s" '(consult-lsp-file-symbols :which-key "workspace symbols")
-    "l w d" '(consult-flymake :which-key "workspace diagnostics")
+(defvar-keymap my/lsp-workspace-map :doc "Workspace")
+(keymap-set my/lsp-workspace-map "s" #'consult-lsp-file-symbols)
+(keymap-set my/lsp-workspace-map "d" #'consult-flymake)
 
-    "m" '(:ignore t :which-key "multiple cursors")
-    "m a" '(mc/mark-all-like-this :which-key "mark all like this")
+(defvar-keymap my/lsp-map :doc "LSP")
+(keymap-set my/lsp-map "k" #'lsp-describe-thing-at-point)
+(keymap-set my/lsp-map "f" #'lsp-format-buffer)
+(keymap-set my/lsp-map "d" #'lsp-find-definition)
+(keymap-set my/lsp-map "r" #'lsp-find-references)
+(keymap-set my/lsp-map "c" #'lsp-find-declaration)
+(keymap-set my/lsp-map "i" #'lsp-find-implementation)
+(keymap-set my/lsp-map "D" my/lsp-doc-map)
+(keymap-set my/lsp-map "W" my/lsp-workspace-map)
 
-    "s" '(:ignore t :which-key "merge and surround")
-    "s u" '(smerge-keep-upper :which-key "keep upper")
-    "s l" '(smerge-keep-lower :which-key "keep lower")
-    "s n" '(smerge-next :which-key "next conflict")
-    "s p" '(smerge-previous :which-key "previous conflict")
+(defvar-keymap my/mc-map :doc "Multiple cursors")
+(keymap-set my/mc-map "a" #'mc/mark-all-like-this)
 
-    "t" '(:ignore t :which-key "toggles")
-    "t t" '(visual-line-mode :which-key "visual line")
-    "t l" '(display-line-numbers-mode :which-key "line numbers")
+(defvar-keymap my/smerge-map :doc "Smerge")
+(keymap-set my/smerge-map "u" #'smerge-keep-upper)
+(keymap-set my/smerge-map "l" #'smerge-keep-lower)
+(keymap-set my/smerge-map "n" #'smerge-next)
+(keymap-set my/smerge-map "p" #'smerge-previous)
 
-    "W" '(perspective-map :which-key "perspective")
+(defvar-keymap my/toggle-map :doc "Toggles")
+(keymap-set my/toggle-map "t" #'visual-line-mode)
+(keymap-set my/toggle-map "l" #'display-line-numbers-mode)
 
-    "z" '(:ignore t :which-key "folding")
-    "z a" '(hs-toggle-hiding :which-key "toggle")
-    "z c" '(hs-hide-block :which-key "hide block")
-    "z o" '(hs-show-block :which-key "show block")
-    "z R" '(hs-show-all :which-key "show all")
-    "z M" '(hs-hide-all :which-key "hide all"))
+(defvar-keymap my/fold-map :doc "Folding")
+(keymap-set my/fold-map "a" #'hs-toggle-hiding)
+(keymap-set my/fold-map "c" #'hs-hide-block)
+(keymap-set my/fold-map "o" #'hs-show-block)
+(keymap-set my/fold-map "R" #'hs-show-all)
+(keymap-set my/fold-map "M" #'hs-hide-all)
 
-  ;; Magit uses Evil's motion state.  Reuse the normal-state leader map there
-  ;; so the Space commands remain available in Magit and other motion buffers.
-  (evil-define-key 'motion 'global (kbd "SPC")
-    (lookup-key evil-normal-state-map (kbd "SPC")))
+;; ---- Leader keymap ----
+(defvar-keymap my/leader-map :doc "Leader")
+(keymap-set my/leader-map "." #'find-file)
+(keymap-set my/leader-map "-" (lambda () (interactive) (dired default-directory)))
+(keymap-set my/leader-map "A" my/actions-map)
+(keymap-set my/leader-map "I" my/pi-tmux-map)
+(keymap-set my/leader-map "P" project-prefix-map)
+(keymap-set my/leader-map "B" my/buffer-map)
+(keymap-set my/leader-map "F" my/find-map)
+(keymap-set my/leader-map "G" my/git-map)
+(keymap-set my/leader-map "J" my/jump-map)
+(keymap-set my/leader-map "L" my/lsp-map)
+(keymap-set my/leader-map "m" my/mc-map)
+(keymap-set my/leader-map "S" my/smerge-map)
+(keymap-set my/leader-map "T" my/toggle-map)
+(keymap-set my/leader-map "W" perspective-map)
+(keymap-set my/leader-map "z" my/fold-map)
 
-  (general-def
-    "C-<next>" '(scroll-up-line :which-key "scroll up line")
-    "C-<prior>" '(scroll-down-line :which-key "scroll down line")
-    "C-M-j" '(scroll-up-line :which-key "scroll up line")
-    "C-M-k" '(scroll-down-line :which-key "scroll down line")
-    "M-S-<right>" '(enlarge-window-horizontally :which-key "window width increase")
-    "M-S-<left>" '(shrink-window-horizontally :which-key "window width decrease")
-    "M-S-<up>" '(enlarge-window :which-key "window height increase")
-    "M-S-<down>" '(shrink-window :which-key "window height decrease")
-    "M-L" '(enlarge-window-horizontally :which-key "window width increase")
-    "M-H" '(shrink-window-horizontally :which-key "window width decrease")
-    "M-J" '(enlarge-window :which-key "window height increase")
-    "M-K" '(shrink-window :which-key "window height decrease"))
+;; Bind leader to SPC in Evil normal, visual, and motion states.
+(evil-define-key '(normal visual) 'global (kbd "SPC") my/leader-map)
+(evil-define-key 'motion 'global (kbd "SPC") my/leader-map)
 
-  (general-def
-    :prefix "C-x"
-    "_" '(split-window-below :which-key "split below")
-    "|" '(split-window-right :which-key "split right")))
+;; ---- which-key descriptions ----
+(with-eval-after-load 'which-key
+  (which-key-add-key-based-replacements
+    "SPC ." "find file"
+    "SPC -" "dired here"
+    "SPC A" "actions"
+    "SPC A a" "act"
+    "SPC A d" "DWIM"
+    "SPC I" "Pi tmux"
+    "SPC I a" "attach"
+    "SPC I d" "detach"
+    "SPC I f" "focus"
+    "SPC I r" "send region"
+    "SPC I c" "send context"
+    "SPC I p" "send prompt"
+    "SPC P" "project"
+    "SPC B" "buffers"
+    "SPC B b" "switch buffer"
+    "SPC B k" "kill buffer"
+    "SPC B i" "ibuffer"
+    "SPC B n" "next buffer"
+    "SPC B p" "previous buffer"
+    "SPC B r" "revert buffer"
+    "SPC B j" "bookmarks"
+    "SPC F" "find"
+    "SPC F c" "Emacs config"
+    "SPC F r" "recent file"
+    "SPC F f" "find file"
+    "SPC F t" "find text"
+    "SPC F l" "find line"
+    "SPC G" "git"
+    "SPC G g" "status"
+    "SPC G l" "log current"
+    "SPC G d" "diff current"
+    "SPC G p" "show hunk"
+    "SPC G s" "stage hunk"
+    "SPC G r" "revert hunk"
+    "SPC G v" "version control"
+    "SPC G v d" "directory"
+    "SPC G v b" "annotate"
+    "SPC G v =" "diff current"
+    "SPC G v D" "diff project"
+    "SPC G v v" "next action"
+    "SPC J" "jump"
+    "SPC J c" "character"
+    "SPC J j" "line below"
+    "SPC J k" "line above"
+    "SPC L" "LSP"
+    "SPC L k" "documentation"
+    "SPC L f" "format buffer"
+    "SPC L d" "definition"
+    "SPC L r" "references"
+    "SPC L c" "declaration"
+    "SPC L i" "implementation"
+    "SPC L D" "document"
+    "SPC L D s" "document symbols"
+    "SPC L D d" "document diagnostics"
+    "SPC L W" "workspace"
+    "SPC L W s" "workspace symbols"
+    "SPC L W d" "workspace diagnostics"
+    "SPC m" "multiple cursors"
+    "SPC m a" "mark all like this"
+    "SPC S" "smerge"
+    "SPC S u" "keep upper"
+    "SPC S l" "keep lower"
+    "SPC S n" "next conflict"
+    "SPC S p" "previous conflict"
+    "SPC T" "toggles"
+    "SPC T t" "visual line"
+    "SPC T l" "line numbers"
+    "SPC W" "perspective"
+    "SPC z" "folding"
+    "SPC z a" "toggle"
+    "SPC z c" "hide block"
+    "SPC z o" "show block"
+    "SPC z R" "show all"
+    "SPC z M" "hide all"))
+
+;; ---- Global (non-leader) keybindings ----
+(global-set-key (kbd "C-<next>") #'scroll-up-line)
+(global-set-key (kbd "C-<prior>") #'scroll-down-line)
+(global-set-key (kbd "C-M-j") #'scroll-up-line)
+(global-set-key (kbd "C-M-k") #'scroll-down-line)
+(global-set-key (kbd "M-S-<right>") #'enlarge-window-horizontally)
+(global-set-key (kbd "M-S-<left>") #'shrink-window-horizontally)
+(global-set-key (kbd "M-S-<up>") #'enlarge-window)
+(global-set-key (kbd "M-S-<down>") #'shrink-window)
+(global-set-key (kbd "M-L") #'enlarge-window-horizontally)
+(global-set-key (kbd "M-H") #'shrink-window-horizontally)
+(global-set-key (kbd "M-J") #'enlarge-window)
+(global-set-key (kbd "M-K") #'shrink-window)
+
+;; C-x prefix additions
+(keymap-set ctl-x-map "_" #'split-window-below)
+(keymap-set ctl-x-map "|" #'split-window-right)
 
 (require 'pi-tmux-sessions)
 

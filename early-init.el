@@ -12,9 +12,8 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
-(window-divider-mode 1)
-(setq window-divider-default-places t
-      window-divider-default-bottom-width 1
+(setq window-divider-default-places 'right-only
+      window-divider-default-bottom-width 0
       window-divider-default-right-width 1)
 (global-hl-line-mode 1)
 (indent-tabs-mode -1)
