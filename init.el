@@ -712,9 +712,9 @@
 ;;  the external `treesit-auto' package.
 (with-eval-after-load 'treesit
   (setq treesit-auto-install-grammar 'prompt)
-  ;; Activate all built-in major-mode → ts-mode remappings.
   (dolist (entry treesit-major-mode-remap-alist)
-    (add-to-list 'major-mode-remap-alist entry)))
+    (unless (eq (car entry) 'markdown-mode)
+      (add-to-list 'major-mode-remap-alist entry))))
 
 (use-package treesit-fold
   :ensure t
