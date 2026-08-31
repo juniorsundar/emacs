@@ -605,6 +605,38 @@
                  (seq-union by-dir by-identity))))
   (advice-add #'project-buffers :around #'my/ghostel-project-buffers))
 
+(defun my/ghostel-project-here (&optional arg)
+  "Open the current project's Ghostel terminal in the selected window.
+Like `ghostel-project', but the terminal is always shown in the
+current window and the window is never split: any windows newly
+created by the display step are removed.  ARG follows
+`ghostel''s prefix conventions: a number selects that project
+instance, any other non-nil value creates the next free instance.
+Outside a project, fall back to a plain `ghostel' terminal in the
+current window."
+  (interactive "P")
+  (let* ((orig-win (selected-window))
+         (wins-before (window-list nil 'no-mini))
+         (buf (if (project-current)
+                  (let ((display-buffer-overriding-action
+                         '((display-buffer-same-window))))
+                    (ghostel-project arg))
+                (ghostel arg))))
+    (unless (buffer-live-p buf)
+      (user-error "Ghostel did not return a terminal buffer"))
+    (set-window-buffer orig-win buf)
+    (select-window orig-win)
+    ;; Remove windows freshly created by the display step so the
+    ;; terminal is "stolen" into the current window instead of
+    ;; being shown twice.
+    (dolist (win (seq-difference (window-list nil 'no-mini) wins-before))
+      (when (and (window-live-p win)
+                 (eq (window-buffer win) buf))
+        (delete-window win)))))
+
+(with-eval-after-load 'project
+  (keymap-set project-prefix-map "t" #'my/ghostel-project-here))
+
 (use-package perspective
   :ensure t
   :custom
@@ -777,7 +809,6 @@
   :ensure nil
   :mode ("\\.md\\'" "\\.markdown\\'")
   :config
-  ;; Heading faces — variable-pitch with descending sizes
   (set-face-attribute 'markdown-header-face-1 nil :height 1.6)
   (set-face-attribute 'markdown-header-face-2 nil :height 1.4)
   (set-face-attribute 'markdown-header-face-3 nil :height 1.25)
@@ -948,6 +979,7 @@
 (keymap-set my/leader-map "S" my/smerge-map)
 (keymap-set my/leader-map "T" my/toggle-map)
 (keymap-set my/leader-map "W" perspective-map)
+(keymap-set my/leader-map "t" #'my/ghostel-project-here)
 (keymap-set my/leader-map "z" my/fold-map)
 
 ;; Bind leader to SPC in Evil normal, visual, and motion states.
