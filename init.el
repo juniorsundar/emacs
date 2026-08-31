@@ -569,7 +569,9 @@
 (use-package embark
   :ensure t
   :bind
-  (("C-h B" . embark-bindings)))
+  (("C-h B" . embark-bindings)
+   ("C-c C-a" . embark-act)
+   ("C-c C-d" . embark-dwim)))
 
 (use-package embark-consult
   :ensure t
@@ -720,6 +722,10 @@
   :config
   (global-treesit-fold-mode 1))
 
+(use-package nix-ts-mode
+  :ensure t
+  :mode "\\.nix\\'")
+
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-l")
@@ -735,7 +741,8 @@
   (setq lsp-enable-folding t)
   (setq lsp-semantic-tokens-enable t)
   (setq lsp-enable-imenu t)
-  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-headerline-breadcrumb-enable t)
+  (setq lsp-headerline-breadcrumb-icons-enable t)
   (setq lsp-modeline-code-actions-enable nil)
   (setq lsp-modeline-diagnostics-enable t)
   (setq lsp-modeline-workspace-status-enable t)
@@ -841,9 +848,7 @@
 ;; Leader and global keybindings
 ;;-----------------------------------------------------------------------------
 ;; ---- Sub-keymaps ----
-(defvar-keymap my/actions-map :doc "Actions")
-(keymap-set my/actions-map "a" #'embark-act)
-(keymap-set my/actions-map "d" #'embark-dwim)
+
 
 (defvar-keymap my/pi-tmux-map :doc "Pi tmux")
 (keymap-set my/pi-tmux-map "a" #'pi-tmux-attach)
@@ -932,7 +937,6 @@
 (defvar-keymap my/leader-map :doc "Leader")
 (keymap-set my/leader-map "." #'find-file)
 (keymap-set my/leader-map "-" (lambda () (interactive) (dired default-directory)))
-(keymap-set my/leader-map "A" my/actions-map)
 (keymap-set my/leader-map "I" my/pi-tmux-map)
 (keymap-set my/leader-map "P" project-prefix-map)
 (keymap-set my/leader-map "B" my/buffer-map)
